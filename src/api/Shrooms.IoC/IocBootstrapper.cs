@@ -10,6 +10,7 @@ using Autofac.Integration.SignalR;
 using Autofac.Integration.WebApi;
 using AutoMapper;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json;
 using Owin;
@@ -30,6 +31,7 @@ using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.Infrastructure.Logger;
 using Shrooms.IoC.Modules;
+using TemporaryDataLayer;
 
 namespace Shrooms.IoC
 {
@@ -69,6 +71,38 @@ namespace Shrooms.IoC
 
             builder.Register(c => HttpContext.Current == null ? new ShroomsDbContext(c.Resolve<ITenantNameContainer>().TenantName) : new ShroomsDbContext(getConnectionStringName()))
                 .As<IDbContext>().InstancePerRequest();
+
+            // TODO: figure out and test this if this works fine (need to add identity)
+            // ==========================================================================
+            // Registering temporary DbContext (commenting this out will not copy assembly and migration will fail)
+            builder.Register(contextBuilder =>
+            {
+                const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
+
+                var serviceProvider = contextBuilder.Resolve<IServiceProvider>();
+                var configuration = contextBuilder.Resolve<IConfiguration>();
+
+
+
+                var optionsBuilder = new DbContextOptionsBuilder<TempShroomsDbContext>()
+                    .UseApplicationServiceProvider(serviceProvider)
+                    .UseSqlServer(tempConnString, serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));
+
+                return optionsBuilder.Options;
+            });
+
+            builder.Register(context => context.Resolve<DbContextOptions<TempShroomsDbContext>>())
+                .As<DbContextOptions>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<TempShroomsDbContext>()
+                .AsSelf()
+                .InstancePerLifetimeScope();
+
+            // Trying to see if Identity assembly is missing
+            // TODO: move from startup class
+
+            // ==========================================================================
 
             builder.RegisterType(typeof(EfUnitOfWork)).As(typeof(IUnitOfWork)).InstancePerRequest();
             builder.RegisterGeneric(typeof(EfRepository<>)).As(typeof(IRepository<>));
