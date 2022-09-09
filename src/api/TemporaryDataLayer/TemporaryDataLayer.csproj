@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="EntityConfigurations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
   </ItemGroup>
 
