@@ -62,12 +62,6 @@
 //                .Ignore(x => x.ProjectId)
 //                .Ignore(x => x.WallId);
 
-//            _modelBuilder.Entity<Exam>()
-//                .HasRequired(a => a.Organization)
-//                .WithMany()
-//                .HasForeignKey(a => a.OrganizationId)
-//                .WillCascadeOnDelete(false);
-
 //            _modelBuilder.Entity<QualificationLevel>()
 //                .HasRequired(a => a.Organization)
 //                .WithMany()

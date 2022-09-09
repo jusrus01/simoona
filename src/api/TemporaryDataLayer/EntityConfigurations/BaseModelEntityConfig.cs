@@ -7,7 +7,7 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<BaseModel> builder)
         {
-            builder.HasKey(model => model.Id);
+            //builder.HasKey(model => model.Id);
         }
     }
 }

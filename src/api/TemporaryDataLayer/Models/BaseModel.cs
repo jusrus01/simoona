@@ -28,4 +28,7 @@ namespace TemporaryDataLayer
 // TODO: identity :)
 
 // BaseModel done
+// BaseModelWithOrg done
 // Modules and Organization is done
+// Address done
+// ExternalLink done

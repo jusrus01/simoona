@@ -1,25 +1,32 @@
-﻿//namespace TemporaryDataLayer
-//{
-//    internal class ExternalLinkConfig : EntityTypeConfiguration<ExternalLink>
-//    {
-//        public ExternalLinkConfig()
-//        {
-//            Map(e => e.Requires("IsDeleted").HasValue(false));
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//            Property(x => x.Name).IsRequired();
+namespace TemporaryDataLayer
+{
+    internal class ExternalLinkConfig : IEntityTypeConfiguration<ExternalLink>
+    {
+        public void Configure(EntityTypeBuilder<ExternalLink> builder)
+        {
+            builder.AddSoftDelete();
 
-//            Property(x => x.Url).IsRequired();
+            builder.Property(model => model.Name)
+                .IsRequired();
+            builder.Property(model => model.Url)
+                .IsRequired();
+            builder.Property(model => model.Type)
+                .IsRequired();
 
-//            Property(x => x.Type).IsRequired();
+            builder.Property(model => model.Created)
+                .HasColumnType("datetime2");
 
-//            Property(x => x.Created).HasColumnType("datetime2");
+            builder.Property(model => model.Modified)
+                .HasColumnType("datetime2");
 
-//            Property(x => x.Modified).HasColumnType("datetime2");
-
-//            HasRequired(e => e.Organization)
-//                .WithMany()
-//                .HasForeignKey(e => e.OrganizationId)
-//                .WillCascadeOnDelete(false);
-//        }
-//    }
-//}
+            builder.HasOne(model => model.Organization)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasForeignKey(model => model.OrganizationId)
+                .IsRequired();
+        }
+    }
+}

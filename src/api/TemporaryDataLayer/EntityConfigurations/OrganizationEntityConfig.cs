@@ -8,6 +8,8 @@ namespace TemporaryDataLayer
     {
         public void Configure(EntityTypeBuilder<Organization> builder)
         {
+            builder.HasKey(model => model.Id);
+
             builder.AddSoftDelete();
 
             builder.Ignore(model => model.ShroomsModules);

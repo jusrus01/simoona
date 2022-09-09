@@ -1,6 +1,9 @@
-﻿//namespace TemporaryDataLayer
+﻿//using Microsoft.EntityFrameworkCore;
+//using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+//namespace TemporaryDataLayer
 //{
-//    internal class AbstractClassifierConfiguration : EntityTypeConfiguration<AbstractClassifier>
+//    internal class AbstractClassifierConfiguration : IEntityTypeConfiguration<AbstractClassifier>
 //    {
 //        public AbstractClassifierConfiguration()
 //        {
@@ -20,6 +23,11 @@
 //                .WithMany()
 //                .HasForeignKey(a => a.OrganizationId)
 //                .WillCascadeOnDelete(false);
+//        }
+
+//        public void Configure(EntityTypeBuilder<AbstractClassifier> builder)
+//        {
+//            builder.
 //        }
 //    }
 //}

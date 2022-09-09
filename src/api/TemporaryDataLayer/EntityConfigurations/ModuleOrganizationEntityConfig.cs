@@ -13,11 +13,13 @@ namespace TemporaryDataLayer.EntityConfigurations
 
             builder.HasOne(model => model.Module)
                 .WithMany(model => model.ModuleOrganizations)
-                .HasForeignKey(model => model.Module_Id);
+                .HasForeignKey(model => model.Module_Id)
+                .IsRequired();
 
             builder.HasOne(model => model.Organization)
                 .WithMany(model => model.ModuleOrganizations)
-                .HasForeignKey(model => model.Organization_Id);
+                .HasForeignKey(model => model.Organization_Id)
+                .IsRequired();
         }
     }
 }

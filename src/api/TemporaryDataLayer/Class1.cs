@@ -10,6 +10,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TemporaryDataLayer.EntityConfigurations;
 using TemporaryDataLayer.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Linq;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
@@ -226,8 +228,6 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<TestClass> Tests { get; set; }
 
-
-
         // Tables
         public DbSet<ModuleOrganization> ModuleOrganizations { get; set; }
 
@@ -235,13 +235,20 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Module> Modules { get; set; }
 
+        //public DbSet<ExternalLink> ExternalLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // Could use reflection to use all of the available configs
+
+            //builder.ApplyConfiguration(new BaseModelEntityConfig()); // ADDING BASE CLASS CONFIGURATIONS HAS VERY WEIRD BEHAVIOR
+            //builder.ApplyConfiguration(new BaseModelWithOrgEntityConfig());
+            builder.ApplyConfiguration(new ModuleOrganizationEntityConfig());
             builder.ApplyConfiguration(new OrganizationEntityConfig());
             builder.ApplyConfiguration(new ModuleEntityConfig());
-            builder.ApplyConfiguration(new ModuleOrganizationEntityConfig());
+            builder.ApplyConfiguration(new ExternalLinkConfig());
+
+            // Could use reflection to use all of the available configs
+            //builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
             base.OnModelCreating(builder);
         }
