@@ -23,3 +23,9 @@ namespace TemporaryDataLayer
         }
     }
 }
+
+// TODO: do not forget initialzer code
+// TODO: identity :)
+
+// BaseModel done
+// Modules and Organization is done

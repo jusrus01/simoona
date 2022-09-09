@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TemporaryDataLayer.EntityConfigurations;
+using TemporaryDataLayer.Models;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
@@ -223,6 +225,26 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
         }
 
         public DbSet<TestClass> Tests { get; set; }
+
+
+
+        // Tables
+        public DbSet<ModuleOrganization> ModuleOrganizations { get; set; }
+
+        public DbSet<Organization> Organizations { get; set; }
+
+        public DbSet<Module> Modules { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            // Could use reflection to use all of the available configs
+            builder.ApplyConfiguration(new OrganizationEntityConfig());
+            builder.ApplyConfiguration(new ModuleEntityConfig());
+            builder.ApplyConfiguration(new ModuleOrganizationEntityConfig());
+
+            base.OnModelCreating(builder);
+        }
     }
 
     public class TempShroomsDesignFactory : IDesignTimeDbContextFactory<TempShroomsDbContext>

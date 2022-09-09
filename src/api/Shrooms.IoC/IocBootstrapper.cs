@@ -82,8 +82,6 @@ namespace Shrooms.IoC
                 var serviceProvider = contextBuilder.Resolve<IServiceProvider>();
                 var configuration = contextBuilder.Resolve<IConfiguration>();
 
-
-
                 var optionsBuilder = new DbContextOptionsBuilder<TempShroomsDbContext>()
                     .UseApplicationServiceProvider(serviceProvider)
                     .UseSqlServer(tempConnString, serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));

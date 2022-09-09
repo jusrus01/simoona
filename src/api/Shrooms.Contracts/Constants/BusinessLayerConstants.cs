@@ -72,6 +72,7 @@ namespace Shrooms.Contracts.Constants
         public const int MinOrganizationNameLength = 2;
         public const int MaxOrganizationShortNameLength = 64;
         public const int WelcomeEmailLength = 10000;
+        public const int MaxHostNameLength = 50;
         #endregion
 
         public const int MaxNotificationsToShow = 100;

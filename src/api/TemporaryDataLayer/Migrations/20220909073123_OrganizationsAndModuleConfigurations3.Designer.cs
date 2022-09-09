@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220909073123_OrganizationsAndModuleConfigurations3")]
+    partial class OrganizationsAndModuleConfigurations3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,15 +133,15 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
-                    b.Property<int>("Module_Id");
+                    b.Property<int>("ModuleId");
 
-                    b.Property<int>("Organization_Id");
+                    b.Property<int>("OrganizationId");
 
-                    b.HasKey("Module_Id", "Organization_Id");
+                    b.HasKey("ModuleId", "OrganizationId");
 
-                    b.HasIndex("Organization_Id");
+                    b.HasIndex("OrganizationId");
 
-                    b.ToTable("ModuleOrganizations");
+                    b.ToTable("ModuleOrganization");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Module", b =>
@@ -400,12 +402,12 @@ namespace TemporaryDataLayer.Migrations
                 {
                     b.HasOne("TemporaryDataLayer.Module", "Module")
                         .WithMany("ModuleOrganizations")
-                        .HasForeignKey("Module_Id")
+                        .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany("ModuleOrganizations")
-                        .HasForeignKey("Organization_Id")
+                        .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
