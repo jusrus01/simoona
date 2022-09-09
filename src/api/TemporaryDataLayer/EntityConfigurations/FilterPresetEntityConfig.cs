@@ -1,19 +1,30 @@
-﻿//namespace TemporaryDataLayer
-//{
-//    public class FilterPresetEntityConfig : EntityTypeConfiguration<FilterPreset>
-//    {
-//        public FilterPresetEntityConfig()
-//        {
-//            Map(filter => filter.Requires("IsDeleted").HasValue(false));
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//            Property(filter => filter.Preset)
-//                .IsRequired();
+namespace TemporaryDataLayer
+{
+    public class FilterPresetEntityConfig : IEntityTypeConfiguration<FilterPreset>
+    {
+        public void Configure(EntityTypeBuilder<FilterPreset> builder)
+        {
+            builder.AddSoftDelete();
 
-//            Property(filter => filter.Name)
-//                .IsRequired();
+            builder.HasKey(model => model.Id);
 
-//            Property(filter => filter.ForPage)
-//                .IsRequired();
-//        }
-//    }
-//}
+            builder.HasOne(model => model.Organization)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasForeignKey(model => model.OrganizationId)
+                .IsRequired();
+
+            builder.Property(model => model.Preset)
+                .IsRequired();
+
+            builder.Property(filter => filter.Name)
+                .IsRequired();
+
+            builder.Property(filter => filter.ForPage)
+                .IsRequired();
+        }
+    }
+}

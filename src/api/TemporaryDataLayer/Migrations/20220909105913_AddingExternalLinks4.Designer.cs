@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220909105913_AddingExternalLinks4")]
+    partial class AddingExternalLinks4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,43 +168,6 @@ namespace TemporaryDataLayer.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("ExternalLink");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.FilterPreset", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<int>("ForPage");
-
-                    b.Property<bool>("IsDefault");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<string>("Preset")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("filterPresets");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
@@ -473,14 +438,6 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.FilterPreset", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()

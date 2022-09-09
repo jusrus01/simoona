@@ -235,6 +235,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Module> Modules { get; set; }
 
+        public DbSet<FilterPreset> FilterPresets { get; set; }
+
         //public DbSet<ExternalLink> ExternalLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -242,13 +244,13 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
             //builder.ApplyConfiguration(new BaseModelEntityConfig()); // ADDING BASE CLASS CONFIGURATIONS HAS VERY WEIRD BEHAVIOR
             //builder.ApplyConfiguration(new BaseModelWithOrgEntityConfig());
-            builder.ApplyConfiguration(new ModuleOrganizationEntityConfig());
-            builder.ApplyConfiguration(new OrganizationEntityConfig());
-            builder.ApplyConfiguration(new ModuleEntityConfig());
-            builder.ApplyConfiguration(new ExternalLinkConfig());
+            //builder.ApplyConfiguration(new ModuleOrganizationEntityConfig());
+            //builder.ApplyConfiguration(new OrganizationEntityConfig());
+            //builder.ApplyConfiguration(new ModuleEntityConfig());
+            //builder.ApplyConfiguration(new ExternalLinkConfig());
 
             // Could use reflection to use all of the available configs
-            //builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+            builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
             base.OnModelCreating(builder);
         }
