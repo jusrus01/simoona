@@ -73,6 +73,7 @@ namespace Shrooms.IoC
                 .As<IDbContext>().InstancePerRequest();
 
             // TODO: figure out and test this if this works fine (need to add identity)
+            // Useful link: https://autofac.readthedocs.io/en/v4.0.0/integration/aspnetcore.html
             // ==========================================================================
             // Registering temporary DbContext (commenting this out will not copy assembly and migration will fail)
             builder.Register(contextBuilder =>

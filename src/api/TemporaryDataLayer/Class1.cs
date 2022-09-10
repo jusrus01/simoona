@@ -237,7 +237,7 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<FilterPreset> FilterPresets { get; set; }
 
-        //public DbSet<ExternalLink> ExternalLinks { get; set; }
+        public DbSet<ExternalLink> ExternalLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -261,6 +261,7 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
         public TempShroomsDbContext CreateDbContext(string[] args)
         {
             const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
+
             var builder = new DbContextOptionsBuilder<TempShroomsDbContext>();
 
             builder.UseSqlServer(tempConnString);
