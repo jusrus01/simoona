@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class AddedIdentity : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -19,7 +19,74 @@ namespace TemporaryDataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                    table.PrimaryKey("PK_dbo.Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Modules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Modules", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Organizations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(maxLength: 300, nullable: false),
+                    ShortName = table.Column<string>(maxLength: 64, nullable: false),
+                    HostName = table.Column<string>(maxLength: 50, nullable: true),
+                    HasRestrictedAccess = table.Column<bool>(nullable: false),
+                    WelcomeEmail = table.Column<string>(maxLength: 10000, nullable: false),
+                    RequiresUserConfirmation = table.Column<bool>(nullable: false),
+                    CalendarId = table.Column<string>(nullable: true),
+                    TimeZone = table.Column<string>(nullable: true),
+                    CultureCode = table.Column<string>(nullable: true),
+                    BookAppAuthorizationGuid = table.Column<string>(nullable: true),
+                    AuthenticationProviders = table.Column<string>(nullable: true),
+                    KudosYearlyMultipliers = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Organizations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    RoleId = table.Column<string>(nullable: false),
+                    ClaimType = table.Column<string>(nullable: true),
+                    ClaimValue = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.RoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -27,7 +94,7 @@ namespace TemporaryDataLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
+                    UserName = table.Column<string>(maxLength: 256, nullable: false),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
@@ -46,7 +113,6 @@ namespace TemporaryDataLayer.Migrations
                     Bio = table.Column<string>(nullable: true),
                     EmploymentDate = table.Column<DateTime>(nullable: true),
                     BirthDay = table.Column<DateTime>(nullable: true),
-                    WorkingHoursId = table.Column<int>(nullable: true),
                     IsAbsent = table.Column<bool>(nullable: false),
                     IsAnonymized = table.Column<bool>(nullable: false),
                     AbsentComment = table.Column<string>(nullable: true),
@@ -54,9 +120,7 @@ namespace TemporaryDataLayer.Migrations
                     RemainingKudos = table.Column<decimal>(nullable: false),
                     SittingPlacesChanged = table.Column<int>(nullable: false),
                     SpentKudos = table.Column<decimal>(nullable: false),
-                    RoomId = table.Column<int>(nullable: true),
                     PictureId = table.Column<string>(nullable: true),
-                    QualificationLevelId = table.Column<int>(nullable: true),
                     ManagerId = table.Column<string>(nullable: true),
                     OrganizationId = table.Column<int>(nullable: false),
                     IsOwner = table.Column<bool>(nullable: false),
@@ -71,34 +135,99 @@ namespace TemporaryDataLayer.Migrations
                     DailyMailingHour = table.Column<TimeSpan>(nullable: true),
                     IsManagingDirector = table.Column<bool>(nullable: false),
                     CultureCode = table.Column<string>(nullable: true),
-                    JobPositionId = table.Column<int>(nullable: true),
                     TimeZone = table.Column<string>(nullable: true),
                     IsTutorialComplete = table.Column<bool>(nullable: false),
                     GoogleEmail = table.Column<string>(nullable: true),
-                    FacebookEmail = table.Column<string>(nullable: true)
+                    FacebookEmail = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_dbo.ApplicationUser", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
+                name: "ExternalLinks",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    RoleId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Url = table.Column<string>(nullable: false),
+                    Type = table.Column<int>(nullable: false),
+                    Priority = table.Column<int>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.PrimaryKey("PK_dbo.ExternalLinks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        name: "FK_dbo.ExternalLinks_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FilterPresets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    IsDefault = table.Column<bool>(nullable: false),
+                    ForPage = table.Column<int>(nullable: false),
+                    Preset = table.Column<string>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.FilterPresets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.FilterPresets_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ModuleOrganizations",
+                columns: table => new
+                {
+                    Module_Id = table.Column<int>(nullable: false),
+                    Organization_Id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ModuleOrganizations", x => new { x.Module_Id, x.Organization_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id",
+                        column: x => x.Module_Id,
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id",
+                        column: x => x.Organization_Id,
+                        principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -115,7 +244,7 @@ namespace TemporaryDataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.PrimaryKey("PK_dbo.UserClaims", x => x.Id);
                     table.ForeignKey(
                         name: "FK_AspNetUserClaims_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -216,6 +345,13 @@ namespace TemporaryDataLayer.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Email",
+                table: "AspNetUsers",
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
@@ -226,6 +362,28 @@ namespace TemporaryDataLayer.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "AspNetUsers",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExternalLinks_OrganizationId",
+                table: "ExternalLinks",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "FilterPresets",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ModuleOrganizations_Organization_Id",
+                table: "ModuleOrganizations",
+                column: "Organization_Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -246,10 +404,25 @@ namespace TemporaryDataLayer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ExternalLinks");
+
+            migrationBuilder.DropTable(
+                name: "FilterPresets");
+
+            migrationBuilder.DropTable(
+                name: "ModuleOrganizations");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Modules");
+
+            migrationBuilder.DropTable(
+                name: "Organizations");
         }
     }
 }

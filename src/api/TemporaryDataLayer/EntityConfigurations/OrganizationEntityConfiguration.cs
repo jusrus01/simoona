@@ -4,7 +4,7 @@ using Shrooms.Contracts.Constants;
 
 namespace TemporaryDataLayer
 {
-    public class OrganizationEntityConfig : IEntityTypeConfiguration<Organization>
+    public class OrganizationEntityConfiguration : IEntityTypeConfiguration<Organization>
     {
         public void Configure(EntityTypeBuilder<Organization> builder)
         {

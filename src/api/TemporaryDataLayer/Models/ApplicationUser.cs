@@ -24,7 +24,6 @@ namespace TemporaryDataLayer
 
         public string LastName { get; set; }
 
-        [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
 
         public string Bio { get; set; }
@@ -33,9 +32,9 @@ namespace TemporaryDataLayer
 
         public DateTime? BirthDay { get; set; }
 
-        public int? WorkingHoursId { get; set; }
+        //public int? WorkingHoursId { get; set; }
 
-        public virtual WorkingHours WorkingHours { get; set; }
+        //public virtual WorkingHours WorkingHours { get; set; }
 
         public bool IsAbsent { get; set; }
 
@@ -51,32 +50,32 @@ namespace TemporaryDataLayer
 
         public decimal SpentKudos { get; set; }
 
-        [ForeignKey(nameof(Room))]
-        public int? RoomId { get; set; }
+        //[ForeignKey(nameof(Room))]
+        //public int? RoomId { get; set; }
 
-        public virtual Room Room { get; set; }
+        //public virtual Room Room { get; set; }
 
         public string PictureId { get; set; }
 
-        [ForeignKey(nameof(QualificationLevel))]
-        public int? QualificationLevelId { get; set; }
+        //[ForeignKey(nameof(QualificationLevel))]
+        //public int? QualificationLevelId { get; set; }
 
-        public virtual QualificationLevel QualificationLevel { get; set; }
+        //public virtual QualificationLevel QualificationLevel { get; set; }
 
         public string ManagerId { get; set; }
 
-        [ForeignKey(nameof(ManagerId))]
-        public virtual ApplicationUser Manager { get; set; }
+        //[ForeignKey(nameof(ManagerId))]
+        //public virtual ApplicationUser Manager { get; set; }
 
-        public virtual ICollection<ApplicationUser> ManagedUsers { get; set; }
+        //public virtual ICollection<ApplicationUser> ManagedUsers { get; set; }
 
-        public virtual ICollection<Committee> Committees { get; set; }
+        //public virtual ICollection<Committee> Committees { get; set; }
 
-        [InverseProperty(nameof(Committee.Leads))]
-        public virtual ICollection<Committee> LeadingCommittees { get; set; }
+        //[InverseProperty(nameof(Committee.Leads))]
+        //public virtual ICollection<Committee> LeadingCommittees { get; set; }
 
-        [InverseProperty(nameof(Committee.Delegates))]
-        public virtual ICollection<Committee> DelegatingCommittees { get; set; }
+        //[InverseProperty(nameof(Committee.Delegates))]
+        //public virtual ICollection<Committee> DelegatingCommittees { get; set; }
 
         public int OrganizationId { get; set; }
 
@@ -92,23 +91,23 @@ namespace TemporaryDataLayer
 
         public string ModifiedBy { get; set; }
 
-        public virtual ICollection<Exam> Exams { get; set; }
+        //public virtual ICollection<Exam> Exams { get; set; }
 
-        public virtual ICollection<Certificate> Certificates { get; set; }
+        //public virtual ICollection<Certificate> Certificates { get; set; }
 
-        public virtual ICollection<Skill> Skills { get; set; }
+        //public virtual ICollection<Skill> Skills { get; set; }
 
-        public virtual ICollection<Book> Books { get; set; }
+        //public virtual ICollection<Book> Books { get; set; }
 
-        public virtual ICollection<BookLog> BookLogs { get; set; }
+        //public virtual ICollection<BookLog> BookLogs { get; set; }
 
-        public virtual ICollection<BadgeLog> BadgeLogs { get; set; }
+        //public virtual ICollection<BadgeLog> BadgeLogs { get; set; }
 
-        public virtual ICollection<Event> Events { get; set; }
+        //public virtual ICollection<Event> Events { get; set; }
 
-        public virtual ICollection<WallMember> WallUsers { get; set; }
+        //public virtual ICollection<WallMember> WallUsers { get; set; }
 
-        public virtual ICollection<ServiceRequestCategory> ServiceRequestCategoriesAssigned { get; set; }
+        //public virtual ICollection<ServiceRequestCategory> ServiceRequestCategoriesAssigned { get; set; }
 
         public double? VacationTotalTime { get; set; }
 
@@ -124,34 +123,34 @@ namespace TemporaryDataLayer
 
         public string CultureCode { get; set; }
 
-        public virtual ICollection<Project> Projects { get; set; }
+        //public virtual ICollection<Project> Projects { get; set; }
 
-        public virtual ICollection<Project> OwnedProjects { get; set; }
+        //public virtual ICollection<Project> OwnedProjects { get; set; }
 
-        public int? JobPositionId { get; set; }
+        //public int? JobPositionId { get; set; }
 
-        [ForeignKey(nameof(JobPositionId))]
-        public virtual JobPosition JobPosition { get; set; }
+        //[ForeignKey(nameof(JobPositionId))]
+        //public virtual JobPosition JobPosition { get; set; }
 
-        [InverseProperty(nameof(BlacklistUser.User))]
-        public virtual ICollection<BlacklistUser> BlacklistEntries { get; set; }
+        //[InverseProperty(nameof(BlacklistUser.User))]
+        //public virtual ICollection<BlacklistUser> BlacklistEntries { get; set; }
 
-        [NotMapped]
-        public bool UserWasPreviouslyBlacklisted
-        {
-            get
-            {
-                return BlacklistEntries != null && BlacklistEntries.Any(entry => entry.Status != BlacklistStatus.Active);
-            }
-        }
+        //[NotMapped]
+        //public bool UserWasPreviouslyBlacklisted
+        //{
+        //    get
+        //    {
+        //        return BlacklistEntries != null && BlacklistEntries.Any(entry => entry.Status != BlacklistStatus.Active);
+        //    }
+        //}
 
         public string TimeZone { get; set; }
 
-        public virtual ICollection<NotificationUser> NotificationUsers { get; set; }
+        //public virtual ICollection<NotificationUser> NotificationUsers { get; set; }
 
         public bool IsTutorialComplete { get; set; }
 
-        public virtual NotificationsSettings NotificationsSettings { get; set; }
+        //public virtual NotificationsSettings NotificationsSettings { get; set; }
 
         public string GoogleEmail { get; set; }
 

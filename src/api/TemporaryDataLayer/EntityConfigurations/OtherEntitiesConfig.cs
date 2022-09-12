@@ -27,8 +27,6 @@
 //                .Map(e => e.Requires("IsDeleted").HasValue(false));
 //            _modelBuilder.Entity<Post>()
 //                .Map(e => e.Requires("IsDeleted").HasValue(false));
-//            _modelBuilder.Entity<WorkingHours>()
-//                .Map(e => e.Requires("IsDeleted").HasValue(false));
 //            _modelBuilder.Entity<Exam>()
 //                .Map(e => e.Requires("IsDeleted").HasValue(false));
 //            _modelBuilder.Entity<ServiceRequest>()
@@ -81,12 +79,6 @@
 //                .WillCascadeOnDelete(false);
 
 //            _modelBuilder.Entity<RoomType>()
-//                .HasRequired(a => a.Organization)
-//                .WithMany()
-//                .HasForeignKey(a => a.OrganizationId)
-//                .WillCascadeOnDelete(false);
-
-//            _modelBuilder.Entity<WorkingHours>()
 //                .HasRequired(a => a.Organization)
 //                .WithMany()
 //                .HasForeignKey(a => a.OrganizationId)

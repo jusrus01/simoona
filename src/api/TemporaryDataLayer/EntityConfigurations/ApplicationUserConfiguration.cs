@@ -1,102 +1,107 @@
-﻿//namespace TemporaryDataLayer
-//{
-//    internal class ApplicationUserConfiguration : EntityTypeConfiguration<ApplicationUser>
-//    {
-//        public ApplicationUserConfiguration()
-//        {
-//            Map(e => e.Requires("IsDeleted").HasValue(value: false))
-//                .ToTable("AspNetUsers");
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//            Property(u => u.BirthDay)
-//                .IsOptional();
+namespace TemporaryDataLayer
+{
+    internal class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
+    {
+        //public ApplicationUserConfiguration()
+        //{
+        //    HasMany(u => u.Exams)
+        //        .WithMany(e => e.ApplicationUsers)
+        //        .Map(t => t.MapLeftKey("ApplicationUserId")
+        //                .MapRightKey("ExamId")
+        //                .ToTable("ApplicationUserExams"));
 
-//            Property(u => u.IsAnonymized)
-//                .IsRequired();
+        //    HasMany(u => u.Skills)
+        //        .WithMany(s => s.ApplicationUsers)
+        //        .Map(t => t.MapLeftKey("ApplicationUserId")
+        //            .MapRightKey("SkillId")
+        //            .ToTable("ApplicationUserSkills"));
 
-//            HasMany(u => u.Exams)
-//                .WithMany(e => e.ApplicationUsers)
-//                .Map(t => t.MapLeftKey("ApplicationUserId")
-//                        .MapRightKey("ExamId")
-//                        .ToTable("ApplicationUserExams"));
+        //    HasMany(u => u.ManagedUsers)
+        //        .WithOptional()
+        //        .HasForeignKey(u => u.ManagerId);
 
-//            HasMany(u => u.Skills)
-//                .WithMany(s => s.ApplicationUsers)
-//                .Map(t => t.MapLeftKey("ApplicationUserId")
-//                    .MapRightKey("SkillId")
-//                    .ToTable("ApplicationUserSkills"));
+        //    HasMany(u => u.Roles)
+        //        .WithRequired()
+        //        .HasForeignKey(ur => ur.UserId);
 
-//            HasMany(u => u.ManagedUsers)
-//                .WithOptional()
-//                .HasForeignKey(u => u.ManagerId);
+        //    HasMany(u => u.Claims)
+        //        .WithRequired()
+        //        .HasForeignKey(uc => uc.UserId);
 
-//            HasMany(u => u.Roles)
-//                .WithRequired()
-//                .HasForeignKey(ur => ur.UserId);
+        //    HasMany(u => u.Logins)
+        //        .WithRequired()
+        //        .HasForeignKey(ul => ul.UserId);
 
-//            HasMany(u => u.Claims)
-//                .WithRequired()
-//                .HasForeignKey(uc => uc.UserId);
+        //    HasOptional(u => u.WorkingHours)
+        //        .WithRequired(w => w.ApplicationUser)
+        //        .Map(m => m.MapKey("ApplicationUserId"));
 
-//            HasMany(u => u.Logins)
-//                .WithRequired()
-//                .HasForeignKey(ul => ul.UserId);
+        //    HasMany(e => e.Events)
+        //        .WithRequired()
+        //        .HasForeignKey(e => e.ResponsibleUserId)
+        //        .WillCascadeOnDelete(value: false);
 
-//            Property(u => u.UserName)
-//                .IsRequired()
-//                .HasMaxLength(value: 256);
+        //    HasRequired(u => u.Organization)
+        //        .WithMany()
+        //        .HasForeignKey(u => u.OrganizationId)
+        //        .WillCascadeOnDelete(value: false);
 
-//            Property(u => u.Email)
-//                .HasMaxLength(value: 256)
-//                .HasColumnAnnotation(
-//                    name: IndexAnnotation.AnnotationName,
-//                    value: new IndexAnnotation(
-//                        indexAttribute: new IndexAttribute("Email") { IsUnique = true }));
+        //    HasMany(u => u.OwnedProjects)
+        //        .WithRequired()
+        //        .HasForeignKey(p => p.OwnerId)
+        //        .WillCascadeOnDelete(value: false);
 
-//            HasOptional(u => u.WorkingHours)
-//                .WithRequired(w => w.ApplicationUser)
-//                .Map(m => m.MapKey("ApplicationUserId"));
+        //    HasMany(u => u.Committees)
+        //        .WithMany(c => c.Members)
+        //        .Map(x =>
+        //        {
+        //            x.ToTable("CommitteesUsersMembership");
+        //        });
 
-//            Property(u => u.IsManagingDirector)
-//                .IsRequired();
+        //    HasMany(u => u.DelegatingCommittees)
+        //        .WithMany(c => c.Delegates)
+        //        .Map(x =>
+        //        {
+        //            x.ToTable("CommitteesUsersDelegates");
+        //        });
 
-//            HasMany(e => e.Events)
-//                .WithRequired()
-//                .HasForeignKey(e => e.ResponsibleUserId)
-//                .WillCascadeOnDelete(value: false);
+        //    HasMany(u => u.LeadingCommittees)
+        //        .WithMany(c => c.Leads)
+        //        .Map(x =>
+        //        {
+        //            x.ToTable("CommitteesUsersLeadership");
+        //        });
 
-//            HasRequired(u => u.Organization)
-//                .WithMany()
-//                .HasForeignKey(u => u.OrganizationId)
-//                .WillCascadeOnDelete(value: false);
+        //    HasOptional(u => u.NotificationsSettings)
+        //        .WithOptionalPrincipal(s => s.ApplicationUser);
+        //}
 
-//            HasMany(u => u.OwnedProjects)
-//                .WithRequired()
-//                .HasForeignKey(p => p.OwnerId)
-//                .WillCascadeOnDelete(value: false);
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
+        {
+            builder.AddSoftDelete();
+            builder.MapRequiredOrganization();
 
-//            HasMany(u => u.Committees)
-//                .WithMany(c => c.Members)
-//                .Map(x =>
-//                {
-//                    x.ToTable("CommitteesUsersMembership");
-//                });
+            builder.Ignore(model => model.FullName);
+            builder.Ignore(model => model.YearsEmployed);
 
-//            HasMany(u => u.DelegatingCommittees)
-//                .WithMany(c => c.Delegates)
-//                .Map(x =>
-//                {
-//                    x.ToTable("CommitteesUsersDelegates");
-//                });
+            builder.Property(model => model.IsAnonymized)
+                .IsRequired();
 
-//            HasMany(u => u.LeadingCommittees)
-//                .WithMany(c => c.Leads)
-//                .Map(x =>
-//                {
-//                    x.ToTable("CommitteesUsersLeadership");
-//                });
+            builder.Property(model => model.UserName)
+                .HasMaxLength(256)
+                .IsRequired();
 
-//            HasOptional(u => u.NotificationsSettings)
-//                .WithOptionalPrincipal(s => s.ApplicationUser);
-//        }
-//    }
-//}
+            builder.HasIndex(model => model.Email)
+                .IsUnique();
+
+            builder.Property(model => model.Email)
+                .HasMaxLength(256);
+
+            builder.Property(model => model.IsManagingDirector)
+                .IsRequired();
+        }
+    }
+}

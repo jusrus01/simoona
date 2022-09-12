@@ -33,7 +33,8 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256);
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Roles");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
@@ -56,7 +57,8 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("RoleId")
                         .IsRequired();
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.RoleClaims");
 
                     b.HasIndex("RoleId");
 
@@ -76,7 +78,8 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("UserId")
                         .IsRequired();
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.UserClaims");
 
                     b.HasIndex("UserId");
 
@@ -129,171 +132,7 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<int>("Priority");
-
-                    b.Property<int>("Type");
-
-                    b.Property<string>("Url")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("ExternalLinks");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.FilterPreset", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<int>("ForPage");
-
-                    b.Property<bool>("IsDefault");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name")
-                        .IsRequired();
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<string>("Preset")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.ToTable("FilterPresets");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
-                {
-                    b.Property<int>("Module_Id");
-
-                    b.Property<int>("Organization_Id");
-
-                    b.HasKey("Module_Id", "Organization_Id");
-
-                    b.HasIndex("Organization_Id");
-
-                    b.ToTable("ModuleOrganizations");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Module", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime>("Modified");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Modules");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Organization", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthenticationProviders");
-
-                    b.Property<string>("BookAppAuthorizationGuid");
-
-                    b.Property<string>("CalendarId");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<string>("CultureCode");
-
-                    b.Property<bool>("HasRestrictedAccess");
-
-                    b.Property<string>("HostName")
-                        .HasMaxLength(50);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("KudosYearlyMultipliers");
-
-                    b.Property<DateTime>("Modified");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(300);
-
-                    b.Property<bool>("RequiresUserConfirmation");
-
-                    b.Property<string>("ShortName")
-                        .IsRequired()
-                        .HasMaxLength(64);
-
-                    b.Property<string>("TimeZone");
-
-                    b.Property<string>("WelcomeEmail")
-                        .IsRequired()
-                        .HasMaxLength(10000);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Organizations");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.TempApplicationUser", b =>
+            modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -334,13 +173,13 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsAnonymized");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.Property<bool>("IsManagingDirector");
 
                     b.Property<bool>("IsOwner");
 
                     b.Property<bool>("IsTutorialComplete");
-
-                    b.Property<int?>("JobPositionId");
 
                     b.Property<string>("LastName");
 
@@ -370,11 +209,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("PictureId");
 
-                    b.Property<int?>("QualificationLevelId");
-
                     b.Property<decimal>("RemainingKudos");
-
-                    b.Property<int?>("RoomId");
 
                     b.Property<string>("SecurityStamp");
 
@@ -389,6 +224,7 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<bool>("TwoFactorEnabled");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasMaxLength(256);
 
                     b.Property<DateTime?>("VacationLastTimeUpdated");
@@ -399,9 +235,12 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<double?>("VacationUsedTime");
 
-                    b.Property<int?>("WorkingHoursId");
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.ApplicationUser");
 
-                    b.HasKey("Id");
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -411,20 +250,178 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.TestClass", b =>
+            modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Value");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<string>("CreatedBy");
 
-                    b.ToTable("Tests");
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<int>("Priority");
+
+                    b.Property<int>("Type");
+
+                    b.Property<string>("Url")
+                        .IsRequired();
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.ExternalLinks");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("ExternalLinks");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.FilterPreset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<int>("ForPage");
+
+                    b.Property<bool>("IsDefault");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<string>("Preset")
+                        .IsRequired();
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.FilterPresets");
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("FilterPresets");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
+                {
+                    b.Property<int>("Module_Id");
+
+                    b.Property<int>("Organization_Id");
+
+                    b.HasKey("Module_Id", "Organization_Id")
+                        .HasName("PK_dbo.ModuleOrganizations");
+
+                    b.HasIndex("Organization_Id");
+
+                    b.ToTable("ModuleOrganizations");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Module", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime>("Modified");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Modules");
+
+                    b.ToTable("Modules");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Organization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AuthenticationProviders");
+
+                    b.Property<string>("BookAppAuthorizationGuid");
+
+                    b.Property<string>("CalendarId");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<string>("CultureCode");
+
+                    b.Property<bool>("HasRestrictedAccess");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(50);
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("KudosYearlyMultipliers");
+
+                    b.Property<DateTime>("Modified");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300);
+
+                    b.Property<bool>("RequiresUserConfirmation");
+
+                    b.Property<string>("ShortName")
+                        .IsRequired()
+                        .HasMaxLength(64);
+
+                    b.Property<string>("TimeZone");
+
+                    b.Property<string>("WelcomeEmail")
+                        .IsRequired()
+                        .HasMaxLength(10000);
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Organizations");
+
+                    b.ToTable("Organizations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -437,7 +434,7 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TemporaryDataLayer.TempApplicationUser")
+                    b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -445,7 +442,7 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TemporaryDataLayer.TempApplicationUser")
+                    b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -458,7 +455,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("TemporaryDataLayer.TempApplicationUser")
+                    b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -466,10 +463,19 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TemporaryDataLayer.TempApplicationUser")
+                    b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
@@ -477,6 +483,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.ExternalLinks_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
@@ -485,7 +492,8 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("FK_dbo.FilterPresets_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
@@ -493,11 +501,13 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Module", "Module")
                         .WithMany("ModuleOrganizations")
                         .HasForeignKey("Module_Id")
+                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany("ModuleOrganizations")
                         .HasForeignKey("Organization_Id")
+                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

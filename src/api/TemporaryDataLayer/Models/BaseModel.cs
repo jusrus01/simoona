@@ -26,10 +26,3 @@ namespace TemporaryDataLayer
 
 // TODO: do not forget initialzer code
 // TODO: identity :)
-
-// BaseModel done
-// BaseModelWithOrg done
-// Modules and Organization is done
-// Address done
-// ExternalLink done
-// FilterPreset done

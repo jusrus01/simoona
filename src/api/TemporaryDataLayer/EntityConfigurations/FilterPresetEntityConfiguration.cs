@@ -3,19 +3,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TemporaryDataLayer
 {
-    public class FilterPresetEntityConfig : IEntityTypeConfiguration<FilterPreset>
+    public class FilterPresetEntityConfiguration : IEntityTypeConfiguration<FilterPreset>
     {
         public void Configure(EntityTypeBuilder<FilterPreset> builder)
         {
+            builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete();
+            builder.MapRequiredOrganization(DeleteBehavior.Cascade); // Probably should not be Cascade, however old model has it
 
             builder.HasKey(model => model.Id);
-
-            builder.HasOne(model => model.Organization)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict)
-                .HasForeignKey(model => model.OrganizationId)
-                .IsRequired();
 
             builder.Property(model => model.Preset)
                 .IsRequired();
