@@ -10,10 +10,10 @@ namespace TemporaryDataLayer
 
         public IEnumerable<Organization> Organizations 
         {
-            get => ModuleOrganizations.Select(model => model.Organization);
+            get => ShroomsModuleOrganizations.Select(model => model.Organization);
         }
 
         // Required for many-to-many
-        internal ICollection<ModuleOrganization> ModuleOrganizations { get; set; }
+        internal ICollection<ModuleOrganization> ShroomsModuleOrganizations { get; set; }
     }
 }

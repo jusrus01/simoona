@@ -32,10 +32,10 @@ namespace TemporaryDataLayer
 
         public IEnumerable<Module> ShroomsModules
         {
-            get => ModuleOrganizations.Select(x => x.Module);
+            get => ShroomsModuleOrganizations.Select(x => x.Module);
         }
 
         // Required for many-to-many
-        internal ICollection<ModuleOrganization> ModuleOrganizations { get; set; }
+        internal ICollection<ModuleOrganization> ShroomsModuleOrganizations { get; set; }
     }
 }

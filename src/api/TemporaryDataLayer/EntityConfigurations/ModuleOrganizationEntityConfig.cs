@@ -9,17 +9,29 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<ModuleOrganization> builder)
         {
-            builder.HasKey(model => new { model.Module_Id, model.Organization_Id });
+            builder.Property(model => model.OrganizationId)
+                .HasColumnName($"{nameof(ModuleOrganization.OrganizationId).Replace("Id", "_Id")}");
+
+            builder.Property(model => model.ModuleId)
+                .HasColumnName($"{nameof(ModuleOrganization.ModuleId).Replace("Id", "_Id")}");
+
+            builder.HasKey(model => new { model.ModuleId, model.OrganizationId });
 
             builder.HasOne(model => model.Module)
-                .WithMany(model => model.ModuleOrganizations)
-                .HasForeignKey(model => model.Module_Id)
+                .WithMany(model => model.ShroomsModuleOrganizations)
+                .HasForeignKey(model => model.ModuleId)
                 .IsRequired();
 
             builder.HasOne(model => model.Organization)
-                .WithMany(model => model.ModuleOrganizations)
-                .HasForeignKey(model => model.Organization_Id)
+                .WithMany(model => model.ShroomsModuleOrganizations)
+                .HasForeignKey(model => model.OrganizationId)
                 .IsRequired();
+
+            builder.HasIndex(model => model.ModuleId)
+                .ForSqlServerIsClustered(false);
+
+            builder.HasIndex(model => model.OrganizationId)
+                .ForSqlServerIsClustered(false);
         }
     }
 }

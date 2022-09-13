@@ -2,16 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using Shrooms.Contracts.DataTransferObjects;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using TemporaryDataLayer.EntityConfigurations;
 using TemporaryDataLayer.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Text.RegularExpressions;
 
@@ -23,7 +14,6 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
             :
             base(options)
         {
-            
         }
 
         public new DbSet<ApplicationUser> Users { get; set; }
@@ -91,7 +81,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
     {
         public TempShroomsDbContext CreateDbContext(string[] args)
         {
-            const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
+            const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=SimoonaDb;";
+            //const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
 
             var builder = new DbContextOptionsBuilder<TempShroomsDbContext>();
 
