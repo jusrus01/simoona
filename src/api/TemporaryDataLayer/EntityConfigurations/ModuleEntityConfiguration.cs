@@ -7,6 +7,7 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<Module> builder)
         {
+            builder.AddDefaultBaseModelConfiguration();
             builder.HasKey(model => model.Id);
             builder.Ignore(model => model.Organizations);
         }

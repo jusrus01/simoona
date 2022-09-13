@@ -7,10 +7,17 @@ namespace TemporaryDataLayer
     {
         private const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
 
-        internal static PropertyBuilder AddSoftDelete<T>(this EntityTypeBuilder<T> builder) where T : class
+        internal static void AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
         {
-            return builder.Property(typeof(bool), IsDeleted);
-                //.HasDefaultValue(false);
+            if (hasDefaultValue)
+            {
+                builder.Property(typeof(bool), IsDeleted)
+                    .HasDefaultValue(false);
+
+                return;
+            }
+
+            builder.Property(typeof(bool), IsDeleted);
         }
 
         internal static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder) where T : BaseModel
@@ -32,7 +39,7 @@ namespace TemporaryDataLayer
 
             builder.HasIndex(model => model.OrganizationId)
                 .ForSqlServerIsClustered(false)
-                .HasName("IX_OrganizationId");
+                .HasName($"IX_{nameof(IOrganization.OrganizationId)}");
         }
     }
 }

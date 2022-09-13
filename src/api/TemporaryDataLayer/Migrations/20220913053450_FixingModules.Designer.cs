@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220913053450_FixingModules")]
+    partial class FixingModules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -389,34 +391,22 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CalendarId");
 
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                    b.Property<DateTime>("Created");
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<string>("CultureCode")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue("en-US");
+                    b.Property<string>("CultureCode");
 
-                    b.Property<bool>("HasRestrictedAccess")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("HasRestrictedAccess");
 
                     b.Property<string>("HostName")
                         .HasMaxLength(50);
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<string>("KudosYearlyMultipliers");
 
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("ModifiedBy");
 
@@ -424,23 +414,17 @@ namespace TemporaryDataLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(300);
 
-                    b.Property<bool>("RequiresUserConfirmation")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("RequiresUserConfirmation");
 
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasMaxLength(64);
 
-                    b.Property<string>("TimeZone")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue("FLE Standard Time");
+                    b.Property<string>("TimeZone");
 
                     b.Property<string>("WelcomeEmail")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10000)
-                        .HasDefaultValue("<p style=\"text - align:center; font - size:14px; font - weight:400; margin: 0 0 0 0; \">Administrator has confirmed your registration</p>");
+                        .HasMaxLength(10000);
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Organizations");

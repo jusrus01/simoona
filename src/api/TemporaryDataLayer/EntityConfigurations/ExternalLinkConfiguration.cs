@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shrooms.Contracts.Enums;
 
 namespace TemporaryDataLayer
 {
@@ -17,6 +18,12 @@ namespace TemporaryDataLayer
                 .IsRequired();
             builder.Property(model => model.Type)
                 .IsRequired();
+
+            builder.Property(model => model.Priority)
+                .HasDefaultValue(0);
+
+            builder.Property(model => model.Type)
+                .HasDefaultValue(ExternalLinkTypeEnum.Basic);
 
             builder.Property(model => model.Created)
                 .HasColumnType("datetime2");
