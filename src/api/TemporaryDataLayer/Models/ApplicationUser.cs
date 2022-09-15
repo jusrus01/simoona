@@ -32,9 +32,9 @@ namespace TemporaryDataLayer
 
         public DateTime? BirthDay { get; set; }
 
-        //public int? WorkingHoursId { get; set; }
+        public int? WorkingHoursId { get; set; }
 
-        //public virtual WorkingHours WorkingHours { get; set; }
+        public virtual WorkingHours WorkingHours { get; set; }
 
         public bool IsAbsent { get; set; }
 

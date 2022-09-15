@@ -30,6 +30,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<ExternalLink> ExternalLinks { get; set; }
 
+        public DbSet<WorkingHours> WorkingHours { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder);

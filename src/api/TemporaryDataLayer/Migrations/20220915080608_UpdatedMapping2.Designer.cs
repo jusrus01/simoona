@@ -10,8 +10,8 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220915062109_ChangedIndexNames")]
-    partial class ChangedIndexNames
+    [Migration("20220915080608_UpdatedMapping2")]
+    partial class UpdatedMapping2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -137,11 +137,14 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128);
 
                     b.Property<string>("AbsentComment");
 
                     b.Property<int>("AccessFailedCount");
+
+                    b.Property<int?>("ApplicationUserId");
 
                     b.Property<string>("Bio");
 
@@ -237,8 +240,12 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<double?>("VacationUsedTime");
 
+                    b.Property<int?>("WorkingHoursId");
+
                     b.HasKey("Id")
                         .HasName("PK_dbo.ApplicationUser");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("Email")
                         .IsUnique()
@@ -460,6 +467,57 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("Organizations");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.WorkingHours", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired();
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<TimeSpan?>("EndTime");
+
+                    b.Property<bool>("FullTime")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<TimeSpan?>("LunchEnd");
+
+                    b.Property<TimeSpan?>("LunchStart");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<int?>("PartTimeHours");
+
+                    b.Property<TimeSpan?>("StartTime");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.WorkingHours");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("WorkingHours");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
@@ -507,6 +565,12 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
                 {
+                    b.HasOne("TemporaryDataLayer.WorkingHours", "WorkingHours")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.WorkingHours_dbo.AspNetUsers_ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
@@ -537,14 +601,28 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Module", "Module")
                         .WithMany("ShroomsModuleOrganizations")
                         .HasForeignKey("ModuleId")
-                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id")
+                        .HasConstraintName("FK_dbo.ShroomsModuleOrganizations_dbo.ShroomsModules_ShroomsModule_Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany("ShroomsModuleOrganizations")
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id")
+                        .HasConstraintName("FK_dbo.ShroomsModuleOrganizations_dbo.Organizations_Organization_Id")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.WorkingHours", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.WorkingHours_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class Initial : Migration
+    public partial class UpdatedMapping : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -93,7 +93,7 @@ namespace TemporaryDataLayer.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
+                    Id = table.Column<string>(maxLength: 128, nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: false),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
@@ -113,6 +113,7 @@ namespace TemporaryDataLayer.Migrations
                     Bio = table.Column<string>(nullable: true),
                     EmploymentDate = table.Column<DateTime>(nullable: true),
                     BirthDay = table.Column<DateTime>(nullable: true),
+                    WorkingHoursId = table.Column<int>(nullable: true),
                     IsAbsent = table.Column<bool>(nullable: false),
                     IsAnonymized = table.Column<bool>(nullable: false),
                     AbsentComment = table.Column<string>(nullable: true),
@@ -165,7 +166,7 @@ namespace TemporaryDataLayer.Migrations
                     OrganizationId = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Url = table.Column<string>(nullable: false),
-                    Type = table.Column<int>(nullable: false, defaultValue: 1),
+                    Type = table.Column<int>(nullable: false, defaultValue: 0),
                     Priority = table.Column<int>(nullable: false, defaultValue: 0),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -219,13 +220,13 @@ namespace TemporaryDataLayer.Migrations
                 {
                     table.PrimaryKey("PK_dbo.ModuleOrganizations", x => new { x.Module_Id, x.Organization_Id });
                     table.ForeignKey(
-                        name: "FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id",
+                        name: "FK_dbo.ShroomsModuleOrganizations_dbo.ShroomsModules_ShroomsModule_Id",
                         column: x => x.Module_Id,
                         principalTable: "Modules",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id",
+                        name: "FK_dbo.ShroomsModuleOrganizations_dbo.Organizations_Organization_Id",
                         column: x => x.Organization_Id,
                         principalTable: "Organizations",
                         principalColumn: "Id",
@@ -317,6 +318,43 @@ namespace TemporaryDataLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "WorkingHours",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    StartTime = table.Column<TimeSpan>(nullable: true),
+                    EndTime = table.Column<TimeSpan>(nullable: true),
+                    LunchStart = table.Column<TimeSpan>(nullable: true),
+                    LunchEnd = table.Column<TimeSpan>(nullable: true),
+                    FullTime = table.Column<bool>(nullable: false, defaultValue: true),
+                    PartTimeHours = table.Column<int>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.WorkingHours", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.WorkingHours_dbo.AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.WorkingHours_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -370,9 +408,10 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExternalLinks_OrganizationId",
+                name: "IX_OrganizationId",
                 table: "ExternalLinks",
-                column: "OrganizationId");
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationId",
@@ -381,15 +420,28 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModuleOrganizations_Module_Id",
+                name: "IX_Module_Id",
                 table: "ModuleOrganizations",
                 column: "Module_Id")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModuleOrganizations_Organization_Id",
+                name: "IX_Organization_Id",
                 table: "ModuleOrganizations",
                 column: "Organization_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserId",
+                table: "WorkingHours",
+                column: "ApplicationUserId",
+                unique: true)
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "WorkingHours",
+                column: "OrganizationId")
                 .Annotation("SqlServer:Clustered", false);
         }
 
@@ -420,13 +472,16 @@ namespace TemporaryDataLayer.Migrations
                 name: "ModuleOrganizations");
 
             migrationBuilder.DropTable(
+                name: "WorkingHours");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Modules");
 
             migrationBuilder.DropTable(
-                name: "Modules");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Organizations");

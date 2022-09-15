@@ -17,5 +17,7 @@ namespace TemporaryDataLayer
         public int? PartTimeHours { get; set; }
 
         public virtual ApplicationUser ApplicationUser { get; set; }
+
+        public string ApplicationUserId { get; set; }
     }
 }
