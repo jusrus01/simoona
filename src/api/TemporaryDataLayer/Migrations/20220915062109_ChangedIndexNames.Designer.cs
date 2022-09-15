@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220915062109_ChangedIndexNames")]
+    partial class ChangedIndexNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -535,13 +537,13 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Module", "Module")
                         .WithMany("ShroomsModuleOrganizations")
                         .HasForeignKey("ModuleId")
-                        .HasConstraintName("FK_dbo.ShroomsModuleOrganizations_dbo.ShroomsModules_ShroomsModule_Id")
+                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany("ShroomsModuleOrganizations")
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.ShroomsModuleOrganizations_dbo.Organizations_Organization_Id")
+                        .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

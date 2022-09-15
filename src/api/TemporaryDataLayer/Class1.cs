@@ -6,6 +6,7 @@ using TemporaryDataLayer.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
@@ -31,6 +32,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            ApplyCustomNamingConvention(builder);
+
             builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
 
@@ -39,19 +42,35 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
             // Temporary WorkingHoursIgnore
 
-            ApplyCustomNamingConvention(builder);
 
             base.OnModelCreating(builder);
         }
 
+        // Names might not matter
         private void ApplyCustomNamingConvention(ModelBuilder builder)
         {
             foreach (var mutableEntityType in builder.Model.GetEntityTypes())
             {
                 ApplyCustomForeignKeyNamingConvention(mutableEntityType);
                 ApplyCustomPrimaryKeyNamingConvention(mutableEntityType);
+                //ApplyCustomIndexNamingConvetion(mutableEntityType);
             }
         }
+
+        //private void ApplyCustomIndexNamingConvetion(IMutableEntityType mutableEntityType)
+        //{
+        //    var indexes = mutableEntityType.GetIndexes();
+        //    foreach (var index in indexes)
+        //    {
+        //        index.
+        //        var name = index.Relational().Name;
+        //        var nameParts = name.Split('_');
+
+        //        nameParts[1] = "";
+
+        //        index.Relational().Name = string.Join("_", nameParts);
+        //    }
+        //}
 
         private void ApplyCustomForeignKeyNamingConvention(IMutableEntityType entityType)
         {

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220915062949_ChangedConstraintName2")]
+    partial class ChangedConstraintName2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,8 +351,7 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<int>("OrganizationId")
                         .HasColumnName("Organization_Id");
 
-                    b.HasKey("ModuleId", "OrganizationId")
-                        .HasName("PK_dbo.ModuleOrganizations");
+                    b.HasKey("ModuleId", "OrganizationId");
 
                     b.HasIndex("ModuleId")
                         .HasName("IX_Module_Id")
