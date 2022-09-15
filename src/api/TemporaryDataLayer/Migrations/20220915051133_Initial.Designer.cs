@@ -10,8 +10,8 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220913060148_FixingOrganization2")]
-    partial class FixingOrganization2
+    [Migration("20220915051133_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -343,14 +343,20 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
-                    b.Property<int>("Module_Id");
+                    b.Property<int>("ModuleId")
+                        .HasColumnName("Module_Id");
 
-                    b.Property<int>("Organization_Id");
+                    b.Property<int>("OrganizationId")
+                        .HasColumnName("Organization_Id");
 
-                    b.HasKey("Module_Id", "Organization_Id")
+                    b.HasKey("ModuleId", "OrganizationId")
                         .HasName("PK_dbo.ModuleOrganizations");
 
-                    b.HasIndex("Organization_Id");
+                    b.HasIndex("ModuleId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ModuleOrganizations");
                 });
@@ -525,14 +531,14 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Module", "Module")
-                        .WithMany("ModuleOrganizations")
-                        .HasForeignKey("Module_Id")
+                        .WithMany("ShroomsModuleOrganizations")
+                        .HasForeignKey("ModuleId")
                         .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Modules_Module_Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany("ModuleOrganizations")
-                        .HasForeignKey("Organization_Id")
+                        .WithMany("ShroomsModuleOrganizations")
+                        .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.ModuleOrganizations_dbo.Organizations_Organization_Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

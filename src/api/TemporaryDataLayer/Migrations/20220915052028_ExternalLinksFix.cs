@@ -2,7 +2,7 @@
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class FixingExternalLinks : Migration
+    public partial class ExternalLinksFix : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -10,15 +10,9 @@ namespace TemporaryDataLayer.Migrations
                 name: "Type",
                 table: "ExternalLinks",
                 nullable: false,
-                defaultValue: 1,
-                oldClrType: typeof(int));
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Priority",
-                table: "ExternalLinks",
-                nullable: false,
                 defaultValue: 0,
-                oldClrType: typeof(int));
+                oldClrType: typeof(int),
+                oldDefaultValue: 1);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -27,13 +21,7 @@ namespace TemporaryDataLayer.Migrations
                 name: "Type",
                 table: "ExternalLinks",
                 nullable: false,
-                oldClrType: typeof(int),
-                oldDefaultValue: 1);
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Priority",
-                table: "ExternalLinks",
-                nullable: false,
+                defaultValue: 1,
                 oldClrType: typeof(int),
                 oldDefaultValue: 0);
         }

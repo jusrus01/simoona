@@ -10,8 +10,8 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220913071819_Testing2")]
-    partial class Testing2
+    [Migration("20220915052028_ExternalLinksFix")]
+    partial class ExternalLinksFix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -288,7 +288,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Url")
                         .IsRequired();
@@ -296,7 +296,9 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.ExternalLinks");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ExternalLinks");
                 });

@@ -2,7 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <UserSecretsId>32c7c48b-1c2e-44be-8d07-a3152212b68f</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20220913073109_Testing3.cs" />
+    <Compile Remove="Migrations\20220913073109_Testing3.Designer.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
@@ -12,6 +18,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

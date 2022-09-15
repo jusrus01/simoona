@@ -41,5 +41,6 @@ namespace TemporaryDataLayer
                 .ForSqlServerIsClustered(false)
                 .HasName($"IX_{nameof(IOrganization.OrganizationId)}");
         }
+
     }
 }

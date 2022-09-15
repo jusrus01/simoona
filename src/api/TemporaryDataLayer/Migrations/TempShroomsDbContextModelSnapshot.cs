@@ -286,7 +286,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Url")
                         .IsRequired();
@@ -294,7 +294,9 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.ExternalLinks");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ExternalLinks");
                 });

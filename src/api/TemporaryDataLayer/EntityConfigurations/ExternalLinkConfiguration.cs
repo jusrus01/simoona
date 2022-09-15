@@ -23,7 +23,7 @@ namespace TemporaryDataLayer
                 .HasDefaultValue(0);
 
             builder.Property(model => model.Type)
-                .HasDefaultValue(ExternalLinkTypeEnum.Basic);
+                .HasDefaultValue((ExternalLinkTypeEnum)0);
 
             builder.Property(model => model.Created)
                 .HasColumnType("datetime2");
@@ -31,11 +31,7 @@ namespace TemporaryDataLayer
             builder.Property(model => model.Modified)
                 .HasColumnType("datetime2");
 
-            builder.HasOne(model => model.Organization)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict)
-                .HasForeignKey(model => model.OrganizationId)
-                .IsRequired();
+            builder.MapRequiredOrganization();
         }
     }
 }

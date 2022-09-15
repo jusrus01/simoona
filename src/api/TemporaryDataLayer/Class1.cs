@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Design;
 using TemporaryDataLayer.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
-    public class TempShroomsDbContext : IdentityDbContext<ApplicationUser>
+    public class TempShroomsDbContext : IdentityDbContext<ApplicationUser> // Wrong
     {
         public TempShroomsDbContext(DbContextOptions<TempShroomsDbContext> options)
             :
@@ -81,7 +82,7 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
     {
         public TempShroomsDbContext CreateDbContext(string[] args)
         {
-            const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=SimoonaDb;";
+            const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
             //const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
 
             var builder = new DbContextOptionsBuilder<TempShroomsDbContext>();

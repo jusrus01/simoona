@@ -10,8 +10,8 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220913064439_RenamedOrgModule")]
-    partial class RenamedOrgModule
+    [Migration("20220915051723_ChangedExternalOrganization")]
+    partial class ChangedExternalOrganization
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -296,7 +296,9 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.ExternalLinks");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ExternalLinks");
                 });
@@ -352,7 +354,11 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("ModuleId", "OrganizationId")
                         .HasName("PK_dbo.ModuleOrganizations");
 
-                    b.HasIndex("OrganizationId");
+                    b.HasIndex("ModuleId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ModuleOrganizations");
                 });

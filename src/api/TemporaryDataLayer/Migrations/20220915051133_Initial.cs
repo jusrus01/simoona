@@ -28,9 +28,9 @@ namespace TemporaryDataLayer.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
-                    Modified = table.Column<DateTime>(nullable: false),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
                     ModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true)
                 },
@@ -45,23 +45,23 @@ namespace TemporaryDataLayer.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     CreatedBy = table.Column<string>(nullable: true),
-                    Modified = table.Column<DateTime>(nullable: false),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     ModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(maxLength: 300, nullable: false),
                     ShortName = table.Column<string>(maxLength: 64, nullable: false),
                     HostName = table.Column<string>(maxLength: 50, nullable: true),
-                    HasRestrictedAccess = table.Column<bool>(nullable: false),
-                    WelcomeEmail = table.Column<string>(maxLength: 10000, nullable: false),
-                    RequiresUserConfirmation = table.Column<bool>(nullable: false),
+                    HasRestrictedAccess = table.Column<bool>(nullable: false, defaultValue: false),
+                    WelcomeEmail = table.Column<string>(maxLength: 10000, nullable: false, defaultValue: "<p style=\"text - align:center; font - size:14px; font - weight:400; margin: 0 0 0 0; \">Administrator has confirmed your registration</p>"),
+                    RequiresUserConfirmation = table.Column<bool>(nullable: false, defaultValue: false),
                     CalendarId = table.Column<string>(nullable: true),
-                    TimeZone = table.Column<string>(nullable: true),
-                    CultureCode = table.Column<string>(nullable: true),
+                    TimeZone = table.Column<string>(nullable: true, defaultValue: "FLE Standard Time"),
+                    CultureCode = table.Column<string>(nullable: true, defaultValue: "en-US"),
                     BookAppAuthorizationGuid = table.Column<string>(nullable: true),
                     AuthenticationProviders = table.Column<string>(nullable: true),
                     KudosYearlyMultipliers = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -165,8 +165,8 @@ namespace TemporaryDataLayer.Migrations
                     OrganizationId = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Url = table.Column<string>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    Priority = table.Column<int>(nullable: false),
+                    Type = table.Column<int>(nullable: false, defaultValue: 1),
+                    Priority = table.Column<int>(nullable: false, defaultValue: 0),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -381,9 +381,16 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ModuleOrganizations_Module_Id",
+                table: "ModuleOrganizations",
+                column: "Module_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ModuleOrganizations_Organization_Id",
                 table: "ModuleOrganizations",
-                column: "Organization_Id");
+                column: "Organization_Id")
+                .Annotation("SqlServer:Clustered", false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
