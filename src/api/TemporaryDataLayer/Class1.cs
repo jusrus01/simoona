@@ -32,6 +32,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<WorkingHours> WorkingHours { get; set; }
 
+        public DbSet<Picture> Pictures { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder);

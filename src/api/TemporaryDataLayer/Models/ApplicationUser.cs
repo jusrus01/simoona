@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
-using Shrooms.Contracts.Enums;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace TemporaryDataLayer
 {

@@ -20,8 +20,21 @@ namespace TemporaryDataLayer
             builder.Property(typeof(bool), IsDeleted);
         }
 
-        internal static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder) where T : BaseModel
+        internal static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue  = false) where T : BaseModel
         {
+            if (hasDefaultValue)
+            {
+                builder.Property(model => model.Created)
+                    .HasColumnType("datetime")
+                    .HasDefaultValue("1900-01-01");
+
+                builder.Property(model => model.Modified)
+                    .HasColumnType("datetime")
+                    .HasDefaultValue("1900-01-01");
+
+                return;
+            }
+
             builder.Property(model => model.Created)
                 .HasColumnType("datetime");
 
