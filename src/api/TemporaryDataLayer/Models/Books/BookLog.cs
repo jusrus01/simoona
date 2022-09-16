@@ -13,8 +13,8 @@ namespace TemporaryDataLayer
 
         public DateTime? Returned { get; set; }
 
-        //public int BookOfficeId { get; set; }
+        public int BookOfficeId { get; set; }
 
-        //public BookOffice BookOffice { get; set; }
+        public BookOffice BookOffice { get; set; }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220916100631_UniqueIndex2")]
+    partial class UniqueIndex2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,6 +336,8 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
+                    b.Property<int?>("BookOfficeId1");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
 
@@ -365,6 +369,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("BookOfficeId")
                         .HasName("IX_BookOfficeId");
+
+                    b.HasIndex("BookOfficeId1");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
@@ -1007,10 +1013,14 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.BookOffice", "BookOffice")
-                        .WithMany("BookLogs")
+                        .WithMany()
                         .HasForeignKey("BookOfficeId")
                         .HasConstraintName("FK_dbo.BookLogs_dbo.BookOffices_BookOfficeId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TemporaryDataLayer.BookOffice")
+                        .WithMany("BookLogs")
+                        .HasForeignKey("BookOfficeId1");
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()

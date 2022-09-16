@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220916095927_AddedBookOffice3")]
+    partial class AddedBookOffice3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,6 +336,8 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(0);
 
+                    b.Property<int?>("BookOfficeId1");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
 
@@ -365,6 +369,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("BookOfficeId")
                         .HasName("IX_BookOfficeId");
+
+                    b.HasIndex("BookOfficeId1");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
@@ -404,16 +410,15 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.BookOffices");
 
+                    b.HasIndex("BookId")
+                        .HasName("IX_BookId");
+
                     b.HasIndex("OfficeId")
                         .HasName("IX_OfficeId");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
                         .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("BookId", "OfficeId")
-                        .IsUnique()
-                        .HasName("BookId_OfficeId");
 
                     b.ToTable("BookOffices");
                 });
@@ -1007,10 +1012,14 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.BookOffice", "BookOffice")
-                        .WithMany("BookLogs")
+                        .WithMany()
                         .HasForeignKey("BookOfficeId")
                         .HasConstraintName("FK_dbo.BookLogs_dbo.BookOffices_BookOfficeId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TemporaryDataLayer.BookOffice")
+                        .WithMany("BookLogs")
+                        .HasForeignKey("BookOfficeId1");
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()

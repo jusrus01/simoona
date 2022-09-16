@@ -36,9 +36,8 @@ namespace TemporaryDataLayer.EntityConfigurations.Books
             builder.Property(model => model.CreatedBy)
                 .HasMaxLength(50);
 
-            // Temp
-            //builder.Ignore(model => model.BookOffice);
-            //builder.Ignore(model => model.BookOfficeId);
+            builder.Property(model => model.BookOfficeId)
+                .HasDefaultValue(0);
         }
     }
 }
