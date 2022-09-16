@@ -5,7 +5,6 @@ namespace TemporaryDataLayer
 {
     public class BookLog : BaseModelWithOrg
     {
-        [ForeignKey("ApplicationUser")]
         public string ApplicationUserId { get; set; }
 
         public ApplicationUser ApplicationUser { get; set; }
@@ -14,8 +13,8 @@ namespace TemporaryDataLayer
 
         public DateTime? Returned { get; set; }
 
-        public int BookOfficeId { get; set; }
+        //public int BookOfficeId { get; set; }
 
-        public BookOffice BookOffice { get; set; }
+        //public BookOffice BookOffice { get; set; }
     }
 }

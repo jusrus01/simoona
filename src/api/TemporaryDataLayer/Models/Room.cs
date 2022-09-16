@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace TemporaryDataLayer
+﻿namespace TemporaryDataLayer
 {
     public class Room : BaseModelWithOrg
     {
@@ -11,16 +8,14 @@ namespace TemporaryDataLayer
 
         public string Coordinates { get; set; }
 
-        [ForeignKey("Floor")]
         public int? FloorId { get; set; }
 
         public virtual Floor Floor { get; set; }
 
-        [ForeignKey("RoomType")]
         public int? RoomTypeId { get; set; }
 
         public virtual RoomType RoomType { get; set; }
 
-        public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
+        //public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
     }
 }

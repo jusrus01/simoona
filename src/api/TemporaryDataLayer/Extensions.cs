@@ -5,7 +5,7 @@ namespace TemporaryDataLayer
 {
     internal static class Extensions
     {
-        private const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
+        public const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
 
         internal static void AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
         {

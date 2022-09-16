@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220916082424_RoomAndRoomType31")]
+    partial class RoomAndRoomType31
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -428,9 +430,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.Floors");
 
-                    b.HasIndex("OfficeId")
-                        .HasName("IX_OfficeId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                    b.HasIndex("OfficeId");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")

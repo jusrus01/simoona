@@ -34,9 +34,19 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Picture> Pictures { get; set; }
 
+        public DbSet<BookLog> BookLogs { get; set; }
+
+        public DbSet<Floor> Floors { get; set; }
+
+        public DbSet<Room> Rooms { get; set; }
+
+        public DbSet<RoomType> RoomTypes { get; set; }
+
+        public DbSet<Office> Offices { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            ApplyCustomNamingConvention(builder);
+            ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
 
             builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
@@ -50,13 +60,18 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
             base.OnModelCreating(builder);
         }
 
-        // Names might not matter
         private void ApplyCustomNamingConvention(ModelBuilder builder)
         {
             foreach (var mutableEntityType in builder.Model.GetEntityTypes())
             {
                 ApplyCustomForeignKeyNamingConvention(mutableEntityType);
                 ApplyCustomPrimaryKeyNamingConvention(mutableEntityType);
+
+                // Not sure if this should be used, because when using Many-to-Many models
+                // Does not work properly
+
+                // Could override instead of replace...
+                
                 //ApplyCustomIndexNamingConvetion(mutableEntityType);
             }
         }

@@ -8,6 +8,16 @@
   <ItemGroup>
     <Compile Remove="Migrations\20220913073109_Testing3.cs" />
     <Compile Remove="Migrations\20220913073109_Testing3.Designer.cs" />
+    <Compile Remove="Migrations\20220916063829_RoomAndRoomType3.cs" />
+    <Compile Remove="Migrations\20220916063829_RoomAndRoomType3.Designer.cs" />
+    <Compile Remove="Migrations\20220916063903_RoomAndRoomType4.cs" />
+    <Compile Remove="Migrations\20220916063903_RoomAndRoomType4.Designer.cs" />
+    <Compile Remove="Migrations\20220916070258_RoomAndRoomType10.cs" />
+    <Compile Remove="Migrations\20220916070258_RoomAndRoomType10.Designer.cs" />
+    <Compile Remove="Migrations\20220916071243_RoomAndRoomType10.cs" />
+    <Compile Remove="Migrations\20220916071243_RoomAndRoomType10.Designer.cs" />
+    <Compile Remove="Migrations\20220916071728_RoomAndRoomType10.cs" />
+    <Compile Remove="Migrations\20220916071728_RoomAndRoomType10.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

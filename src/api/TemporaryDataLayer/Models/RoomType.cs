@@ -13,7 +13,7 @@ namespace TemporaryDataLayer
 
         public bool IsWorkingRoom { get; set; }
 
-        [StringLength(7, MinimumLength = 7)]
+        //[StringLength(7, MinimumLength = 7)]
         public string Color { get; set; }
 
         public virtual ICollection<Room> Rooms { get; set; }

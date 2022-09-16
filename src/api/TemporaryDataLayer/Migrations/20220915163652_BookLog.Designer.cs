@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220915163652_BookLog")]
+    partial class BookLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,51 +264,6 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.BookLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired();
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50);
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(50);
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<DateTime?>("Returned")
-                        .HasColumnType("datetime");
-
-                    b.Property<DateTime>("TakenFrom")
-                        .HasColumnType("datetime");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.BookLogs");
-
-                    b.HasIndex("ApplicationUserId")
-                        .HasName("IX_ApplicationUserId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("BookLogs");
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
                 {
                     b.Property<int>("Id")
@@ -391,58 +348,6 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("FilterPresets");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Floor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int?>("OfficeId");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<string>("PictureId");
-
-                    b.Property<int?>("Picture_Id");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Floors");
-
-                    b.HasIndex("OfficeId")
-                        .HasName("IX_OfficeId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("Picture_Id")
-                        .HasName("IX_Picture_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("Floors");
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
                     b.Property<int>("ModuleId")
@@ -487,46 +392,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.Modules");
 
                     b.ToTable("Modules");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Office", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<bool>("IsDefault");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Offices");
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("Offices");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Organization", b =>
@@ -658,107 +523,6 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("Pictures");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Room", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Coordinates");
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<int?>("FloorId");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Number");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<int?>("RoomTypeId");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Rooms");
-
-                    b.HasIndex("FloorId")
-                        .HasName("IX_FloorId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("RoomTypeId")
-                        .HasName("IX_RoomTypeId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.RoomType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(7);
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<string>("IconId");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsWorkingRoom")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.RoomTypes");
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("RoomTypes");
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.WorkingHours", b =>
                 {
                     b.Property<int>("Id")
@@ -868,21 +632,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasForeignKey("WorkingHoursId");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.BookLog", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.BookLogs_dbo.AspNetUsers_ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.BookLogs_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
@@ -901,25 +650,6 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Floor", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId")
-                        .HasConstraintName("FK_dbo.Floors_dbo.Offices_OfficeId");
-
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.Floors_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.Picture", "Picture")
-                        .WithMany()
-                        .HasForeignKey("Picture_Id")
-                        .HasConstraintName("FK_dbo.Floors_dbo.Pictures_Picture_Id");
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Module", "Module")
@@ -935,49 +665,12 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Office", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.Offices_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Picture", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.Pictures_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Room", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Floor", "Floor")
-                        .WithMany("Rooms")
-                        .HasForeignKey("FloorId")
-                        .HasConstraintName("FK_dbo.Rooms_dbo.Floors_FloorId");
-
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.Rooms_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.RoomType", "RoomType")
-                        .WithMany("Rooms")
-                        .HasForeignKey("RoomTypeId")
-                        .HasConstraintName("FK_dbo.Rooms_dbo.RoomTypes_RoomTypeId");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.RoomType", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.RoomTypes_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
