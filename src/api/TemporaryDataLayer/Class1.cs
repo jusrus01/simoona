@@ -44,6 +44,10 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Office> Offices { get; set; }
 
+        public DbSet<Book> Books { get; set; }
+
+        public DbSet<BookOffice> BookOffices { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
@@ -71,25 +75,29 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
                 // Does not work properly
 
                 // Could override instead of replace...
-                
-                //ApplyCustomIndexNamingConvetion(mutableEntityType);
+
+                // TODO: continue changing Book
+
+                ApplyCustomIndexNamingConvetion(mutableEntityType);
             }
         }
 
-        //private void ApplyCustomIndexNamingConvetion(IMutableEntityType mutableEntityType)
-        //{
-        //    var indexes = mutableEntityType.GetIndexes();
-        //    foreach (var index in indexes)
-        //    {
-        //        index.
-        //        var name = index.Relational().Name;
-        //        var nameParts = name.Split('_');
+        private void ApplyCustomIndexNamingConvetion(IMutableEntityType mutableEntityType)
+        {
+            var properties = mutableEntityType.GetProperties();
 
-        //        nameParts[1] = "";
+            foreach (var property in properties)
+            {
+                var index = mutableEntityType.FindIndex(property);
 
-        //        index.Relational().Name = string.Join("_", nameParts);
-        //    }
-        //}
+                if (index == null)
+                {
+                    continue;
+                }
+
+                index.Relational().Name = $"IX_{property.Name}";
+            }
+        }
 
         private void ApplyCustomForeignKeyNamingConvention(IMutableEntityType entityType)
         {

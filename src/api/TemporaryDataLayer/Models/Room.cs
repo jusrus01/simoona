@@ -1,4 +1,6 @@
-﻿namespace TemporaryDataLayer
+﻿using System.Collections.Generic;
+
+namespace TemporaryDataLayer
 {
     public class Room : BaseModelWithOrg
     {
@@ -16,6 +18,6 @@
 
         public virtual RoomType RoomType { get; set; }
 
-        //public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
+        public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
     }
 }

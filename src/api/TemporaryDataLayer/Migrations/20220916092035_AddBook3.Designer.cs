@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220916092035_AddBook3")]
+    partial class AddBook3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -330,8 +332,6 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("ApplicationUserId")
                         .IsRequired();
 
-                    b.Property<int?>("BookOfficeId");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
 
@@ -361,55 +361,11 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("IX_ApplicationUserId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.HasIndex("BookOfficeId")
-                        .HasName("IX_BookOfficeId");
-
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("BookLogs");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.BookOffice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("BookId");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50);
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<DateTime>("Modified");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasMaxLength(50);
-
-                    b.Property<int>("OfficeId");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<int>("Quantity");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.BookOffices");
-
-                    b.HasIndex("BookId")
-                        .HasName("IX_BookId");
-
-                    b.HasIndex("OfficeId")
-                        .HasName("IX_OfficeId");
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId");
-
-                    b.ToTable("BookOffices");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
@@ -1000,37 +956,11 @@ namespace TemporaryDataLayer.Migrations
                         .HasConstraintName("FK_dbo.BookLogs_dbo.AspNetUsers_ApplicationUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TemporaryDataLayer.BookOffice")
-                        .WithMany("BookLogs")
-                        .HasForeignKey("BookOfficeId")
-                        .HasConstraintName("FK_dbo.BookLogs_dbo.BookOffices_BookOfficeId");
-
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.BookLogs_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.BookOffice", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .HasConstraintName("FK_dbo.BookOffices_dbo.Books_BookId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId")
-                        .HasConstraintName("FK_dbo.BookOffices_dbo.Offices_OfficeId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.BookOffices_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
