@@ -12,10 +12,6 @@ namespace TemporaryDataLayer.EntityConfigurations.Offices
             builder.MapRequiredOrganization();
             builder.AddDefaultBaseModelConfiguration(true);
 
-            builder.HasOne(model => model.Office)
-                .WithMany()
-                .HasForeignKey(model => model.OfficeId);
-
             builder.HasOne(model => model.Picture)
                 .WithMany()
                 .HasForeignKey("Picture_Id")

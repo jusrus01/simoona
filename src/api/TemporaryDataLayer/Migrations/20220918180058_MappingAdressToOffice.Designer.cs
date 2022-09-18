@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220918180058_MappingAdressToOffice")]
+    partial class MappingAdressToOffice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1028,7 +1030,7 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Office", "Office")
-                        .WithMany("BookOffices")
+                        .WithMany()
                         .HasForeignKey("OfficeId")
                         .HasConstraintName("FK_dbo.BookOffices_dbo.Offices_OfficeId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1061,7 +1063,7 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.Floor", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Office", "Office")
-                        .WithMany("Floors")
+                        .WithMany()
                         .HasForeignKey("OfficeId")
                         .HasConstraintName("FK_dbo.Floors_dbo.Offices_OfficeId");
 
