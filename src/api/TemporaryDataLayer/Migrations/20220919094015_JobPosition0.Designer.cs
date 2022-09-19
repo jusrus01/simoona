@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919094015_JobPosition0")]
+    partial class JobPosition0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -635,8 +637,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.JobPositions");
 
                     b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .HasName("IX_OrganizationId");
 
                     b.ToTable("JobPositions");
                 });
@@ -1392,7 +1393,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.JobPositions_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Lottery", b =>

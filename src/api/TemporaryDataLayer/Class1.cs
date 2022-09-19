@@ -57,6 +57,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<SyncToken> SyncTokens { get; set; }
 
+        public DbSet<JobPosition> JobPositions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
