@@ -1,14 +1,13 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TemporaryDataLayer
 {
     public class LotteryParticipant : BaseModel
     {
-        [ForeignKey("Lottery")]
+        //[ForeignKey("Lottery")]
         public int LotteryId { get; set; }
 
-        [ForeignKey("User")]
+        //[ForeignKey("User")]
         public string UserId { get; set; }
 
         public DateTime Joined { get; set; }

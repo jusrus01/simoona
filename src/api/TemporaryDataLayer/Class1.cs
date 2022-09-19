@@ -52,6 +52,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Lottery> Lotteries { get; set; }
 
+        public DbSet<LotteryParticipant> LotteryParticipants { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
