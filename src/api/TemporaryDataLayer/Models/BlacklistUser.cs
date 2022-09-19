@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
     {
         public string Reason { get; set; }
 
-        [ForeignKey(nameof(User))]
+        //[ForeignKey(nameof(User))]
         public string UserId { get; set; }
 
         public ApplicationUser User { get; set; }

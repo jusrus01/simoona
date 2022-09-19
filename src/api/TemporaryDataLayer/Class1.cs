@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using TemporaryDataLayer.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Text.RegularExpressions;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
@@ -53,6 +50,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
         public DbSet<Lottery> Lotteries { get; set; }
 
         public DbSet<LotteryParticipant> LotteryParticipants { get; set; }
+
+        public DbSet<BlacklistUser> BlacklistUsers { get; set;}
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -106,6 +105,7 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         private void ApplyCustomForeignKeyNamingConvention(IMutableEntityType entityType)
         {
+            // There is a better way of implementing this. Relational().ColumnName
             foreach (var property in entityType.GetProperties())
             {
                 foreach (var fk in entityType.FindForeignKeys(property))
