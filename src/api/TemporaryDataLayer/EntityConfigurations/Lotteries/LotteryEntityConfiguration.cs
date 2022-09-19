@@ -14,9 +14,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Lotteries
             builder.Property(model => model.EndDate)
                 .HasColumnType("datetime");
 
-            builder.OwnsOne(model => model.Images)
-                .Property(model => model.Serialized)
-                .HasColumnName("Images");
+            builder.AddImages(model => model.Images);
 
             builder.Property(model => model.IsRefundFailed)
                 .HasDefaultValue(false);

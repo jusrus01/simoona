@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Linq.Expressions;
 
 namespace TemporaryDataLayer
 {
@@ -18,6 +20,15 @@ namespace TemporaryDataLayer
             }
 
             builder.Property(typeof(bool), IsDeleted);
+        }
+
+        public static void AddImages<T>(
+            this EntityTypeBuilder<T> builder,
+            Expression<Func<T, ImageCollection>> image) where T : class
+        {
+            builder.OwnsOne(image)
+               .Property(model => model.Serialized)
+               .HasColumnName("Images");
         }
 
         public static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue  = false) where T : BaseModel
