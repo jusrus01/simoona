@@ -51,7 +51,9 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<LotteryParticipant> LotteryParticipants { get; set; }
 
-        public DbSet<BlacklistUser> BlacklistUsers { get; set;}
+        public DbSet<BlacklistUser> BlacklistUsers { get; set; }
+
+        public DbSet<Page> Pages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

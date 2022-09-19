@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919091131_AddingPages")]
+    partial class AddingPages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -851,9 +853,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("CreatedBy");
 
@@ -862,9 +862,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
 
