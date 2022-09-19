@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using TemporaryDataLayer.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Text.RegularExpressions;
+using TemporaryDataLayer.Models.Events;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
@@ -62,6 +63,12 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
         public DbSet<Event> Events { get; set; }
 
         public DbSet<EventType> EventTypes { get; set; }
+
+        public DbSet<EventOption> EventOptions { get; set; }
+
+        public DbSet<EventParticipant> EventParticipants { get; set; }
+
+        public DbSet<EventParticipantEventOption> EventParticipantEventOptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

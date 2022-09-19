@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919183349_UpdateEventParticipants2")]
+    partial class UpdateEventParticipants2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -895,12 +897,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.EventParticipantEventOptions");
 
                     b.HasIndex("EventOptionId")
-                        .HasName("IX_EventOption_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("EventParticipantId")
-                        .HasName("IX_EventParticipant_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .HasName("IX_EventOptionId");
 
                     b.ToTable("EventParticipantEventOptions");
                 });
@@ -1663,14 +1660,14 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.EventOption", "EventOption")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventOptionId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOption_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.EventParticipant", "EventParticipant")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventParticipantId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipant_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>

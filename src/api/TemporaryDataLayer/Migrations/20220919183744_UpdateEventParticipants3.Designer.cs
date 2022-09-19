@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919183744_UpdateEventParticipants3")]
+    partial class UpdateEventParticipants3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -898,10 +900,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("IX_EventOption_Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.HasIndex("EventParticipantId")
-                        .HasName("IX_EventParticipant_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
                     b.ToTable("EventParticipantEventOptions");
                 });
 
@@ -1663,13 +1661,13 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.EventOption", "EventOption")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventOptionId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOption_Id")
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOptionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.EventParticipant", "EventParticipant")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventParticipantId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipant_Id")
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipantId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

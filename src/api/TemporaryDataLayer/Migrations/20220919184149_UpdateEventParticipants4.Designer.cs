@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919184149_UpdateEventParticipants4")]
+    partial class UpdateEventParticipants4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1669,7 +1671,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.EventParticipant", "EventParticipant")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventParticipantId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipant_Id")
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipant_Id] FOREIGN KEY ([EventParticipant_Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

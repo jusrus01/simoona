@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919111915_epo0")]
+    partial class epo0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,23 +503,20 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"));
+                    b.Property<Guid>("EventId");
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<string>("Option")
-                        .IsRequired();
+                    b.Property<string>("Option");
 
-                    b.Property<int>("Rule")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                    b.Property<int>("Rule");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.EventOptions");
@@ -534,40 +533,28 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("ApplicationUserId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue("");
+                    b.Property<string>("ApplicationUserId");
 
                     b.Property<string>("AttendComment");
 
-                    b.Property<int>("AttendStatus")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
+                    b.Property<int>("AttendStatus");
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"));
+                    b.Property<Guid>("EventId");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
 
                     b.HasKey("Id")
-                        .HasName("PK_dbo.EventParticipants");
+                        .HasName("PK_dbo.EventParticipant");
 
                     b.HasIndex("ApplicationUserId")
                         .HasName("IX_ApplicationUserId");
@@ -575,12 +562,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasIndex("EventId")
                         .HasName("IX_EventId");
 
-                    b.HasIndex("IsDeleted")
-                        .HasName("nci_wi_EventParticipants_CA1F6B4699FAB2347B166CEA9639C7E8")
-                        .HasAnnotation("SqlServer:Clustered", false)
-                        .HasAnnotation("SqlServer:Include", new[] { "EventId" });
-
-                    b.ToTable("EventParticipants");
+                    b.ToTable("EventParticipant");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.EventType", b =>
@@ -895,12 +877,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.EventParticipantEventOptions");
 
                     b.HasIndex("EventOptionId")
-                        .HasName("IX_EventOption_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("EventParticipantId")
-                        .HasName("IX_EventParticipant_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                        .HasName("IX_EventOptionId");
 
                     b.ToTable("EventParticipantEventOptions");
                 });
@@ -1544,7 +1521,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("EventId")
                         .HasConstraintName("FK_dbo.EventOptions_dbo.Events_EventId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.EventParticipant", b =>
@@ -1552,13 +1529,13 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.EventParticipants_dbo.ApplicationUser_ApplicationUserId");
+                        .HasConstraintName("FK_dbo.EventParticipant_dbo.ApplicationUser_ApplicationUserId");
 
                     b.HasOne("TemporaryDataLayer.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventId")
-                        .HasConstraintName("FK_dbo.EventParticipants_dbo.Events_EventId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("FK_dbo.EventParticipant_dbo.Events_EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.EventType", b =>
@@ -1663,14 +1640,14 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.EventOption", "EventOption")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventOptionId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOption_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventOptions_EventOptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.EventParticipant", "EventParticipant")
                         .WithMany("EventParticipantEventOptions")
                         .HasForeignKey("EventParticipantId")
-                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipants_EventParticipant_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.EventParticipantEventOptions_dbo.EventParticipant_EventParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
