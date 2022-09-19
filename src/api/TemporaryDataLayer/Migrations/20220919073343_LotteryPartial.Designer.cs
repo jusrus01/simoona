@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919073343_LotteryPartial")]
+    partial class LotteryPartial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -568,18 +570,15 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(5000);
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("EndDate");
 
                     b.Property<int>("EntryFee");
 
-                    b.Property<int>("GiftedTicketLimit")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                    b.Property<int>("GiftedTicketLimit");
 
-                    b.Property<bool>("IsRefundFailed")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<bool>("IsRefundFailed");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
@@ -592,14 +591,13 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Title");
 
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Lotteries");
+                    b.HasKey("Id");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.ToTable("Lotteries");
+                    b.ToTable("Lottery");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
@@ -1161,27 +1159,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.Lotteries_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.OwnsOne("TemporaryDataLayer.ImageCollection", "Images", b1 =>
-                        {
-                            b1.Property<int>("LotteryId")
-                                .ValueGeneratedOnAdd()
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                            b1.Property<string>("Serialized")
-                                .HasColumnName("Images");
-
-                            b1.HasKey("LotteryId");
-
-                            b1.ToTable("Lotteries");
-
-                            b1.HasOne("TemporaryDataLayer.Lottery")
-                                .WithOne("Images")
-                                .HasForeignKey("TemporaryDataLayer.ImageCollection", "LotteryId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>

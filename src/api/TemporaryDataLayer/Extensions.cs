@@ -7,7 +7,7 @@ namespace TemporaryDataLayer
     {
         public const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
 
-        internal static void AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
+        public static void AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
         {
             if (hasDefaultValue)
             {
@@ -20,7 +20,7 @@ namespace TemporaryDataLayer
             builder.Property(typeof(bool), IsDeleted);
         }
 
-        internal static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue  = false) where T : BaseModel
+        public static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue  = false) where T : BaseModel
         {
             if (hasDefaultValue)
             {
@@ -42,7 +42,7 @@ namespace TemporaryDataLayer
                 .HasColumnType("datetime");
         }
 
-        internal static void MapRequiredOrganization<T>(this EntityTypeBuilder<T> builder, DeleteBehavior deleteBehavior = DeleteBehavior.Restrict) where T : class, IOrganization
+        public static void MapRequiredOrganization<T>(this EntityTypeBuilder<T> builder, DeleteBehavior deleteBehavior = DeleteBehavior.Restrict) where T : class, IOrganization
         {
             builder.HasOne(model => model.Organization)
                 .WithMany()

@@ -50,12 +50,13 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<VacationPage> VacationPages { get; set; }
 
+        public DbSet<Lottery> Lotteries { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
 
             builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-
 
             // Ignoring base models
             //builder.Ignore<BaseModel>(); // Not sure that works :)

@@ -9,7 +9,7 @@ namespace TemporaryDataLayer
     {
         public string Title { get; set; }
 
-        [StringLength(ValidationConstants.MaxPostMessageBodyLength)]
+        //[StringLength(ValidationConstants.MaxPostMessageBodyLength)]
         public string Description { get; set; }
 
         public DateTime EndDate { get; set; }
