@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919095128_Event0")]
+    partial class Event0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -479,64 +481,10 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<int?>("EventTypeId");
-
                     b.HasKey("Id")
                         .HasName("PK_dbo.Events");
 
-                    b.HasIndex("EventTypeId")
-                        .HasName("IX_EventTypeId");
-
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.EventType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsShownWithMainEvents")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsSingleJoin");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<bool>("SendEmailToManager")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("SendWeeklyReminders")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("SingleJoinGroupName")
-                        .HasMaxLength(100);
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.EventTypes");
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("EventTypes");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
@@ -1412,23 +1360,6 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.BookOffices_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Event", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.EventType")
-                        .WithMany("Events")
-                        .HasForeignKey("EventTypeId")
-                        .HasConstraintName("FK_dbo.Events_dbo.EventTypes_EventTypeId");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.EventType", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.EventTypes_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

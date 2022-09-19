@@ -59,6 +59,10 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<JobPosition> JobPositions { get; set; }
 
+        public DbSet<Event> Events { get; set; }
+
+        public DbSet<EventType> EventTypes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6

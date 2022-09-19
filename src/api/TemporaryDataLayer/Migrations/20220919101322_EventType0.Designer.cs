@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919101322_EventType0")]
+    partial class EventType0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,11 +503,11 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsShownWithMainEvents")
+                    b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(true);
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsShownWithMainEvents");
 
                     b.Property<bool>("IsSingleJoin");
 
@@ -518,13 +520,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("OrganizationId");
 
-                    b.Property<bool>("SendEmailToManager")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("SendEmailToManager");
 
-                    b.Property<bool>("SendWeeklyReminders")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("SendWeeklyReminders");
 
                     b.Property<string>("SingleJoinGroupName")
                         .HasMaxLength(100);
