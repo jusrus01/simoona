@@ -86,6 +86,12 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<NotificationUser> NotificationUsers { get; set; }
 
+        public DbSet<NotificationsSettings> NotificationsSettings { get; set; }
+
+        public DbSet<BadgeType> BadgeTypes { get; set; }
+
+        public DbSet<BadgeCategory> BadgeCategories { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6

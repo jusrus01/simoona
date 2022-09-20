@@ -8,6 +8,6 @@ namespace TemporaryDataLayer
         public string Description { get; set; }
 
         public virtual ICollection<BadgeType> BadgeTypes { get; set; }
-        public virtual ICollection<BadgeCategoryKudosType> RelationshipsWithKudosTypes { get; set; }
+        //public virtual ICollection<BadgeCategoryKudosType> RelationshipsWithKudosTypes { get; set; }
     }
 }

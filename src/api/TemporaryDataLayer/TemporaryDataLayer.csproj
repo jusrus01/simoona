@@ -18,6 +18,8 @@
     <Compile Remove="Migrations\20220916071243_RoomAndRoomType10.Designer.cs" />
     <Compile Remove="Migrations\20220916071728_RoomAndRoomType10.cs" />
     <Compile Remove="Migrations\20220916071728_RoomAndRoomType10.Designer.cs" />
+    <Compile Remove="Migrations\20220920153444_BadgeType2.cs" />
+    <Compile Remove="Migrations\20220920153444_BadgeType2.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +30,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
