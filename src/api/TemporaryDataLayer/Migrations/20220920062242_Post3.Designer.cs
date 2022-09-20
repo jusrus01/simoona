@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920062242_Post3")]
+    partial class Post3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1345,9 +1347,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("SharedEventId");
 
-                    b.Property<int>("WallId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<int>("WallId");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Posts");

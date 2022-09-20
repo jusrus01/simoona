@@ -9,17 +9,15 @@ namespace TemporaryDataLayer
     {
         public const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
 
-        public static void AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
+        public static PropertyBuilder AddSoftDelete<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue = false) where T : class
         {
             if (hasDefaultValue)
             {
-                builder.Property(typeof(bool), IsDeleted)
+                return builder.Property(typeof(bool), IsDeleted)
                     .HasDefaultValue(false);
-
-                return;
             }
 
-            builder.Property(typeof(bool), IsDeleted);
+            return builder.Property(typeof(bool), IsDeleted);
         }
 
         public static void AddLikes<T>(

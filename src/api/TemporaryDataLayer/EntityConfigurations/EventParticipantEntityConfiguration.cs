@@ -12,7 +12,8 @@ namespace TemporaryDataLayer
             builder.AddDefaultBaseModelConfiguration(true);
 
             builder.Property(model => model.ApplicationUserId)
-                .HasDefaultValue("");
+                .HasDefaultValue("")
+                .IsRequired();
 
             builder.Property(model => model.EventId)
                 .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"));

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920061803_Post1")]
+    partial class Post1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1322,15 +1324,11 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsHidden");
 
-                    b.Property<DateTime>("LastActivity")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<DateTime>("LastActivity");
 
                     b.Property<DateTime>("LastEdit")
                         .ValueGeneratedOnAdd()
@@ -1345,9 +1343,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("SharedEventId");
 
-                    b.Property<int>("WallId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<int>("WallId");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Posts");

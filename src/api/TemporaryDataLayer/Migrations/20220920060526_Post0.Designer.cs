@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920060526_Post0")]
+    partial class Post0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -675,7 +677,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ApplicationUserId")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue("");
 
@@ -1322,19 +1323,13 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsHidden");
 
-                    b.Property<DateTime>("LastActivity")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<DateTime>("LastActivity");
 
-                    b.Property<DateTime>("LastEdit")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                    b.Property<DateTime>("LastEdit");
 
                     b.Property<string>("MessageBody");
 
@@ -1345,19 +1340,13 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("SharedEventId");
 
-                    b.Property<int>("WallId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
+                    b.Property<int>("WallId");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Posts");
 
                     b.HasIndex("AuthorId")
                         .HasName("IX_AuthorId");
-
-                    b.HasIndex("LastActivity")
-                        .HasName("IX_LastActivity")
-                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("WallId")
                         .HasName("IX_WallId");
@@ -1863,8 +1852,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.EventParticipants_dbo.ApplicationUser_ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.EventParticipants_dbo.ApplicationUser_ApplicationUserId");
 
                     b.HasOne("TemporaryDataLayer.Event", "Event")
                         .WithMany()
@@ -2066,8 +2054,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
-                        .HasConstraintName("FK_dbo.Posts_dbo.AspNetUsers_ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("FK_dbo.Posts_dbo.ApplicationUser_AuthorId");
 
                     b.HasOne("TemporaryDataLayer.Wall", "Wall")
                         .WithMany()
