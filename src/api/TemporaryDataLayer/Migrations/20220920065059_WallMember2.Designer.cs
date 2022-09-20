@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920065059_WallMember2")]
+    partial class WallMember2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1615,10 +1617,6 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("WallId")
                         .HasName("IX_WallId");
-
-                    b.HasIndex("IsDeleted", "UserId")
-                        .HasName("nci_wi_WallMembers_6C8CE6B55B79BC00FDA53D9B579C2EFA")
-                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("WallMembers");
                 });
