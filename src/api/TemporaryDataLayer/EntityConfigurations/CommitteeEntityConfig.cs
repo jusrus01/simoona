@@ -1,6 +1,6 @@
 ﻿//namespace TemporaryDataLayer
 //{
-//    internal class CommitteeEntityConfig : EntityTypeConfiguration<Committee>
+//    public class CommitteeEntityConfig : EntityTypeConfiguration<Committee>
 //    {
 //        public CommitteeEntityConfig()
 //        {

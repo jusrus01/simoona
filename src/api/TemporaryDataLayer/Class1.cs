@@ -72,6 +72,10 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Wall> Walls { get; set; }
 
+        public DbSet<Post> Posts { get; set; }
+
+        public DbSet<Comment> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920053747_PartialPost")]
+    partial class PartialPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -471,53 +473,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("BookId_OfficeId");
 
                     b.ToTable("BookOffices");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthorId");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsHidden")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("LastEdit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-                    b.Property<string>("MessageBody");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Comments");
-
-                    b.HasIndex("AuthorId")
-                        .HasName("IX_AuthorId");
-
-                    b.HasIndex("PostId")
-                        .HasName("IX_PostId");
-
-                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Event", b =>
@@ -1724,60 +1679,6 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Comment", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .HasConstraintName("FK_dbo.Comments_dbo.AspNetUsers_ApplicationUserId");
-
-                    b.HasOne("TemporaryDataLayer.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
-                        .HasConstraintName("FK_dbo.Comments_dbo.Posts_PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.OwnsOne("TemporaryDataLayer.ImageCollection", "Images", b1 =>
-                        {
-                            b1.Property<int>("CommentId")
-                                .ValueGeneratedOnAdd()
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                            b1.Property<string>("Serialized")
-                                .HasColumnName("Images");
-
-                            b1.HasKey("CommentId");
-
-                            b1.ToTable("Comments");
-
-                            b1.HasOne("TemporaryDataLayer.Comment")
-                                .WithOne("Images")
-                                .HasForeignKey("TemporaryDataLayer.ImageCollection", "CommentId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
-
-                    b.OwnsOne("TemporaryDataLayer.LikesCollection", "Likes", b1 =>
-                        {
-                            b1.Property<int>("CommentId")
-                                .ValueGeneratedOnAdd()
-                                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                            b1.Property<string>("Serialized")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnName("Likes")
-                                .HasDefaultValue("{}");
-
-                            b1.HasKey("CommentId");
-
-                            b1.ToTable("Comments");
-
-                            b1.HasOne("TemporaryDataLayer.Comment")
-                                .WithOne("Likes")
-                                .HasForeignKey("TemporaryDataLayer.LikesCollection", "CommentId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Event", b =>
                 {
                     b.HasOne("TemporaryDataLayer.EventType", "EventType")
@@ -2032,9 +1933,7 @@ namespace TemporaryDataLayer.Migrations
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b1.Property<string>("Serialized")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnName("Likes")
-                                .HasDefaultValue("{}");
+                                .HasColumnName("Likes");
 
                             b1.HasKey("PostId");
 

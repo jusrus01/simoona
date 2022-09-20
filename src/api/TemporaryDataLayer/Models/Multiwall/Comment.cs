@@ -8,15 +8,15 @@ namespace TemporaryDataLayer
 {
     public class Comment : LikeBaseModel
     {
-        [StringLength(ValidationConstants.MaxCommentMessageBodyLength)]
+        //[StringLength(ValidationConstants.MaxCommentMessageBodyLength)]
         public string MessageBody { get; set; }
 
-        [ForeignKey("Author")]
+        //[ForeignKey("Author")]
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
 
-        [ForeignKey("Post")]
+        //[ForeignKey("Post")]
         public int PostId { get; set; }
 
         public virtual Post Post { get; set; }

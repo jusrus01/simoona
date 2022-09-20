@@ -22,6 +22,16 @@ namespace TemporaryDataLayer
             builder.Property(typeof(bool), IsDeleted);
         }
 
+        public static void AddLikes<T>(
+            this EntityTypeBuilder<T> builder,
+            Expression<Func<T, LikesCollection>> likes) where T : class
+        {
+            builder.OwnsOne(likes)
+               .Property(model => model.Serialized)
+               .HasColumnName("Likes")
+               .HasDefaultValue("{}");
+        }
+
         public static void AddImages<T>(
             this EntityTypeBuilder<T> builder,
             Expression<Func<T, ImageCollection>> image) where T : class

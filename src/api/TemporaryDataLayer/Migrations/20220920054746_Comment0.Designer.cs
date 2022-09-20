@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920054746_Comment0")]
+    partial class Comment0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,14 +490,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<bool>("IsHidden")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("IsHidden");
 
-                    b.Property<DateTime>("LastEdit")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                    b.Property<DateTime>("LastEdit");
 
                     b.Property<string>("MessageBody");
 
@@ -504,9 +501,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                    b.Property<int>("PostId");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Comments");
@@ -1729,7 +1724,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
-                        .HasConstraintName("FK_dbo.Comments_dbo.AspNetUsers_ApplicationUserId");
+                        .HasConstraintName("FK_dbo.Comments_dbo.ApplicationUser_AuthorId");
 
                     b.HasOne("TemporaryDataLayer.Post", "Post")
                         .WithMany()
