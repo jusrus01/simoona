@@ -76,6 +76,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Comment> Comments { get; set; }
 
+        public DbSet<PostWatcher> PostWatchers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
