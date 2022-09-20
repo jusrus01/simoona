@@ -82,6 +82,10 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<WallModerator> WallModerators { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<NotificationUser> NotificationUsers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6

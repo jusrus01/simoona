@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920145450_Notification1")]
+    partial class Notification1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1122,9 +1124,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Title");
 
-                    b.Property<int>("Type")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                    b.Property<int>("Type");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Notifications");
@@ -1138,25 +1138,16 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.NotificationUser", b =>
                 {
-                    b.Property<int>("NotificationId");
-
                     b.Property<string>("UserId");
+
+                    b.Property<int>("NotificationId");
 
                     b.Property<bool>("IsAlreadySeen");
 
-                    b.HasKey("NotificationId", "UserId")
-                        .HasName("PK_dbo.NotificationUsers");
-
-                    b.HasIndex("IsAlreadySeen")
-                        .HasName("ix_notification_IsAlreadySeen")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                    b.HasKey("UserId", "NotificationId");
 
                     b.HasIndex("NotificationId")
-                        .HasName("IX_NotificationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("UserId")
-                        .HasName("IX_UserId");
+                        .HasName("IX_NotificationId");
 
                     b.ToTable("NotificationUsers");
                 });
@@ -2233,7 +2224,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .HasConstraintName("FK_dbo.NotificationUsers_dbo.AspNetUsers_UserId")
+                        .HasConstraintName("FK_dbo.NotificationUsers_dbo.ApplicationUser_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

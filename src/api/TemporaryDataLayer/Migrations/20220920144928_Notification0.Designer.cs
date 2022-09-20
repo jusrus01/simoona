@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920144928_Notification0")]
+    partial class Notification0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1109,7 +1111,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
@@ -1122,9 +1126,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Title");
 
-                    b.Property<int>("Type")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                    b.Property<int>("Type");
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Notifications");
@@ -1134,31 +1136,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("Notifications");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.NotificationUser", b =>
-                {
-                    b.Property<int>("NotificationId");
-
-                    b.Property<string>("UserId");
-
-                    b.Property<bool>("IsAlreadySeen");
-
-                    b.HasKey("NotificationId", "UserId")
-                        .HasName("PK_dbo.NotificationUsers");
-
-                    b.HasIndex("IsAlreadySeen")
-                        .HasName("ix_notification_IsAlreadySeen")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("NotificationId")
-                        .HasName("IX_NotificationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("UserId")
-                        .HasName("IX_UserId");
-
-                    b.ToTable("NotificationUsers");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Office", b =>
@@ -2191,7 +2168,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.Notifications_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.OwnsOne("TemporaryDataLayer.Sources", "Sources", b1 =>
                         {
@@ -2220,21 +2197,6 @@ namespace TemporaryDataLayer.Migrations
                                 .HasConstraintName("FK_dbo.Notifications_dbo.Sources_SourcesTempId")
                                 .OnDelete(DeleteBehavior.Cascade);
                         });
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.NotificationUser", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.Notification", "Notification")
-                        .WithMany("NotificationUsers")
-                        .HasForeignKey("NotificationId")
-                        .HasConstraintName("FK_dbo.NotificationUsers_dbo.Notifications_NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK_dbo.NotificationUsers_dbo.AspNetUsers_UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Office", b =>

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920145856_Notification2")]
+    partial class Notification2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1144,16 +1146,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsAlreadySeen");
 
-                    b.HasKey("NotificationId", "UserId")
-                        .HasName("PK_dbo.NotificationUsers");
-
-                    b.HasIndex("IsAlreadySeen")
-                        .HasName("ix_notification_IsAlreadySeen")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("NotificationId")
-                        .HasName("IX_NotificationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                    b.HasKey("NotificationId", "UserId");
 
                     b.HasIndex("UserId")
                         .HasName("IX_UserId");
