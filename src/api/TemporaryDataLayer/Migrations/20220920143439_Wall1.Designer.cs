@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920143439_Wall1")]
+    partial class Wall1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1568,9 +1570,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsHiddenFromAllWalls");
 
-                    b.Property<string>("Logo")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue("wall-default.png");
+                    b.Property<string>("Logo");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
@@ -1663,6 +1663,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("WallId");
 
+                    b.Property<int?>("WallId1");
+
                     b.HasKey("Id")
                         .HasName("PK_dbo.WallModerators");
 
@@ -1671,6 +1673,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("WallId")
                         .HasName("IX_WallId");
+
+                    b.HasIndex("WallId1");
 
                     b.ToTable("WallModerators");
                 });
@@ -2326,10 +2330,14 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.Wall", "Wall")
-                        .WithMany("Moderators")
+                        .WithMany()
                         .HasForeignKey("WallId")
                         .HasConstraintName("FK_dbo.WallModerators_dbo.Walls_WallId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TemporaryDataLayer.Wall")
+                        .WithMany("Moderators")
+                        .HasForeignKey("WallId1");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.WorkingHours", b =>

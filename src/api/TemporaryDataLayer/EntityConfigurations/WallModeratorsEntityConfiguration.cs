@@ -11,11 +11,6 @@ namespace TemporaryDataLayer
             builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete(true);
 
-            builder.HasOne(model => model.Wall)
-                .WithMany()
-                .HasForeignKey(model => model.WallId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasOne(model => model.User)
                 .WithMany()
                 .HasForeignKey(model => model.UserId)

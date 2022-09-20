@@ -10,6 +10,9 @@ namespace TemporaryDataLayer
             builder.AddDefaultBaseModelConfiguration();
             builder.MapRequiredOrganization();
             builder.AddSoftDelete();
+
+            builder.Property(model => model.Logo)
+                .HasDefaultValue("wall-default.png");
         }
     }
 }

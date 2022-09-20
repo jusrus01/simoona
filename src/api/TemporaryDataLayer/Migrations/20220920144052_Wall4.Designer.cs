@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920144052_Wall4")]
+    partial class Wall4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1568,9 +1570,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsHiddenFromAllWalls");
 
-                    b.Property<string>("Logo")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue("wall-default.png");
+                    b.Property<string>("Logo");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
