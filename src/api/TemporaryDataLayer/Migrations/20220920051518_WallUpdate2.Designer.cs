@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920051518_WallUpdate2")]
+    partial class WallUpdate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,9 +490,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("CreatedBy");
 
@@ -504,6 +504,8 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<int>("EventRecurring");
 
                     b.Property<int>("EventTypeId");
+
+                    b.Property<int?>("EventTypeId1");
 
                     b.Property<string>("ImageName");
 
@@ -520,9 +522,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasMaxLength(32767);
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
 
@@ -559,6 +559,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("EventTypeId")
                         .HasName("IX_EventTypeId");
+
+                    b.HasIndex("EventTypeId1");
 
                     b.HasIndex("OfficeId")
                         .HasName("IX_OfficeId");
@@ -1660,10 +1662,14 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.Event", b =>
                 {
                     b.HasOne("TemporaryDataLayer.EventType", "EventType")
-                        .WithMany("Events")
+                        .WithMany()
                         .HasForeignKey("EventTypeId")
                         .HasConstraintName("FK_dbo.Events_dbo.EventTypes_EventTypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.EventType")
+                        .WithMany("Events")
+                        .HasForeignKey("EventTypeId1");
 
                     b.HasOne("TemporaryDataLayer.Office", "Office")
                         .WithMany()
@@ -1678,7 +1684,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ResponsibleUser")
                         .WithMany()
                         .HasForeignKey("ResponsibleUserId")
-                        .HasConstraintName("FK_dbo.Events_dbo.AspNetUsers_ResponsibleUserId");
+                        .HasConstraintName("FK_dbo.Events_dbo.ApplicationUser_ResponsibleUserId");
 
                     b.HasOne("TemporaryDataLayer.Wall", "Wall")
                         .WithMany()

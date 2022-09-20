@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220920052150_WallUpdate3")]
+    partial class WallUpdate3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,9 +490,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasDefaultValue(true);
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("CreatedBy");
 
@@ -520,9 +520,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasMaxLength(32767);
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                        .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
 
@@ -1663,7 +1661,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany("Events")
                         .HasForeignKey("EventTypeId")
                         .HasConstraintName("FK_dbo.Events_dbo.EventTypes_EventTypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Office", "Office")
                         .WithMany()
