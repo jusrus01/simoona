@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using TemporaryDataLayer.Models;
+using TemporaryDataLayer.Models.Users;
 
 namespace TemporaryDataLayer
 {
@@ -95,7 +96,13 @@ namespace TemporaryDataLayer
 
         //public virtual ICollection<Certificate> Certificates { get; set; }
 
-        //public virtual ICollection<Skill> Skills { get; set; }
+        public virtual IEnumerable<Skill> Skills 
+        { 
+            get => ApplicationUserSkills.Select(model => model.Skill); 
+        }
+
+        // Required for many-to-many
+        internal virtual ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
 
         //public virtual ICollection<Book> Books { get; set; }
 

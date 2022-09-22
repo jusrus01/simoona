@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922090944_Skill2")]
+    partial class Skill2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1414,13 +1416,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("ApplicationUserId", "SkillId")
                         .HasName("PK_dbo.ApplicationUserSkills");
 
-                    b.HasIndex("ApplicationUserId")
-                        .HasName("IX_ApplicationUserId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("SkillId")
-                        .HasName("IX_SkillId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                    b.HasIndex("SkillId");
 
                     b.ToTable("ApplicationUserSkills");
                 });
@@ -2195,9 +2191,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<bool>("ShowInAutoComplete")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("ShowInAutoComplete");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -2207,7 +2201,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.Skills");
 
                     b.HasIndex("Title")
-                        .HasName("IX_Title")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("Skills");

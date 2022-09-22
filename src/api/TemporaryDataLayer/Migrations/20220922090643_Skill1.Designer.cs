@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922090643_Skill1")]
+    partial class Skill1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1407,19 +1409,21 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.Models.Users.ApplicationUserSkill", b =>
                 {
-                    b.Property<string>("ApplicationUserId");
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnName("ApplicationUser_Id");
 
-                    b.Property<int>("SkillId");
+                    b.Property<int>("SkillId")
+                        .HasColumnName("Skill_Id");
 
                     b.HasKey("ApplicationUserId", "SkillId")
                         .HasName("PK_dbo.ApplicationUserSkills");
 
                     b.HasIndex("ApplicationUserId")
-                        .HasName("IX_ApplicationUserId")
+                        .HasName("IX_ApplicationUser_Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("SkillId")
-                        .HasName("IX_SkillId")
+                        .HasName("IX_Skill_Id")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ApplicationUserSkills");
@@ -2195,9 +2199,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<bool>("ShowInAutoComplete")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool>("ShowInAutoComplete");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -2207,7 +2209,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("PK_dbo.Skills");
 
                     b.HasIndex("Title")
-                        .HasName("IX_Title")
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("Skills");
