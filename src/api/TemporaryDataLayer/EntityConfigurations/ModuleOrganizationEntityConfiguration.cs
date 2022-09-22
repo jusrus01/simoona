@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
 using TemporaryDataLayer.Models;
 
 namespace TemporaryDataLayer.EntityConfigurations
@@ -9,6 +8,8 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<ModuleOrganization> builder)
         {
+            builder.ToTable("ModuleOrganizations");
+
             builder.Property(model => model.OrganizationId)
                 .HasColumnName($"{nameof(ModuleOrganization.OrganizationId).Replace("Id", "_Id")}");
 

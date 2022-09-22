@@ -18,8 +18,6 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public new DbSet<ApplicationUser> Users { get; set; }
 
-        public DbSet<ModuleOrganization> ModuleOrganizations { get; set; }
-
         public DbSet<Organization> Organizations { get; set; }
 
         public DbSet<Module> Modules { get; set; }
@@ -68,8 +66,6 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<EventParticipant> EventParticipants { get; set; }
 
-        public DbSet<EventParticipantEventOption> EventParticipantEventOptions { get; set; }
-
         public DbSet<Wall> Walls { get; set; }
 
         public DbSet<Post> Posts { get; set; }
@@ -99,6 +95,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
         public DbSet<ServiceRequestStatus> ServiceRequestStatus { get; set; }
 
         public DbSet<ServiceRequestPriority> ServiceRequestPriorities { get; set; }
+
+        public DbSet<ServiceRequestCategory> ServiceRequestCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -8,6 +8,8 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<EventParticipantEventOption> builder)
         {
+            builder.ToTable("EventParticipantEventOptions");
+
             builder.Property(model => model.EventParticipantId)
                 .HasColumnName("EventParticipant_Id");
 

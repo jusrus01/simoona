@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922054300_ServiceRequestCategory0")]
+    partial class ServiceRequestCategory0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1228,28 +1230,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ModuleOrganizations");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Models.ServiceRequestCategoryApplicationUser", b =>
-                {
-                    b.Property<int>("ServiceRequestCategoryId")
-                        .HasColumnName("ServiceRequestCategory_Id");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnName("ApplicationUser_Id");
-
-                    b.HasKey("ServiceRequestCategoryId", "ApplicationUserId")
-                        .HasName("PK_dbo.ServiceRequestCategoryApplicationUsers");
-
-                    b.HasIndex("ApplicationUserId")
-                        .HasName("IX_ApplicationUser_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("ServiceRequestCategoryId")
-                        .HasName("IX_ServiceRequestCategory_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("ServiceRequestCategoryApplicationUsers");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Module", b =>
@@ -2574,21 +2554,6 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany("ShroomsModuleOrganizations")
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.ShroomsModuleOrganizations_dbo.Organizations_Organization_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.Models.ServiceRequestCategoryApplicationUser", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany("ServiceRequestCategoryApplicationUsers")
-                        .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.ServiceRequestCategoryApplicationUsers_dbo.AspNetUsers_ApplicationUser_Id")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.ServiceRequestCategory", "ServiceRequestCategory")
-                        .WithMany("ServiceRequestCategoryApplicationUsers")
-                        .HasForeignKey("ServiceRequestCategoryId")
-                        .HasConstraintName("FK_dbo.ServiceRequestCategoryApplicationUsers_dbo.ServiceRequestCategories_ServiceRequestCategory_Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

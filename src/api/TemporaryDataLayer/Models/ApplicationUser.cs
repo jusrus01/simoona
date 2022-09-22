@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using TemporaryDataLayer.Models;
 
 namespace TemporaryDataLayer
 {
@@ -104,7 +107,13 @@ namespace TemporaryDataLayer
 
         //public virtual ICollection<WallMember> WallUsers { get; set; }
 
-        //public virtual ICollection<ServiceRequestCategory> ServiceRequestCategoriesAssigned { get; set; }
+        public virtual IEnumerable<ServiceRequestCategory> ServiceRequestCategoriesAssigned 
+        { 
+            get => ServiceRequestCategoryApplicationUsers.Select(model => model.ServiceRequestCategory); 
+        }
+
+        // Required for many-to-many
+        internal virtual ICollection<ServiceRequestCategoryApplicationUser> ServiceRequestCategoryApplicationUsers { get; set; }
 
         public double? VacationTotalTime { get; set; }
 
