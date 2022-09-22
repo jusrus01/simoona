@@ -92,6 +92,8 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<BadgeCategory> BadgeCategories { get; set; }
 
+        public DbSet<BadgeCategoryKudosType> BadgeCategoryKudosTypes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
