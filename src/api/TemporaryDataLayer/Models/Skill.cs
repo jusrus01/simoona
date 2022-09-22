@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TemporaryDataLayer.Models;
 using TemporaryDataLayer.Models.Users;
 
 namespace TemporaryDataLayer
@@ -10,14 +11,19 @@ namespace TemporaryDataLayer
 
         public bool ShowInAutoComplete { get; set; }
 
-        public virtual IEnumerable<ApplicationUser> ApplicationUsers 
+        public IEnumerable<ApplicationUser> ApplicationUsers 
         { 
             get => ApplicationUserSkills.Select(model => model.ApplicationUser); 
         }
 
-        // Required for many-to-many
-        internal ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
+        public IEnumerable<Project> Projects 
+        { 
+            get => ProjectSkills.Select(model => model.Project); 
+        }
 
-        //public virtual ICollection<Project> Projects { get; set; }
+        // Required for many-to-many
+        internal ICollection<ProjectSkill> ProjectSkills { get; set; }
+
+        internal ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
     }
 }

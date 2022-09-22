@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922102638_Project1")]
+    partial class Project1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1940,8 +1942,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("OrganizationId");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired();
+                    b.Property<string>("OwnerId");
 
                     b.Property<int>("WallId")
                         .ValueGeneratedOnAdd()
@@ -1954,9 +1955,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("IX_OrganizationId")
                         .HasAnnotation("SqlServer:Clustered", false);
 
-                    b.HasIndex("OwnerId")
-                        .HasName("IX_OwnerId")
-                        .HasAnnotation("SqlServer:Clustered", false);
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("WallId")
                         .HasName("IX_WallId");
@@ -3278,8 +3277,8 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_Org_Projects")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_dbo.Projects_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Owner")
                         .WithMany("OwnedProjects")

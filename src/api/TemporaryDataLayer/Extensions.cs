@@ -61,18 +61,25 @@ namespace TemporaryDataLayer
                 .HasColumnType("datetime");
         }
 
-        public static void AddOrganization<T>(this EntityTypeBuilder<T> builder, DeleteBehavior deleteBehavior = DeleteBehavior.Restrict) where T : class, IOrganization
+        public static void AddOrganization<T>(
+            this EntityTypeBuilder<T> builder, 
+            DeleteBehavior deleteBehavior = DeleteBehavior.Restrict,
+            string foreignKeyName = null) where T : class, IOrganization
         {
-            builder.HasOne(model => model.Organization)
+            var orgCollectionBuilder = builder.HasOne(model => model.Organization)
                 .WithMany()
                 .OnDelete(deleteBehavior)
                 .HasForeignKey(model => model.OrganizationId)
                 .IsRequired();
 
+            if (foreignKeyName != null)
+            {
+                orgCollectionBuilder.HasConstraintName(foreignKeyName);
+            }
+
             builder.HasIndex(model => model.OrganizationId)
                 .ForSqlServerIsClustered(false)
                 .HasName($"IX_{nameof(IOrganization.OrganizationId)}");
         }
-
     }
 }

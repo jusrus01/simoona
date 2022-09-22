@@ -119,9 +119,6 @@ namespace TemporaryDataLayer
             get => ServiceRequestCategoryApplicationUsers.Select(model => model.ServiceRequestCategory); 
         }
 
-        // Required for many-to-many
-        internal virtual ICollection<ServiceRequestCategoryApplicationUser> ServiceRequestCategoryApplicationUsers { get; set; }
-
         public double? VacationTotalTime { get; set; }
 
         public double? VacationUsedTime { get; set; }
@@ -136,9 +133,12 @@ namespace TemporaryDataLayer
 
         public string CultureCode { get; set; }
 
-        //public virtual ICollection<Project> Projects { get; set; }
+        public IEnumerable<Project> Projects 
+        { 
+            get => ProjectApplicationUsers.Select(model => model.Project);
+        }
 
-        //public virtual ICollection<Project> OwnedProjects { get; set; }
+        public ICollection<Project> OwnedProjects { get; set; }
 
         //public int? JobPositionId { get; set; }
 
@@ -197,5 +197,10 @@ namespace TemporaryDataLayer
             TotalKudos += log.Points;
             Modified = DateTime.UtcNow;
         }
+
+        // Required for many-to-many
+        internal ICollection<ServiceRequestCategoryApplicationUser> ServiceRequestCategoryApplicationUsers { get; set; }
+
+        internal ICollection<ProjectApplicationUser> ProjectApplicationUsers { get; set; }
     }
 }

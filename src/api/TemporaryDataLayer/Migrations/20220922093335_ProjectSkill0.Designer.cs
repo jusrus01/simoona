@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922093335_ProjectSkill0")]
+    partial class ProjectSkill0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1383,28 +1385,6 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("ModuleOrganizations");
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Models.ProjectApplicationUser", b =>
-                {
-                    b.Property<int>("ProjectId")
-                        .HasColumnName("Project_Id");
-
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnName("ApplicationUser_Id");
-
-                    b.HasKey("ProjectId", "ApplicationUserId")
-                        .HasName("PK_dbo.ProjectApplicationUsers");
-
-                    b.HasIndex("ApplicationUserId")
-                        .HasName("IX_ApplicationUser_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("ProjectId")
-                        .HasName("IX_Project_Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("ProjectApplicationUsers");
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Models.ProjectSkill", b =>
                 {
                     b.Property<int>("ProjectId")
@@ -1926,40 +1906,21 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("Created");
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<string>("Logo");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("ModifiedBy");
 
                     b.Property<int>("OrganizationId");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired();
-
-                    b.Property<int>("WallId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(null);
-
                     b.HasKey("Id")
                         .HasName("PK_dbo.Projects");
 
                     b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("OwnerId")
-                        .HasName("IX_OwnerId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.HasIndex("WallId")
-                        .HasName("IX_WallId");
+                        .HasName("IX_OrganizationId");
 
                     b.ToTable("Projects");
                 });
@@ -3020,21 +2981,6 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TemporaryDataLayer.Models.ProjectApplicationUser", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany("ProjectApplicationUsers")
-                        .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.Project2ApplicationUser_dbo.AspNetUsers_ApplicationUser_Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.Project", "Project")
-                        .WithMany("ProjectApplicationUsers")
-                        .HasForeignKey("ProjectId")
-                        .HasConstraintName("FK_dbo.Project2ApplicationUser_dbo.Projects_Project2_Id")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("TemporaryDataLayer.Models.ProjectSkill", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Project", "Project")
@@ -3278,19 +3224,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_Org_Projects")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "Owner")
-                        .WithMany("OwnedProjects")
-                        .HasForeignKey("OwnerId")
-                        .HasConstraintName("FK_dbo.Projects_dbo.AspNetUsers_OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("TemporaryDataLayer.Wall", "Wall")
-                        .WithMany()
-                        .HasForeignKey("WallId")
-                        .HasConstraintName("FK_dbo.Projects_dbo.Walls_WallId")
+                        .HasConstraintName("FK_dbo.Projects_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
