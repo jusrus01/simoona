@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922074044_KudosLog2")]
+    partial class KudosLog2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1127,6 +1129,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("EmployeeId");
 
+                    b.Property<string>("Employee_Id");
+
                     b.Property<int?>("KudosBasketId");
 
                     b.Property<int>("KudosSystemType")
@@ -1157,8 +1161,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasKey("Id")
                         .HasName("PK_dbo.KudosLogs");
 
-                    b.HasIndex("EmployeeId")
-                        .HasName("IX_EmployeeId");
+                    b.HasIndex("Employee_Id");
 
                     b.HasIndex("KudosBasketId")
                         .HasName("IX_KudosBasketId");
@@ -2781,8 +2784,8 @@ namespace TemporaryDataLayer.Migrations
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Employee")
                         .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .HasConstraintName("FK_dbo.KudosLogs_dbo.AspNetUsers_EmployeeId")
+                        .HasForeignKey("Employee_Id")
+                        .HasConstraintName("FK_dbo.KudosLogs_dbo.AspNetUsers_Employee_Id")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.KudosBasket", "KudosBasket")
@@ -2794,7 +2797,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.KudosLogs_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.KudosShopItem", b =>

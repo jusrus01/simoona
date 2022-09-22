@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
     {
         public void Configure(EntityTypeBuilder<Notification> builder)
         {
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade);
+            builder.AddOrganization(DeleteBehavior.Cascade);
             builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete();
 

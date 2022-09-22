@@ -7,7 +7,7 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<KudosShopItem> builder)
         {
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade);
+            builder.AddOrganization(DeleteBehavior.Cascade);
             builder.AddSoftDelete(true);
             builder.AddDefaultBaseModelConfiguration();
         }

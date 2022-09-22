@@ -31,7 +31,7 @@ namespace TemporaryDataLayer
             builder.Property(model => model.Modified)
                 .HasColumnType("datetime2");
 
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Books
     {
         public void Configure(EntityTypeBuilder<BookLog> builder)
         {
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete();
 

@@ -8,7 +8,7 @@ namespace TemporaryDataLayer.EntityConfigurations.ServiceRequests
         public void Configure(EntityTypeBuilder<ServiceRequestComment> builder)
         {
             builder.AddSoftDelete();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration();
 
             builder.HasOne(model => model.Employee)

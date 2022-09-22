@@ -9,7 +9,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Offices
         public void Configure(EntityTypeBuilder<Floor> builder)
         {
             builder.AddSoftDelete(true);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration(true);
 
             builder.HasOne(model => model.Picture)

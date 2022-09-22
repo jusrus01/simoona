@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
@@ -8,7 +7,7 @@ namespace TemporaryDataLayer
 {
     public class KudosLog : BaseModelWithOrg
     {
-        [ForeignKey("Employee")]
+        //[ForeignKey("Employee")]
         public string EmployeeId { get; set; }
 
         public virtual ApplicationUser Employee { get; set; }
@@ -27,7 +26,7 @@ namespace TemporaryDataLayer
 
         public int MultiplyBy { get; set; }
 
-        [ForeignKey("KudosBasket")]
+        //[ForeignKey("KudosBasket")]
         public int? KudosBasketId { get; set; }
 
         public virtual KudosBasket KudosBasket { get; set; }

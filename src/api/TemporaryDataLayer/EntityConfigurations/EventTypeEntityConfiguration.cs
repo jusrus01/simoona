@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
         public void Configure(EntityTypeBuilder<EventType> builder)
         {
             builder.AddSoftDelete(false);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration();
 
             builder.Property(model => model.SingleJoinGroupName)

@@ -61,7 +61,7 @@ namespace TemporaryDataLayer
                 .HasColumnType("datetime");
         }
 
-        public static void MapRequiredOrganization<T>(this EntityTypeBuilder<T> builder, DeleteBehavior deleteBehavior = DeleteBehavior.Restrict) where T : class, IOrganization
+        public static void AddOrganization<T>(this EntityTypeBuilder<T> builder, DeleteBehavior deleteBehavior = DeleteBehavior.Restrict) where T : class, IOrganization
         {
             builder.HasOne(model => model.Organization)
                 .WithMany()

@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
         public void Configure(EntityTypeBuilder<BlacklistUser> builder)
         {
             builder.AddDefaultBaseModelConfiguration();
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade);
+            builder.AddOrganization(DeleteBehavior.Cascade);
 
             builder.HasOne(model => model.CreatedByUser)
                 .WithMany()

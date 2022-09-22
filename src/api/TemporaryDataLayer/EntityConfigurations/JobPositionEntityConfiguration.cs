@@ -8,7 +8,7 @@ namespace TemporaryDataLayer.EntityConfigurations
         public void Configure(EntityTypeBuilder<JobPosition> builder)
         {
             builder.AddDefaultBaseModelConfiguration();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddSoftDelete();
         }
     }

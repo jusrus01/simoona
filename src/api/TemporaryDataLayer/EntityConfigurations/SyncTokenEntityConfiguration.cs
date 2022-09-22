@@ -7,7 +7,7 @@ namespace TemporaryDataLayer.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<SyncToken> builder)
         {
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration();
         }
     }

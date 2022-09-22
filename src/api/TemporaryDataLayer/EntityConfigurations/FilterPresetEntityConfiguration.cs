@@ -9,7 +9,7 @@ namespace TemporaryDataLayer
         {
             builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete();
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade); // Probably should not be Cascade, however old model has it
+            builder.AddOrganization(DeleteBehavior.Cascade); // Probably should not be Cascade, however old model has it
 
             builder.HasKey(model => model.Id);
 

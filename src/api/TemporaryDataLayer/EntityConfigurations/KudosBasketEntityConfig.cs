@@ -1,23 +1,22 @@
-﻿//namespace TemporaryDataLayer
-//{
-//    internal class KudosBasketEntityConfig : EntityTypeConfiguration<KudosBasket>
-//    {
-//        public KudosBasketEntityConfig()
-//        {
-//            Property(b => b.Title)
-//                .IsRequired()
-//                .HasMaxLength(25);
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//            Property(b => b.Description)
-//                .HasMaxLength(5000);
+namespace TemporaryDataLayer
+{
+    public class KudosBasketEntityConfig : IEntityTypeConfiguration<KudosBasket>
+    {
+        public void Configure(EntityTypeBuilder<KudosBasket> builder)
+        {
+            builder.AddSoftDelete();
+            builder.AddOrganization();
+            builder.AddDefaultBaseModelConfiguration();
 
-//            Map(m => m.Requires("IsDeleted")
-//                .HasValue(false));
+            builder.Property(model => model.Title)
+                .HasMaxLength(25)
+                .IsRequired();
 
-//            HasRequired(k => k.Organization)
-//                .WithMany()
-//                .HasForeignKey(k => k.OrganizationId)
-//                .WillCascadeOnDelete(false);
-//        }
-//    }
-//}
+            builder.Property(model => model.IsActive)
+                .HasDefaultValue(false);
+        }
+    }
+}

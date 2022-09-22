@@ -9,7 +9,7 @@ namespace TemporaryDataLayer
         {
             builder.AddDefaultBaseModelConfiguration(true);
             builder.AddSoftDelete(true);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.OwnsOne(model => model.Address);
 

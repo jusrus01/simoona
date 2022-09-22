@@ -10,7 +10,7 @@ namespace TemporaryDataLayer.EntityConfigurations
             builder.HasKey(model => model.Id);
             builder.AddDefaultBaseModelConfiguration();
             builder.AddSoftDelete();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.Property(model => model.FullTime)
                 .HasDefaultValue(true)

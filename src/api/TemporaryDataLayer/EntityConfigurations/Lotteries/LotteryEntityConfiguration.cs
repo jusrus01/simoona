@@ -8,7 +8,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Lotteries
     {
         public void Configure(EntityTypeBuilder<Lottery> builder)
         {
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade);
+            builder.AddOrganization(DeleteBehavior.Cascade);
             builder.AddDefaultBaseModelConfiguration();
 
             builder.Property(model => model.EndDate)

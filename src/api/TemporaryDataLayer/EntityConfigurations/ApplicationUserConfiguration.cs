@@ -82,7 +82,7 @@ namespace TemporaryDataLayer
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.AddSoftDelete();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.Ignore(model => model.FullName);
             builder.Ignore(model => model.YearsEmployed);

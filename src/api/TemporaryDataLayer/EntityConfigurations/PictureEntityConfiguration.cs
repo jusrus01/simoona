@@ -10,7 +10,7 @@ namespace TemporaryDataLayer.EntityConfigurations
             builder.HasKey(model => model.Id);
             builder.AddDefaultBaseModelConfiguration(true);
             builder.AddSoftDelete(true);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
         }
     }
 }

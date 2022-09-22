@@ -7,7 +7,7 @@ namespace TemporaryDataLayer
     {
         public void Configure(EntityTypeBuilder<VacationPage> builder)
         {
-            builder.MapRequiredOrganization(DeleteBehavior.Cascade);
+            builder.AddOrganization(DeleteBehavior.Cascade);
             builder.AddDefaultBaseModelConfiguration();
 
             builder.Property(model => model.Content)

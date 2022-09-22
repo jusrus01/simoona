@@ -106,6 +106,10 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<KudosType> KudosTypes { get; set; }
 
+        public DbSet<KudosBasket> KudosBaskets { get; set; }
+
+        public DbSet<KudosLog> KudosLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6

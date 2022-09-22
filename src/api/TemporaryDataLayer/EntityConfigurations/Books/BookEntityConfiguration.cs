@@ -9,7 +9,7 @@ namespace TemporaryDataLayer
         {
             builder.AddSoftDelete();
             builder.AddDefaultBaseModelConfiguration();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.Property(u => u.Code)
               .HasMaxLength(20);

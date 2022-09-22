@@ -11,7 +11,7 @@ namespace TemporaryDataLayer.EntityConfigurations.ServiceRequests
             builder.AddSoftDelete()
                 .HasDefaultValue(null);
 
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.Property(model => model.PriorityId)
                 .HasDefaultValue(0);

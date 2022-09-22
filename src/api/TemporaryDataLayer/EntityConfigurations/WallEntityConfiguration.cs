@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
         public void Configure(EntityTypeBuilder<Wall> builder)
         {
             builder.AddDefaultBaseModelConfiguration();
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddSoftDelete();
 
             builder.Property(model => model.Logo)

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922071305_KudosBasket0")]
+    partial class KudosBasket0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1109,65 +1111,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("KudosBaskets");
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.KudosLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comments")
-                        .IsRequired();
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<string>("EmployeeId");
-
-                    b.Property<int?>("KudosBasketId");
-
-                    b.Property<int>("KudosSystemType")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
-
-                    b.Property<string>("KudosTypeName");
-
-                    b.Property<decimal>("KudosTypeValue");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<int>("MultiplyBy");
-
-                    b.Property<int>("OrganizationId");
-
-                    b.Property<string>("PictureId");
-
-                    b.Property<decimal>("Points");
-
-                    b.Property<string>("RejectionMessage");
-
-                    b.Property<int>("Status");
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.KudosLogs");
-
-                    b.HasIndex("EmployeeId")
-                        .HasName("IX_EmployeeId");
-
-                    b.HasIndex("KudosBasketId")
-                        .HasName("IX_KudosBasketId");
-
-                    b.HasIndex("OrganizationId")
-                        .HasName("IX_OrganizationId")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
-                    b.ToTable("KudosLogs");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.KudosShopItem", b =>
@@ -2775,26 +2718,6 @@ namespace TemporaryDataLayer.Migrations
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.KudosBaskets_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
-                });
-
-            modelBuilder.Entity("TemporaryDataLayer.KudosLog", b =>
-                {
-                    b.HasOne("TemporaryDataLayer.ApplicationUser", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .HasConstraintName("FK_dbo.KudosLogs_dbo.AspNetUsers_EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.KudosBasket", "KudosBasket")
-                        .WithMany("KudosLogs")
-                        .HasForeignKey("KudosBasketId")
-                        .HasConstraintName("FK_dbo.KudosLogs_dbo.KudosBaskets_KudosBasketId");
-
-                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.KudosLogs_dbo.Organizations_OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.KudosShopItem", b =>

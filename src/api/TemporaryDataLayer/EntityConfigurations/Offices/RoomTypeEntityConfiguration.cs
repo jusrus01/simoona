@@ -8,7 +8,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Offices
         public void Configure(EntityTypeBuilder<RoomType> builder)
         {
             builder.AddDefaultBaseModelConfiguration(true);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
 
             builder.AddSoftDelete(true); // TODO: figure out what to do about that constraint
 

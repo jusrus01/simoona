@@ -8,7 +8,7 @@ namespace TemporaryDataLayer
         public void Configure(EntityTypeBuilder<Page> builder)
         {
             builder.AddSoftDelete(true);
-            builder.MapRequiredOrganization();
+            builder.AddOrganization();
             builder.AddDefaultBaseModelConfiguration(true);
         }
     }
