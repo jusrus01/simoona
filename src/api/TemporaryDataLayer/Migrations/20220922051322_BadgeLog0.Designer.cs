@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922051322_BadgeLog0")]
+    partial class BadgeLog0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -330,15 +332,13 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("BadgeTypeId");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("Created");
 
                     b.Property<string>("CreatedBy");
 
                     b.Property<string>("EmployeeId");
 
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("ModifiedBy");
 
@@ -2118,8 +2118,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
-                        .HasConstraintName("FK_dbo.BadgeLogs_dbo.AspNetUsers_EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("FK_dbo.BadgeLogs_dbo.ApplicationUser_EmployeeId");
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()

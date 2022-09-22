@@ -1,23 +1,19 @@
-﻿//namespace TemporaryDataLayer
-//{
-//    internal class BadgeLogEntityConfiguration : EntityTypeConfiguration<BadgeLog>
-//    {
-//        public BadgeLogEntityConfiguration()
-//        {
-//            Map(e => e.Requires("IsDeleted").HasValue(false));
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//            Property(u => u.ModifiedBy)
-//                .HasMaxLength(50);
+namespace TemporaryDataLayer
+{
+    public class BadgeLogEntityConfiguration : IEntityTypeConfiguration<BadgeLog>
+    {
+        public void Configure(EntityTypeBuilder<BadgeLog> builder)
+        {
+            builder.AddDefaultBaseModelConfiguration();
 
-//            Property(u => u.CreatedBy)
-//                .HasMaxLength(50);
-
-//            Property(log => log.OrganizationId)
-//                .IsRequired();
-
-//            HasRequired(x => x.Employee)
-//                .WithMany(x => x.BadgeLogs)
-//                .WillCascadeOnDelete(false);
-//        }
-//    }
-//}
+            builder.HasOne(model => model.Employee)
+                .WithMany()
+                .HasForeignKey(model => model.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_dbo.BadgeLogs_dbo.AspNetUsers_EmployeeId");
+        }
+    }
+}
