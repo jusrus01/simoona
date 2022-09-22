@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220922061659_KudosShopItem1")]
+    partial class KudosShopItem1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1850,9 +1852,19 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CategoryName");
+
                     b.Property<DateTime>("Created");
 
                     b.Property<string>("CreatedBy");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("EmployeeId");
+
+                    b.Property<int?>("KudosAmmount");
+
+                    b.Property<int?>("KudosShopItemId");
 
                     b.Property<DateTime>("Modified");
 
@@ -1860,13 +1872,33 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("OrganizationId");
 
+                    b.Property<string>("PictureId");
+
+                    b.Property<int>("PriorityId");
+
+                    b.Property<int>("StatusId");
+
+                    b.Property<string>("Title");
+
                     b.HasKey("Id")
-                        .HasName("PK_dbo.ServiceRequests");
+                        .HasName("PK_dbo.ServiceRequest");
+
+                    b.HasIndex("EmployeeId")
+                        .HasName("IX_EmployeeId");
+
+                    b.HasIndex("KudosShopItemId")
+                        .HasName("IX_KudosShopItemId");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId");
 
-                    b.ToTable("ServiceRequests");
+                    b.HasIndex("PriorityId")
+                        .HasName("IX_PriorityId");
+
+                    b.HasIndex("StatusId")
+                        .HasName("IX_StatusId");
+
+                    b.ToTable("ServiceRequest");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ServiceRequestCategory", b =>
@@ -2931,10 +2963,32 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("TemporaryDataLayer.ServiceRequest", b =>
                 {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .HasConstraintName("FK_dbo.ServiceRequest_dbo.ApplicationUser_EmployeeId");
+
+                    b.HasOne("TemporaryDataLayer.KudosShopItem", "KudosShopItem")
+                        .WithMany()
+                        .HasForeignKey("KudosShopItemId")
+                        .HasConstraintName("FK_dbo.ServiceRequest_dbo.KudosShopItems_KudosShopItemId");
+
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.ServiceRequests_dbo.Organizations_OrganizationId")
+                        .HasConstraintName("FK_dbo.ServiceRequest_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.ServiceRequestPriority", "Priority")
+                        .WithMany()
+                        .HasForeignKey("PriorityId")
+                        .HasConstraintName("FK_dbo.ServiceRequest_dbo.ServiceRequestPriorities_PriorityId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.ServiceRequestStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .HasConstraintName("FK_dbo.ServiceRequest_dbo.ServiceRequestStatus_StatusId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -2955,7 +3009,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ServiceRequest", "ServiceRequest")
                         .WithMany()
                         .HasForeignKey("ServiceRequestId")
-                        .HasConstraintName("FK_dbo.ServiceRequestComments_dbo.ServiceRequests_ServiceRequestId")
+                        .HasConstraintName("FK_dbo.ServiceRequestComments_dbo.ServiceRequest_ServiceRequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

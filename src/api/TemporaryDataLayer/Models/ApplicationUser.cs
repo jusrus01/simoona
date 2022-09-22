@@ -107,7 +107,7 @@ namespace TemporaryDataLayer
 
         //public virtual ICollection<WallMember> WallUsers { get; set; }
 
-        public virtual IEnumerable<ServiceRequestCategory> ServiceRequestCategoriesAssigned 
+        public virtual IEnumerable<ServiceRequestCategory> ServiceRequestCategoriesAssigned
         { 
             get => ServiceRequestCategoryApplicationUsers.Select(model => model.ServiceRequestCategory); 
         }

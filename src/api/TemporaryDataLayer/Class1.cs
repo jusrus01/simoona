@@ -98,6 +98,12 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<ServiceRequestCategory> ServiceRequestCategories { get; set; }
 
+        public DbSet<ServiceRequestComment> ServiceRequestComments { get; set; }
+
+        public DbSet<ServiceRequest> ServiceRequests { get; set; }
+
+        public DbSet<KudosShopItem> KudosShopItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
