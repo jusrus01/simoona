@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TemporaryDataLayer;
 
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    partial class TempShroomsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220923064520_CommitteeSuggestion0")]
+    partial class CommitteeSuggestion0
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -716,8 +718,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime");
+                    b.Property<DateTime>("Date");
 
                     b.Property<string>("Description");
 
@@ -3100,7 +3101,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("User_Id")
-                        .HasConstraintName("FK_dbo.CommitteeSuggestions_dbo.AspNetUsers_UserId");
+                        .HasConstraintName("FK_dbo.CommitteeSuggestions_dbo.ApplicationUser_UserId");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Event", b =>
