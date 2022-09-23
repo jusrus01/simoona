@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class Test : Migration
+    public partial class RefreshToken1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -631,6 +631,32 @@ namespace TemporaryDataLayer.Migrations
                     table.PrimaryKey("PK_dbo.Pictures", x => x.Id);
                     table.ForeignKey(
                         name: "FK_dbo.Pictures_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 128, nullable: false),
+                    Subject = table.Column<string>(maxLength: 70, nullable: false),
+                    IssuedUtc = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ExpiresUtc = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ProtectedTicket = table.Column<string>(nullable: false),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.RefreshTokens_dbo.Organizations_OrganizationId",
                         column: x => x.OrganizationId,
                         principalTable: "Organizations",
                         principalColumn: "Id",
@@ -2344,6 +2370,17 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "RefreshTokens",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_Subject",
+                table: "RefreshTokens",
+                column: "Subject");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FloorId",
                 table: "Rooms",
                 column: "FloorId")
@@ -2894,6 +2931,9 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProjectSkills");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "ServiceRequestCategoryApplicationUsers");

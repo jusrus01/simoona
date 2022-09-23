@@ -10,8 +10,8 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220923061111_Test")]
-    partial class Test
+    [Migration("20220923062426_RefreshToken1")]
+    partial class RefreshToken1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -2109,6 +2109,49 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.RefreshToken", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime>("ExpiresUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("IssuedUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<string>("ProtectedTicket")
+                        .IsRequired();
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(70);
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.RefreshTokens");
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Subject");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -3511,6 +3554,15 @@ namespace TemporaryDataLayer.Migrations
                         .HasForeignKey("WallId")
                         .HasConstraintName("FK_dbo.Projects_dbo.Walls_WallId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.RefreshToken", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.RefreshTokens_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Room", b =>
