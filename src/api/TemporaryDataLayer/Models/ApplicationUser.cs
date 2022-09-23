@@ -92,17 +92,17 @@ namespace TemporaryDataLayer
 
         public string ModifiedBy { get; set; }
 
-        //public virtual ICollection<Exam> Exams { get; set; }
+        public virtual IEnumerable<Exam> Exams 
+        {
+            get => ApplicationUserExams.Select(model => model.Exam);
+        }
 
-        //public virtual ICollection<Certificate> Certificates { get; set; }
+        public virtual ICollection<Certificate> Certificates { get; set; }
 
         public virtual IEnumerable<Skill> Skills 
         { 
             get => ApplicationUserSkills.Select(model => model.Skill); 
         }
-
-        // Required for many-to-many
-        internal virtual ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
 
         //public virtual ICollection<Book> Books { get; set; }
 
@@ -202,5 +202,9 @@ namespace TemporaryDataLayer
         internal ICollection<ServiceRequestCategoryApplicationUser> ServiceRequestCategoryApplicationUsers { get; set; }
 
         internal ICollection<ProjectApplicationUser> ProjectApplicationUsers { get; set; }
+
+        internal ICollection<ApplicationUserExam> ApplicationUserExams { get; set; }
+        
+        internal virtual ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
     }
 }

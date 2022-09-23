@@ -132,6 +132,60 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.AbstractClassifier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClassificatorType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("");
+
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("Modified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<int?>("ParentId");
+
+                    b.Property<string>("SortOrder");
+
+                    b.Property<string>("Value");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.dbo.AbstractClassifiers");
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ParentId")
+                        .HasName("IX_ParentId");
+
+                    b.ToTable("AbstractClassifiers");
+
+                    b.HasDiscriminator<string>("ClassificatorType").HasValue("AbstractClassifier");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -903,6 +957,53 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("EventTypes");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Exam", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(null);
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Number")
+                        .HasMaxLength(255);
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Exams");
+
+                    b.HasIndex("Number")
+                        .HasName("IX_Number")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("Title")
+                        .HasName("IX_Title")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("Exams");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
                 {
                     b.Property<int>("Id")
@@ -1361,6 +1462,28 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("EventParticipantEventOptions");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Models.ExamCertificate", b =>
+                {
+                    b.Property<int>("ExamId")
+                        .HasColumnName("Exam_Id");
+
+                    b.Property<int>("CertificateId")
+                        .HasColumnName("Certificate_Id");
+
+                    b.HasKey("ExamId", "CertificateId")
+                        .HasName("PK_dbo.ExamCertificates");
+
+                    b.HasIndex("CertificateId")
+                        .HasName("IX_Certificate_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ExamId")
+                        .HasName("IX_Exam_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("ExamCertificates");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
                     b.Property<int>("ModuleId")
@@ -1447,6 +1570,26 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ServiceRequestCategoryApplicationUsers");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Users.ApplicationUserExam", b =>
+                {
+                    b.Property<string>("ApplicationUserId");
+
+                    b.Property<int>("ExamId");
+
+                    b.HasKey("ApplicationUserId", "ExamId")
+                        .HasName("PK_dbo.ApplicationUserExams");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("ExamId")
+                        .HasName("IX_ExamId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("ApplicationUserExams");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.Users.ApplicationUserSkill", b =>
@@ -2543,6 +2686,27 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("WorkingHours");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Certificate", b =>
+                {
+                    b.HasBaseType("TemporaryDataLayer.AbstractClassifier");
+
+                    b.Property<string>("ApplicationUserId");
+
+                    b.Property<bool>("InProgress");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUserId");
+
+                    b.HasDiscriminator().HasValue("Certificate");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Language", b =>
+                {
+                    b.HasBaseType("TemporaryDataLayer.AbstractClassifier");
+
+                    b.HasDiscriminator().HasValue("Language");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
@@ -2586,6 +2750,20 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.AbstractClassifier", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.dbo.AbstractClassifiers_dbo.dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TemporaryDataLayer.AbstractClassifier", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .HasConstraintName("FK_dbo.dbo.AbstractClassifiers_dbo.dbo.AbstractClassifiers_ParentId");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
@@ -2864,6 +3042,15 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Exam", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.Exams_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.ExternalLink", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
@@ -3005,6 +3192,21 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Models.ExamCertificate", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Certificate", "Certificate")
+                        .WithMany("ExamCertificates")
+                        .HasForeignKey("CertificateId")
+                        .HasConstraintName("FK_dbo.ExamCertificates_dbo.AbstractClassifiers_Certificate_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Exam", "Exam")
+                        .WithMany("ExamCertificates")
+                        .HasForeignKey("ExamId")
+                        .HasConstraintName("FK_dbo.ExamCertificates_dbo.Exams_Exam_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Models.ModuleOrganization", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Module", "Module")
@@ -3062,6 +3264,21 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany("ServiceRequestCategoryApplicationUsers")
                         .HasForeignKey("ServiceRequestCategoryId")
                         .HasConstraintName("FK_dbo.ServiceRequestCategoryApplicationUsers_dbo.ServiceRequestCategories_ServiceRequestCategory_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Users.ApplicationUserExam", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany("ApplicationUserExams")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.ApplicationUserExams_dbo.AspNetUsers_ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Exam", "Exam")
+                        .WithMany("ApplicationUserExams")
+                        .HasForeignKey("ExamId")
+                        .HasConstraintName("FK_dbo.ApplicationUserExams_dbo.Exams_ExamId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -3445,6 +3662,14 @@ namespace TemporaryDataLayer.Migrations
                         .HasForeignKey("OrganizationId")
                         .HasConstraintName("FK_dbo.WorkingHours_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Certificate", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany("Certificates")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.AbstractClassifiers_dbo.ApplicationUser_ApplicationUserId");
                 });
 #pragma warning restore 612, 618
         }

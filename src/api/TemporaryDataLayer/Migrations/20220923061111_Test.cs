@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class BadgeType2 : Migration
+    public partial class Test : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -31,9 +31,9 @@ namespace TemporaryDataLayer.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
-                    Modified = table.Column<DateTime>(nullable: false),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
                     ModifiedBy = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true)
@@ -41,6 +41,28 @@ namespace TemporaryDataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_dbo.BadgeCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "KudosTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
+                    Value = table.Column<decimal>(nullable: false),
+                    Type = table.Column<int>(nullable: false, defaultValue: 0),
+                    Description = table.Column<string>(maxLength: 500, nullable: true),
+                    IsActive = table.Column<bool>(nullable: false, defaultValue: true),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.KudosTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,6 +112,78 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ServiceRequestCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequestCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRequestPriorities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequestPriorities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRequestStatus",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequestStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Skills",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(maxLength: 200, nullable: false),
+                    ShowInAutoComplete = table.Column<bool>(nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Skills", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -117,11 +211,11 @@ namespace TemporaryDataLayer.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Created = table.Column<DateTime>(type: "datetime", nullable: false),
-                    CreatedBy = table.Column<string>(maxLength: 50, nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
                     Modified = table.Column<DateTime>(type: "datetime", nullable: false),
-                    ModifiedBy = table.Column<string>(maxLength: 50, nullable: true),
-                    Title = table.Column<string>(maxLength: 50, nullable: false),
-                    Description = table.Column<string>(maxLength: 4000, nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
                     ImageUrl = table.Column<string>(nullable: true),
                     ImageSmallUrl = table.Column<string>(nullable: true),
                     Value = table.Column<int>(nullable: false),
@@ -135,6 +229,33 @@ namespace TemporaryDataLayer.Migrations
                         name: "FK_dbo.BadgeTypes_dbo.BadgeCategories_BadgeCategoryId",
                         column: x => x.BadgeCategoryId,
                         principalTable: "BadgeCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BadgeCategoryKudosTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CalculationPolicyType = table.Column<int>(nullable: false),
+                    BadgeCategoryId = table.Column<int>(nullable: false),
+                    KudosTypeId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.BadgeCategoryKudosTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.BadgeCategoryKudosTypes_dbo.BadgeCategories_BadgeCategoryId",
+                        column: x => x.BadgeCategoryId,
+                        principalTable: "BadgeCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.BadgeCategoryKudosTypes_dbo.KudosTypes_KudosTypeId",
+                        column: x => x.KudosTypeId,
+                        principalTable: "KudosTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -163,6 +284,32 @@ namespace TemporaryDataLayer.Migrations
                     table.PrimaryKey("PK_dbo.EventTypes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_dbo.EventTypes_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Exams",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(maxLength: 255, nullable: false),
+                    Number = table.Column<string>(maxLength: 255, nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Exams", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.Exams_dbo.Organizations_OrganizationId",
                         column: x => x.OrganizationId,
                         principalTable: "Organizations",
                         principalColumn: "Id",
@@ -248,6 +395,61 @@ namespace TemporaryDataLayer.Migrations
                         principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "KudosBaskets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(maxLength: 25, nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    IsActive = table.Column<bool>(nullable: false, defaultValue: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.KudosBaskets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.KudosBaskets_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "KudosShopItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Price = table.Column<int>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    PictureId = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.KudosShopItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.KudosShopItems_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -625,6 +827,24 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExamCertificates",
+                columns: table => new
+                {
+                    Exam_Id = table.Column<int>(nullable: false),
+                    Certificate_Id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ExamCertificates", x => new { x.Exam_Id, x.Certificate_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.ExamCertificates_dbo.Exams_Exam_Id",
+                        column: x => x.Exam_Id,
+                        principalTable: "Exams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
@@ -638,6 +858,79 @@ namespace TemporaryDataLayer.Migrations
                         name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AbstractClassifiers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Value = table.Column<string>(nullable: true),
+                    ParentId = table.Column<int>(nullable: true),
+                    SortOrder = table.Column<string>(nullable: true),
+                    ClassificatorType = table.Column<string>(nullable: false, defaultValue: ""),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false),
+                    InProgress = table.Column<bool>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.dbo.AbstractClassifiers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.dbo.AbstractClassifiers_dbo.dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.dbo.AbstractClassifiers_dbo.dbo.AbstractClassifiers_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "AbstractClassifiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserExams",
+                columns: table => new
+                {
+                    ExamId = table.Column<int>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ApplicationUserExams", x => new { x.ApplicationUserId, x.ExamId });
+                    table.ForeignKey(
+                        name: "FK_dbo.ApplicationUserExams_dbo.Exams_ExamId",
+                        column: x => x.ExamId,
+                        principalTable: "Exams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserSkills",
+                columns: table => new
+                {
+                    SkillId = table.Column<int>(nullable: false),
+                    ApplicationUserId = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ApplicationUserSkills", x => new { x.ApplicationUserId, x.SkillId });
+                    table.ForeignKey(
+                        name: "FK_dbo.ApplicationUserSkills_dbo.Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -683,6 +976,37 @@ namespace TemporaryDataLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BadgeLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    BadgeTypeId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.BadgeLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.BadgeLogs_dbo.BadgeTypes_BadgeTypeId",
+                        column: x => x.BadgeTypeId,
+                        principalTable: "BadgeTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.BadgeLogs_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -973,6 +1297,46 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "KudosLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    KudosTypeName = table.Column<string>(nullable: true),
+                    KudosTypeValue = table.Column<decimal>(nullable: false),
+                    KudosSystemType = table.Column<int>(nullable: false, defaultValue: 1),
+                    Status = table.Column<int>(nullable: false),
+                    Points = table.Column<decimal>(nullable: false),
+                    Comments = table.Column<string>(nullable: false),
+                    MultiplyBy = table.Column<int>(nullable: false),
+                    KudosBasketId = table.Column<int>(nullable: true),
+                    RejectionMessage = table.Column<string>(nullable: true),
+                    PictureId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.KudosLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.KudosLogs_dbo.KudosBaskets_KudosBasketId",
+                        column: x => x.KudosBasketId,
+                        principalTable: "KudosBaskets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.KudosLogs_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LotteryParticipants",
                 columns: table => new
                 {
@@ -1081,6 +1445,170 @@ namespace TemporaryDataLayer.Migrations
                         name: "FK_dbo.Posts_dbo.Walls_WallId",
                         column: x => x.WallId,
                         principalTable: "Walls",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectApplicationUsers",
+                columns: table => new
+                {
+                    Project_Id = table.Column<int>(nullable: false),
+                    ApplicationUser_Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ProjectApplicationUsers", x => new { x.Project_Id, x.ApplicationUser_Id });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    OwnerId = table.Column<string>(nullable: false),
+                    WallId = table.Column<int>(nullable: false),
+                    Logo = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Org_Projects",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.Projects_dbo.Walls_WallId",
+                        column: x => x.WallId,
+                        principalTable: "Walls",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectSkills",
+                columns: table => new
+                {
+                    Project_Id = table.Column<int>(nullable: false),
+                    Skill_Id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ProjectSkills", x => new { x.Project_Id, x.Skill_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.Project2Skill_dbo.Projects_Project2_Id",
+                        column: x => x.Project_Id,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.Project2Skill_dbo.Skills_Skill_Id",
+                        column: x => x.Skill_Id,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRequestCategoryApplicationUsers",
+                columns: table => new
+                {
+                    ServiceRequestCategory_Id = table.Column<int>(nullable: false),
+                    ApplicationUser_Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequestCategoryApplicationUsers", x => new { x.ServiceRequestCategory_Id, x.ApplicationUser_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequestCategoryApplicationUsers_dbo.ServiceRequestCategories_ServiceRequestCategory_Id",
+                        column: x => x.ServiceRequestCategory_Id,
+                        principalTable: "ServiceRequestCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRequestComments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    ServiceRequestId = table.Column<int>(nullable: false),
+                    Content = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequestComments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequestComments_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(nullable: true),
+                    PriorityId = table.Column<int>(nullable: false, defaultValue: 0),
+                    StatusId = table.Column<int>(nullable: false, defaultValue: 0),
+                    Description = table.Column<string>(nullable: true),
+                    CategoryName = table.Column<string>(nullable: true),
+                    KudosAmmount = table.Column<int>(nullable: true, defaultValue: 0),
+                    KudosShopItemId = table.Column<int>(nullable: true),
+                    PictureId = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.ServiceRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequests_dbo.KudosShopItems_KudosShopItemId",
+                        column: x => x.KudosShopItemId,
+                        principalTable: "KudosShopItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequests_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequests_dbo.ServiceRequestPriorities_PriorityId",
+                        column: x => x.PriorityId,
+                        principalTable: "ServiceRequestPriorities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.ServiceRequests_dbo.ServiceRequestStatus_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "ServiceRequestStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1278,6 +1806,46 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "AbstractClassifiers",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParentId",
+                table: "AbstractClassifiers",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserId",
+                table: "AbstractClassifiers",
+                column: "ApplicationUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserId",
+                table: "ApplicationUserExams",
+                column: "ApplicationUserId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExamId",
+                table: "ApplicationUserExams",
+                column: "ExamId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserId",
+                table: "ApplicationUserSkills",
+                column: "ApplicationUserId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkillId",
+                table: "ApplicationUserSkills",
+                column: "SkillId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -1343,6 +1911,31 @@ namespace TemporaryDataLayer.Migrations
                 name: "IX_AspNetUsers_WorkingHoursId",
                 table: "AspNetUsers",
                 column: "WorkingHoursId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BadgeCategoryId",
+                table: "BadgeCategoryKudosTypes",
+                column: "BadgeCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KudosTypeId",
+                table: "BadgeCategoryKudosTypes",
+                column: "KudosTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BadgeTypeId",
+                table: "BadgeLogs",
+                column: "BadgeTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeId",
+                table: "BadgeLogs",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "BadgeLogs",
+                column: "OrganizationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BadgeCategoryId",
@@ -1515,6 +2108,36 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Certificate_Id",
+                table: "ExamCertificates",
+                column: "Certificate_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Exam_Id",
+                table: "ExamCertificates",
+                column: "Exam_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Number",
+                table: "Exams",
+                column: "Number")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "Exams",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Title",
+                table: "Exams",
+                column: "Title")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrganizationId",
                 table: "ExternalLinks",
                 column: "OrganizationId")
@@ -1547,6 +2170,34 @@ namespace TemporaryDataLayer.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationId",
                 table: "JobPositions",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "KudosBaskets",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeId",
+                table: "KudosLogs",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KudosBasketId",
+                table: "KudosLogs",
+                column: "KudosBasketId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "KudosLogs",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "KudosShopItems",
                 column: "OrganizationId")
                 .Annotation("SqlServer:Clustered", false);
 
@@ -1652,6 +2303,47 @@ namespace TemporaryDataLayer.Migrations
                 column: "WallId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Id",
+                table: "ProjectApplicationUsers",
+                column: "ApplicationUser_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Project_Id",
+                table: "ProjectApplicationUsers",
+                column: "Project_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "Projects",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnerId",
+                table: "Projects",
+                column: "OwnerId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WallId",
+                table: "Projects",
+                column: "WallId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Project_Id",
+                table: "ProjectSkills",
+                column: "Project_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Skill_Id",
+                table: "ProjectSkills",
+                column: "Skill_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FloorId",
                 table: "Rooms",
                 column: "FloorId")
@@ -1673,6 +2365,66 @@ namespace TemporaryDataLayer.Migrations
                 name: "IX_OrganizationId",
                 table: "RoomTypes",
                 column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Id",
+                table: "ServiceRequestCategoryApplicationUsers",
+                column: "ApplicationUser_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceRequestCategory_Id",
+                table: "ServiceRequestCategoryApplicationUsers",
+                column: "ServiceRequestCategory_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeId",
+                table: "ServiceRequestComments",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "ServiceRequestComments",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceRequestId",
+                table: "ServiceRequestComments",
+                column: "ServiceRequestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeId",
+                table: "ServiceRequests",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KudosShopItemId",
+                table: "ServiceRequests",
+                column: "KudosShopItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "ServiceRequests",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PriorityId",
+                table: "ServiceRequests",
+                column: "PriorityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StatusId",
+                table: "ServiceRequests",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Title",
+                table: "Skills",
+                column: "Title")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
@@ -1745,9 +2497,41 @@ namespace TemporaryDataLayer.Migrations
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ExamCertificates_dbo.AbstractClassifiers_Certificate_Id",
+                table: "ExamCertificates",
+                column: "Certificate_Id",
+                principalTable: "AbstractClassifiers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUserRoles_AspNetUsers_UserId",
                 table: "AspNetUserRoles",
                 column: "UserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.AbstractClassifiers_dbo.ApplicationUser_ApplicationUserId",
+                table: "AbstractClassifiers",
+                column: "ApplicationUserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ApplicationUserExams_dbo.AspNetUsers_ApplicationUserId",
+                table: "ApplicationUserExams",
+                column: "ApplicationUserId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ApplicationUserSkills_dbo.AspNetUsers_ApplicationUserId",
+                table: "ApplicationUserSkills",
+                column: "ApplicationUserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -1775,6 +2559,14 @@ namespace TemporaryDataLayer.Migrations
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.BadgeLogs_dbo.AspNetUsers_EmployeeId",
+                table: "BadgeLogs",
+                column: "EmployeeId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_dbo.BlacklistUsers_dbo.AspNetUsers_CreatedBy",
@@ -1873,6 +2665,14 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_dbo.KudosLogs_dbo.AspNetUsers_EmployeeId",
+                table: "KudosLogs",
+                column: "EmployeeId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_dbo.LotteryParticipants_dbo.AspNetUsers_UserId",
                 table: "LotteryParticipants",
                 column: "UserId",
@@ -1905,6 +2705,62 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_dbo.Project2ApplicationUser_dbo.AspNetUsers_ApplicationUser_Id",
+                table: "ProjectApplicationUsers",
+                column: "ApplicationUser_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.Project2ApplicationUser_dbo.Projects_Project2_Id",
+                table: "ProjectApplicationUsers",
+                column: "Project_Id",
+                principalTable: "Projects",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.Projects_dbo.AspNetUsers_OwnerId",
+                table: "Projects",
+                column: "OwnerId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ServiceRequestCategoryApplicationUsers_dbo.AspNetUsers_ApplicationUser_Id",
+                table: "ServiceRequestCategoryApplicationUsers",
+                column: "ApplicationUser_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ServiceRequestComments_dbo.AspNetUsers_EmployeeId",
+                table: "ServiceRequestComments",
+                column: "EmployeeId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ServiceRequestComments_dbo.ServiceRequests_ServiceRequestId",
+                table: "ServiceRequestComments",
+                column: "ServiceRequestId",
+                principalTable: "ServiceRequests",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.ServiceRequests_dbo.AspNetUsers_EmployeeId",
+                table: "ServiceRequests",
+                column: "EmployeeId",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_dbo.WallUsers_dbo.AspNetUsers_UserId",
                 table: "WallMembers",
                 column: "UserId",
@@ -1932,8 +2788,46 @@ namespace TemporaryDataLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
+                name: "FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId",
+                table: "AspNetUsers");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.Floors_dbo.Organizations_OrganizationId",
+                table: "Floors");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.JobPositions_dbo.Organizations_OrganizationId",
+                table: "JobPositions");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.Offices_dbo.Organizations_OrganizationId",
+                table: "Offices");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.Pictures_dbo.Organizations_OrganizationId",
+                table: "Pictures");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.Rooms_dbo.Organizations_OrganizationId",
+                table: "Rooms");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.RoomTypes_dbo.Organizations_OrganizationId",
+                table: "RoomTypes");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.WorkingHours_dbo.Organizations_OrganizationId",
+                table: "WorkingHours");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_dbo.WorkingHours_dbo.AspNetUsers_ApplicationUserId",
                 table: "WorkingHours");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationUserExams");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationUserSkills");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -1951,7 +2845,10 @@ namespace TemporaryDataLayer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "BadgeTypes");
+                name: "BadgeCategoryKudosTypes");
+
+            migrationBuilder.DropTable(
+                name: "BadgeLogs");
 
             migrationBuilder.DropTable(
                 name: "BlacklistUsers");
@@ -1966,10 +2863,16 @@ namespace TemporaryDataLayer.Migrations
                 name: "EventParticipantEventOptions");
 
             migrationBuilder.DropTable(
+                name: "ExamCertificates");
+
+            migrationBuilder.DropTable(
                 name: "ExternalLinks");
 
             migrationBuilder.DropTable(
                 name: "FilterPresets");
+
+            migrationBuilder.DropTable(
+                name: "KudosLogs");
 
             migrationBuilder.DropTable(
                 name: "LotteryParticipants");
@@ -1985,6 +2888,18 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Pages");
+
+            migrationBuilder.DropTable(
+                name: "ProjectApplicationUsers");
+
+            migrationBuilder.DropTable(
+                name: "ProjectSkills");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequestCategoryApplicationUsers");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequestComments");
 
             migrationBuilder.DropTable(
                 name: "SyncTokens");
@@ -2006,7 +2921,10 @@ namespace TemporaryDataLayer.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "BadgeCategories");
+                name: "KudosTypes");
+
+            migrationBuilder.DropTable(
+                name: "BadgeTypes");
 
             migrationBuilder.DropTable(
                 name: "BookOffices");
@@ -2018,6 +2936,15 @@ namespace TemporaryDataLayer.Migrations
                 name: "EventParticipants");
 
             migrationBuilder.DropTable(
+                name: "AbstractClassifiers");
+
+            migrationBuilder.DropTable(
+                name: "Exams");
+
+            migrationBuilder.DropTable(
+                name: "KudosBaskets");
+
+            migrationBuilder.DropTable(
                 name: "Lotteries");
 
             migrationBuilder.DropTable(
@@ -2027,7 +2954,22 @@ namespace TemporaryDataLayer.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "Skills");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequestCategories");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequests");
+
+            migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "BadgeCategories");
 
             migrationBuilder.DropTable(
                 name: "Books");
@@ -2036,10 +2978,22 @@ namespace TemporaryDataLayer.Migrations
                 name: "Events");
 
             migrationBuilder.DropTable(
+                name: "KudosShopItems");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequestPriorities");
+
+            migrationBuilder.DropTable(
+                name: "ServiceRequestStatus");
+
+            migrationBuilder.DropTable(
                 name: "EventTypes");
 
             migrationBuilder.DropTable(
                 name: "Walls");
+
+            migrationBuilder.DropTable(
+                name: "Organizations");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
@@ -2064,9 +3018,6 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Pictures");
-
-            migrationBuilder.DropTable(
-                name: "Organizations");
         }
     }
 }

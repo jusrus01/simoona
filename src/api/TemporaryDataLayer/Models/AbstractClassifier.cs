@@ -9,14 +9,14 @@ namespace TemporaryDataLayer
 
         public virtual string Value { get; set; }
 
-        [ForeignKey("Parent")]
+        //[ForeignKey("Parent")]
         public virtual int? ParentId { get; set; }
 
         public virtual AbstractClassifier Parent { get; set; }
 
         public virtual string SortOrder { get; set; }
 
-        [InverseProperty("Parent")]
+        //[InverseProperty("Parent")]
         public virtual ICollection<AbstractClassifier> Children { get; set; }
     }
 }

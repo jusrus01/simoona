@@ -114,6 +114,12 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<Project> Projects { get; set; }
 
+        public DbSet<Exam> Exams { get; set; }
+
+        public DbSet<AbstractClassifier> AbstractClassifiers { get; set; }
+
+        public DbSet<Certificate> Certificates { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
