@@ -16,9 +16,6 @@ namespace TemporaryDataLayer
                 .HasForeignKey(model => model.UserId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_dbo.WallModerators_dbo.AspNetUsers_UserId");
-
-            builder.HasOne<Wall>()
-                .WithMany();
         }
     }
 }
