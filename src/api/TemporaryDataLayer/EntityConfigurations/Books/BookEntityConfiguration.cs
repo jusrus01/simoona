@@ -33,7 +33,7 @@ namespace TemporaryDataLayer
                 .HasMaxLength(9000);
 
             builder.HasOne(model => model.ApplicationUser)
-                .WithMany()
+                .WithMany(model => model.Books)
                 .HasForeignKey(model => model.ApplicationUserId)
                 .HasConstraintName("FK_dbo.Books_dbo.AspNetUsers_ApplicationUserId");
         }

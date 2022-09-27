@@ -19,7 +19,7 @@ namespace TemporaryDataLayer.EntityConfigurations
                 .HasName("ix_notification_IsAlreadySeen");
 
             builder.HasOne(model => model.User)
-                .WithMany()
+                .WithMany(model => model.NotificationUsers)
                 .HasForeignKey(model => model.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_dbo.NotificationUsers_dbo.AspNetUsers_UserId");

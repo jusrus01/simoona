@@ -10,7 +10,9 @@ namespace TemporaryDataLayer.EntityConfigurations.Offices
             builder.AddDefaultBaseModelConfiguration(true);
             builder.AddOrganization();
 
-            builder.AddSoftDelete(true); // TODO: figure out what to do about that constraint
+            //builder.AddSoftDelete(true)
+            //.IsRequired(false); // TODO: figure out what to do about that constraint
+            builder.Property(typeof(bool?), "IsDeleted");
 
             builder.Property(model => model.Color)
                 .HasMaxLength(7);

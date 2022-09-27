@@ -12,7 +12,7 @@ namespace TemporaryDataLayer.EntityConfigurations.Books
             builder.AddSoftDelete();
 
             builder.HasOne(model => model.ApplicationUser)
-                .WithMany()
+                .WithMany(model => model.BookLogs)
                 .HasForeignKey(model => model.ApplicationUserId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_dbo.BookLogs_dbo.AspNetUsers_ApplicationUserId");

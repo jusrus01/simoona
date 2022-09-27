@@ -19,7 +19,7 @@ namespace TemporaryDataLayer.EntityConfigurations
                 .HasMaxLength(BusinessLayerConstants.MaxKudosDescriptionLength);
 
             builder.Property(model => model.Type)
-                .HasDefaultValue((KudosTypeEnum)0);
+                .HasDefaultValue((KudosTypeEnum)1);
 
             builder.Property(model => model.IsActive)
                 .HasDefaultValue(true);

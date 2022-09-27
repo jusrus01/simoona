@@ -8,7 +8,7 @@ using TemporaryDataLayer.Models.Events;
 
 namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 {
-    public class TempShroomsDbContext : IdentityDbContext<ApplicationUser> // Wrong
+    public class TempShroomsDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string> // Wrong
     {
         public TempShroomsDbContext(DbContextOptions<TempShroomsDbContext> options)
             :
@@ -126,8 +126,14 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
 
         public DbSet<CommitteeSuggestion> CommitteeSuggestions { get; set; }
 
+        public DbSet<Committee> Committees { get; set; }
+
+        public DbSet<Permission> Permissions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+
             ApplyCustomNamingConvention(builder); // TODO: figure this out after updating to EF Core 6
 
             builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
@@ -138,7 +144,6 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
             // Temporary WorkingHoursIgnore
 
 
-            base.OnModelCreating(builder);
         }
 
         private void ApplyCustomNamingConvention(ModelBuilder builder)
@@ -183,7 +188,19 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
             {
                 foreach (var fk in entityType.FindForeignKeys(property))
                 {
-                    fk.Relational().Name = new Regex("_").Replace(fk.Relational().Name, "_dbo.", 2);
+                    var name = fk.Relational().Name;
+                    // TODO: export these variables to a better place
+                    var prefix = "_dbo.";
+                    var requiredPrefixCount = 2;
+
+                    var containsPrefix = new Regex(prefix).Matches(name).Count == requiredPrefixCount;
+
+                    if (containsPrefix)
+                    {
+                        continue;
+                    }
+
+                    fk.Relational().Name = new Regex("_").Replace(name, "_dbo.", requiredPrefixCount);
                 }
             }
         }
@@ -193,6 +210,13 @@ namespace TemporaryDataLayer // TODO: remove after EF Core migration :)
             var pk = entityType.FindPrimaryKey();
 
             if (pk == null)
+            {
+                return;
+            }
+
+            var name = pk.Relational().Name;
+
+            if (name.Contains("dbo"))
             {
                 return;
             }

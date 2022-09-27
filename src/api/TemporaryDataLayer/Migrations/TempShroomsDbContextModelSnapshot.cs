@@ -19,31 +19,6 @@ namespace TemporaryDataLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id")
-                        .HasName("PK_dbo.Roles");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -58,9 +33,10 @@ namespace TemporaryDataLayer.Migrations
                         .IsRequired();
 
                     b.HasKey("Id")
-                        .HasName("PK_dbo.RoleClaims");
+                        .HasName("PK_dbo.AspNetRoleClaims");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasName("IX_RoleId");
 
                     b.ToTable("AspNetRoleClaims");
                 });
@@ -79,27 +55,37 @@ namespace TemporaryDataLayer.Migrations
                         .IsRequired();
 
                     b.HasKey("Id")
-                        .HasName("PK_dbo.UserClaims");
+                        .HasName("PK_dbo.AspNetUserClaims")
+                        .HasAnnotation("SqlServer:Clustered", true);
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasName("IX_UserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("AspNetUserClaims");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.Property<string>("LoginProvider");
+                    b.Property<string>("LoginProvider")
+                        .HasMaxLength(128);
 
-                    b.Property<string>("ProviderKey");
+                    b.Property<string>("ProviderKey")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("UserId");
 
                     b.Property<string>("ProviderDisplayName");
 
-                    b.Property<string>("UserId")
-                        .IsRequired();
+                    b.HasKey("LoginProvider", "ProviderKey", "UserId")
+                        .HasName("PK_dbo.AspNetUserLogins");
 
-                    b.HasKey("LoginProvider", "ProviderKey");
+                    b.HasAlternateKey("LoginProvider", "ProviderKey")
+                        .HasName("Temporary");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .HasName("IX_UserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("AspNetUserLogins");
                 });
@@ -110,9 +96,15 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("RoleId");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("UserId", "RoleId")
+                        .HasName("PK_dbo.AspNetUserRoles");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .HasName("IX_RoleId");
+
+                    b.HasIndex("UserId")
+                        .HasName("IX_UserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("AspNetUserRoles");
                 });
@@ -127,7 +119,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Value");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                    b.HasKey("UserId", "LoginProvider", "Name")
+                        .HasName("PK_dbo.AspNetUserTokens");
 
                     b.ToTable("AspNetUserTokens");
                 });
@@ -141,6 +134,7 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("ClassificatorType")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(128)
                         .HasDefaultValue("");
 
                     b.Property<DateTime>("Created")
@@ -172,7 +166,7 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<string>("Value");
 
                     b.HasKey("Id")
-                        .HasName("PK_dbo.dbo.AbstractClassifiers");
+                        .HasName("PK_dbo.AbstractClassifiers");
 
                     b.HasIndex("OrganizationId")
                         .HasName("IX_OrganizationId")
@@ -184,6 +178,51 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("AbstractClassifiers");
 
                     b.HasDiscriminator<string>("ClassificatorType").HasValue("AbstractClassifier");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.ApplicationRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(128);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<DateTime>("CreatedTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256);
+
+                    b.Property<int>("OrganizationId");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.AspNetRoles")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("IX_NormalizedName")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("OrganizationId", "Name")
+                        .HasName("IX_OrganizationId_Name")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("AspNetRoles");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
@@ -198,16 +237,22 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("Bio");
 
-                    b.Property<DateTime?>("BirthDay");
+                    b.Property<DateTime?>("BirthDay")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<string>("CultureCode");
+                    b.Property<string>("CultureCode")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("en-US");
 
                     b.Property<TimeSpan?>("DailyMailingHour");
 
@@ -216,7 +261,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
-                    b.Property<DateTime?>("EmploymentDate");
+                    b.Property<DateTime?>("EmploymentDate")
+                        .HasColumnType("datetime");
 
                     b.Property<string>("FacebookEmail");
 
@@ -224,17 +270,29 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("GoogleEmail");
 
-                    b.Property<bool>("IsAbsent");
+                    b.Property<bool>("IsAbsent")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsAnonymized");
+                    b.Property<bool>("IsAnonymized")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsDeleted");
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsManagingDirector");
+                    b.Property<bool>("IsManagingDirector")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsOwner");
+                    b.Property<bool>("IsOwner")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsTutorialComplete");
+                    b.Property<bool>("IsTutorialComplete")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(true);
 
                     b.Property<int?>("JobPositionId");
 
@@ -244,9 +302,15 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
 
+                    b.Property<DateTime?>("LockoutEndDateUtc")
+                        .HasColumnType("datetime");
+
                     b.Property<string>("ManagerId");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
                     b.Property<string>("ModifiedBy");
 
@@ -268,19 +332,29 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int?>("QualificationLevelId");
 
-                    b.Property<decimal>("RemainingKudos");
+                    b.Property<decimal>("RemainingKudos")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0m);
 
                     b.Property<int?>("RoomId");
 
                     b.Property<string>("SecurityStamp");
 
-                    b.Property<int>("SittingPlacesChanged");
+                    b.Property<int>("SittingPlacesChanged")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
 
-                    b.Property<decimal>("SpentKudos");
+                    b.Property<decimal>("SpentKudos")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0m);
 
-                    b.Property<string>("TimeZone");
+                    b.Property<string>("TimeZone")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("FLE Standard Time");
 
-                    b.Property<decimal>("TotalKudos");
+                    b.Property<decimal>("TotalKudos")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0m);
 
                     b.Property<bool>("TwoFactorEnabled");
 
@@ -288,7 +362,8 @@ namespace TemporaryDataLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<DateTime?>("VacationLastTimeUpdated");
+                    b.Property<DateTime?>("VacationLastTimeUpdated")
+                        .HasColumnType("datetime");
 
                     b.Property<double?>("VacationTotalTime");
 
@@ -299,21 +374,25 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<int?>("WorkingHoursId");
 
                     b.HasKey("Id")
-                        .HasName("PK_dbo.ApplicationUser");
+                        .HasName("PK_dbo.AspNetUsers");
 
                     b.HasIndex("Email")
                         .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
+                        .HasName("Email")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("JobPositionId")
                         .HasName("IX_JobPositionId");
 
+                    b.HasIndex("ManagerId")
+                        .HasName("IX_ManagerId");
+
                     b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
+                        .HasName("IX_NormalizedEmail");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasName("UserNameIndex")
+                        .HasName("IX_NormalizedUserName")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.HasIndex("OrganizationId")
@@ -502,7 +581,8 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("UserId")
-                        .HasName("IX_UserId");
+                        .HasName("IX_UserId")
+                        .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("BlacklistUsers");
                 });
@@ -705,11 +785,55 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Committee", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<string>("Description");
+
+                    b.Property<bool>("IsDeleted");
+
+                    b.Property<bool>("IsKudosCommittee")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("OrganizationId");
+
+                    b.Property<string>("PictureId");
+
+                    b.Property<string>("Website");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Committees");
+
+                    b.HasIndex("OrganizationId")
+                        .HasName("IX_OrganizationId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("Committees");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.CommitteeSuggestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("CommitteeId");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
@@ -734,6 +858,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.CommitteeSuggestions");
+
+                    b.HasIndex("CommitteeId")
+                        .HasName("IX_CommitteeId");
 
                     b.HasIndex("User_Id")
                         .HasName("IX_User_Id")
@@ -770,7 +897,9 @@ namespace TemporaryDataLayer.Migrations
                         .HasColumnType("datetime")
                         .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-                    b.Property<int>("EventRecurring");
+                    b.Property<int>("EventRecurring")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
 
                     b.Property<int>("EventTypeId");
 
@@ -783,7 +912,9 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<bool>("IsPinned");
 
                     b.Property<int>("MaxChoices")
-                        .HasMaxLength(32767);
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32767)
+                        .HasDefaultValue(0);
 
                     b.Property<int>("MaxParticipants")
                         .HasMaxLength(32767);
@@ -801,11 +932,14 @@ namespace TemporaryDataLayer.Migrations
                     b.Property<int?>("OfficeId");
 
                     b.Property<string>("Offices")
-                        .IsRequired();
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("");
 
                     b.Property<int?>("OrganizationId");
 
-                    b.Property<string>("Place");
+                    b.Property<string>("Place")
+                        .IsRequired();
 
                     b.Property<DateTime>("RegistrationDeadline")
                         .ValueGeneratedOnAdd()
@@ -863,8 +997,6 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"));
 
-                    b.Property<Guid?>("EventId1");
-
                     b.Property<bool>("IsDeleted");
 
                     b.Property<DateTime>("Modified")
@@ -884,8 +1016,6 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("EventId")
                         .HasName("IX_EventId");
-
-                    b.HasIndex("EventId1");
 
                     b.ToTable("EventOptions");
                 });
@@ -918,8 +1048,6 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"));
 
-                    b.Property<Guid?>("EventId1");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
@@ -939,8 +1067,6 @@ namespace TemporaryDataLayer.Migrations
 
                     b.HasIndex("EventId")
                         .HasName("IX_EventId");
-
-                    b.HasIndex("EventId1");
 
                     b.HasIndex("IsDeleted")
                         .HasName("nci_wi_EventParticipants_CA1F6B4699FAB2347B166CEA9639C7E8")
@@ -1389,7 +1515,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(1);
 
                     b.Property<decimal>("Value");
 
@@ -1480,6 +1606,94 @@ namespace TemporaryDataLayer.Migrations
                         .HasName("IX_UserId");
 
                     b.ToTable("LotteryParticipants");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteeSuggestionID", b =>
+                {
+                    b.Property<int>("CommitteeId")
+                        .HasColumnName("Committees_Id");
+
+                    b.Property<int>("CommitteeSuggestionId")
+                        .HasColumnName("CommitteeSuggestions_Id");
+
+                    b.HasKey("CommitteeId", "CommitteeSuggestionId")
+                        .HasName("PK_dbo.CommitteeSuggestionsIDs");
+
+                    b.HasIndex("CommitteeId")
+                        .HasName("IX_Committees_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("CommitteeSuggestionId")
+                        .HasName("IX_CommitteeSuggestions_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("CommitteeSuggestionsIDs");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserDelegates", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnName("ApplicationUser_Id");
+
+                    b.Property<int>("CommitteeId")
+                        .HasColumnName("Committee_Id");
+
+                    b.HasKey("ApplicationUserId", "CommitteeId")
+                        .HasName("PK_dbo.CommitteesUsersDelegates");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUser_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("CommitteeId")
+                        .HasName("IX_Committee_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("CommitteesUsersDelegates");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserLeadership", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnName("ApplicationUser_Id");
+
+                    b.Property<int>("CommitteeId")
+                        .HasColumnName("Committee_Id");
+
+                    b.HasKey("ApplicationUserId", "CommitteeId")
+                        .HasName("PK_dbo.CommitteesUsersLeadership");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUser_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("CommitteeId")
+                        .HasName("IX_Committee_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("CommitteesUsersLeadership");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserMembership", b =>
+                {
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnName("ApplicationUser_Id");
+
+                    b.Property<int>("CommitteeId")
+                        .HasColumnName("Committee_Id");
+
+                    b.HasKey("ApplicationUserId", "CommitteeId")
+                        .HasName("PK_dbo.CommitteesUsersMembership");
+
+                    b.HasIndex("ApplicationUserId")
+                        .HasName("IX_ApplicationUser_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("CommitteeId")
+                        .HasName("IX_Committee_Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("CommitteesUsersMembership");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.Events.EventParticipantEventOption", b =>
@@ -1590,6 +1804,28 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.ToTable("ProjectSkills");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.RolePermission", b =>
+                {
+                    b.Property<int>("PermissionId")
+                        .HasColumnName("PermissionId");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnName("RoleId");
+
+                    b.HasKey("PermissionId", "RoleId")
+                        .HasName("PK_dbo.RolePermissions");
+
+                    b.HasIndex("PermissionId")
+                        .HasName("IX_PermissionId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.HasIndex("RoleId")
+                        .HasName("IX_RoleId")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Models.ServiceRequestCategoryApplicationUser", b =>
@@ -1973,6 +2209,41 @@ namespace TemporaryDataLayer.Migrations
                     b.ToTable("Pages");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<int?>("ModuleId");
+
+                    b.Property<string>("Name");
+
+                    b.Property<string>("Scope");
+
+                    b.HasKey("Id")
+                        .HasName("PK_dbo.Permissions");
+
+                    b.HasIndex("ModuleId")
+                        .HasName("IX_ModuleId");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Picture", b =>
                 {
                     b.Property<int>("Id")
@@ -2048,7 +2319,9 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(null);
 
-                    b.Property<bool>("IsHidden");
+                    b.Property<bool>("IsHidden")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("LastActivity")
                         .ValueGeneratedOnAdd()
@@ -2056,6 +2329,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<DateTime>("LastEdit")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
                         .HasDefaultValue(new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
                     b.Property<string>("MessageBody");
@@ -2093,6 +2367,8 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("UserId");
 
+                    b.Property<bool>("IsDeleted");
+
                     b.HasKey("PostId", "UserId");
 
                     b.HasIndex("PostId")
@@ -2116,12 +2392,16 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("CreatedBy");
 
+                    b.Property<string>("Desc");
+
                     b.Property<string>("Logo");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime");
 
                     b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name");
 
                     b.Property<int>("OrganizationId");
 
@@ -2220,6 +2500,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasAnnotation("SqlServer:Clustered", false);
 
                     b.HasIndex("Subject")
+                        .IsUnique()
                         .HasName("IX_Subject")
                         .HasAnnotation("SqlServer:Clustered", false);
 
@@ -2298,9 +2579,7 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("IconId");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(false);
+                    b.Property<bool?>("IsDeleted");
 
                     b.Property<bool>("IsWorkingRoom")
                         .ValueGeneratedOnAdd()
@@ -2632,9 +2911,13 @@ namespace TemporaryDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("Access");
+                    b.Property<int>("Access")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
 
-                    b.Property<bool>("AddForNewUsers");
+                    b.Property<bool>("AddForNewUsers")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime");
@@ -2645,7 +2928,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<bool>("IsDeleted");
 
-                    b.Property<bool>("IsHiddenFromAllWalls");
+                    b.Property<bool>("IsHiddenFromAllWalls")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Logo")
                         .ValueGeneratedOnAdd()
@@ -2660,7 +2945,9 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<int>("OrganizationId");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id")
                         .HasName("PK_dbo.Walls");
@@ -2828,9 +3115,10 @@ namespace TemporaryDataLayer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("TemporaryDataLayer.ApplicationRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
+                        .HasConstraintName("FK_dbo.AspNetRoleClaims_dbo.AspNetRoles_RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -2839,6 +3127,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.AspNetUserClaims_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -2847,19 +3136,22 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.AspNetUserLogins_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("TemporaryDataLayer.ApplicationRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
+                        .HasConstraintName("FK_dbo.AspNetUserRoles_dbo.AspNetRoles_RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.AspNetUserRoles_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -2868,6 +3160,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .HasConstraintName("FK_dbo.AspNetUserTokens_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -2876,37 +3169,51 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.dbo.AbstractClassifiers_dbo.dbo.Organizations_OrganizationId")
+                        .HasConstraintName("FK_dbo.Projects_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.AbstractClassifier", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
-                        .HasConstraintName("FK_dbo.dbo.AbstractClassifiers_dbo.dbo.AbstractClassifiers_ParentId");
+                        .HasConstraintName("FK_dbo.AbstractClassifiers_dbo.AbstractClassifiers_ParentId");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.ApplicationRole", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.AspNetRoles_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.ApplicationUser", b =>
                 {
-                    b.HasOne("TemporaryDataLayer.JobPosition")
+                    b.HasOne("TemporaryDataLayer.JobPosition", "JobPosition")
                         .WithMany("Users")
                         .HasForeignKey("JobPositionId")
-                        .HasConstraintName("FK_dbo.ApplicationUser_dbo.JobPositions_JobPositionId");
+                        .HasConstraintName("FK_dbo.AspNetUsers_dbo.JobPositions_JobPositionId");
+
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "Manager")
+                        .WithMany("ManagedUsers")
+                        .HasForeignKey("ManagerId")
+                        .HasConstraintName("FK_dbo.AspNetUsers_dbo.AspNetUsers_ManagerId");
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .HasConstraintName("FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId")
+                        .HasConstraintName("FK_dbo.AspNetUsers_dbo.Organizations_OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("TemporaryDataLayer.QualificationLevel")
+                    b.HasOne("TemporaryDataLayer.QualificationLevel", "QualificationLevel")
                         .WithMany("ApplicationUsers")
                         .HasForeignKey("QualificationLevelId")
-                        .HasConstraintName("FK_dbo.ApplicationUser_dbo.QualificationLevels_QualificationLevelId");
+                        .HasConstraintName("FK_dbo.AspNetUsers_dbo.QualificationLevels_QualificationLevelId");
 
-                    b.HasOne("TemporaryDataLayer.Room")
+                    b.HasOne("TemporaryDataLayer.Room", "Room")
                         .WithMany("ApplicationUsers")
                         .HasForeignKey("RoomId")
-                        .HasConstraintName("FK_dbo.ApplicationUser_dbo.Rooms_RoomId");
+                        .HasConstraintName("FK_dbo.AspNetUsers_dbo.Rooms_RoomId");
 
                     b.HasOne("TemporaryDataLayer.WorkingHours", "WorkingHours")
                         .WithMany()
@@ -2937,7 +3244,7 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "Employee")
-                        .WithMany()
+                        .WithMany("BadgeLogs")
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("FK_dbo.BadgeLogs_dbo.AspNetUsers_EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -2979,7 +3286,7 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("BlacklistEntries")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_dbo.BlacklistUsers_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -2988,7 +3295,7 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.Book", b =>
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany()
+                        .WithMany("Books")
                         .HasForeignKey("ApplicationUserId")
                         .HasConstraintName("FK_dbo.Books_dbo.AspNetUsers_ApplicationUserId");
 
@@ -3002,7 +3309,7 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.BookLog", b =>
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany()
+                        .WithMany("BookLogs")
                         .HasForeignKey("ApplicationUserId")
                         .HasConstraintName("FK_dbo.BookLogs_dbo.AspNetUsers_ApplicationUserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3095,8 +3402,22 @@ namespace TemporaryDataLayer.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Committee", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .HasConstraintName("FK_dbo.Committees_dbo.Organizations_OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.CommitteeSuggestion", b =>
                 {
+                    b.HasOne("TemporaryDataLayer.Committee")
+                        .WithMany("Suggestions")
+                        .HasForeignKey("CommitteeId")
+                        .HasConstraintName("FK_dbo.CommitteeSuggestions_dbo.Committees_CommitteeId");
+
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("User_Id")
@@ -3122,7 +3443,7 @@ namespace TemporaryDataLayer.Migrations
                         .HasConstraintName("FK_dbo.Events_dbo.Organizations_OrganizationId");
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ResponsibleUser")
-                        .WithMany()
+                        .WithMany("Events")
                         .HasForeignKey("ResponsibleUserId")
                         .HasConstraintName("FK_dbo.Events_dbo.AspNetUsers_ResponsibleUserId");
 
@@ -3136,14 +3457,10 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.EventOption", b =>
                 {
                     b.HasOne("TemporaryDataLayer.Event", "Event")
-                        .WithMany()
+                        .WithMany("EventOptions")
                         .HasForeignKey("EventId")
                         .HasConstraintName("FK_dbo.EventOptions_dbo.Events_EventId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.Event")
-                        .WithMany("EventOptions")
-                        .HasForeignKey("EventId1");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.EventParticipant", b =>
@@ -3151,18 +3468,14 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.EventParticipants_dbo.ApplicationUser_ApplicationUserId")
+                        .HasConstraintName("FK_dbo.EventParticipants_dbo.AspNetUsers_ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.Event", "Event")
-                        .WithMany()
+                        .WithMany("EventParticipants")
                         .HasForeignKey("EventId")
                         .HasConstraintName("FK_dbo.EventParticipants_dbo.Events_EventId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TemporaryDataLayer.Event")
-                        .WithMany("EventParticipants")
-                        .HasForeignKey("EventId1");
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.EventType", b =>
@@ -3309,6 +3622,66 @@ namespace TemporaryDataLayer.Migrations
                         .HasConstraintName("FK_dbo.LotteryParticipants_dbo.AspNetUsers_UserId");
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteeSuggestionID", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Committee", "Committee")
+                        .WithMany("CommitteeSuggestionIds")
+                        .HasForeignKey("CommitteeId")
+                        .HasConstraintName("FK_dbo.CommitteeSuggestionsIDs_dbo.Committees_Committees_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.CommitteeSuggestion", "CommitteeSuggestion")
+                        .WithMany("CommitteeSuggestionIds")
+                        .HasForeignKey("CommitteeSuggestionId")
+                        .HasConstraintName("FK_dbo.CommitteeSuggestionsIDs_dbo.CommitteeSuggestions_CommitteeSuggestions_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserDelegates", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany("CommitteesUserDelegates")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.CommitteesUsersDelegates_dbo.AspNetUsers_ApplicationUser_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Committee", "Committee")
+                        .WithMany("CommitteesUserDelegates")
+                        .HasForeignKey("CommitteeId")
+                        .HasConstraintName("FK_dbo.CommitteesUsersDelegates_dbo.Committees_Committee_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserLeadership", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany("CommitteesUserLeadership")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.CommitteesUsersLeadership_dbo.AspNetUsers_ApplicationUser_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Committee", "Committee")
+                        .WithMany("CommitteesUserLeadership")
+                        .HasForeignKey("CommitteeId")
+                        .HasConstraintName("FK_dbo.CommitteesUsersLeadership_dbo.Committees_Committee_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Models.Comittees.CommitteesUserMembership", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
+                        .WithMany("CommitteesUserMembership")
+                        .HasForeignKey("ApplicationUserId")
+                        .HasConstraintName("FK_dbo.CommitteeApplicationUsers_dbo.AspNetUsers_ApplicationUser_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.Committee", "Committee")
+                        .WithMany("CommitteesUserMembership")
+                        .HasForeignKey("CommitteeId")
+                        .HasConstraintName("FK_dbo.CommitteeApplicationUsers_dbo.Committees_Committee_Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Models.Events.EventParticipantEventOption", b =>
                 {
                     b.HasOne("TemporaryDataLayer.EventOption", "EventOption")
@@ -3384,6 +3757,21 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("TemporaryDataLayer.Models.RolePermission", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .HasConstraintName("FK_dbo.RolePermissions_dbo.Permissions_PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TemporaryDataLayer.ApplicationRole", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .HasConstraintName("FK_dbo.RolePermissions_dbo.AspNetRoles_RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("TemporaryDataLayer.Models.ServiceRequestCategoryApplicationUser", b =>
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
@@ -3443,16 +3831,8 @@ namespace TemporaryDataLayer.Migrations
                                 .ValueGeneratedOnAdd()
                                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                            b1.Property<string>("EventId");
-
-                            b1.Property<int>("PostId");
-
-                            b1.Property<string>("ProjectId");
-
                             b1.Property<string>("Serialized")
                                 .HasColumnName("Sources");
-
-                            b1.Property<int>("WallId");
 
                             b1.HasKey("NotificationId");
 
@@ -3475,7 +3855,7 @@ namespace TemporaryDataLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("NotificationUsers")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_dbo.NotificationUsers_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -3484,8 +3864,8 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.NotificationsSettings", b =>
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUser_Id")
+                        .WithOne("NotificationsSettings")
+                        .HasForeignKey("TemporaryDataLayer.NotificationsSettings", "ApplicationUser_Id")
                         .HasConstraintName("FK_dbo.NotificationsSettings_dbo.AspNetUsers_ApplicationUser_Id");
 
                     b.HasOne("TemporaryDataLayer.Organization", "Organization")
@@ -3541,6 +3921,15 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("ParentPageId")
                         .HasConstraintName("FK_dbo.Pages_dbo.Pages_ParentPageId");
+                });
+
+            modelBuilder.Entity("TemporaryDataLayer.Permission", b =>
+                {
+                    b.HasOne("TemporaryDataLayer.Module", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .HasConstraintName("FK_dbo.Permissions_dbo.ShroomsModules_ModuleId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("TemporaryDataLayer.Picture", b =>
@@ -3772,7 +4161,7 @@ namespace TemporaryDataLayer.Migrations
             modelBuilder.Entity("TemporaryDataLayer.WallMember", b =>
                 {
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("WallUsers")
                         .HasForeignKey("UserId")
                         .HasConstraintName("FK_dbo.WallUsers_dbo.AspNetUsers_UserId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -3819,7 +4208,7 @@ namespace TemporaryDataLayer.Migrations
                     b.HasOne("TemporaryDataLayer.ApplicationUser", "ApplicationUser")
                         .WithMany("Certificates")
                         .HasForeignKey("ApplicationUserId")
-                        .HasConstraintName("FK_dbo.AbstractClassifiers_dbo.ApplicationUser_ApplicationUserId");
+                        .HasConstraintName("FK_dbo.AbstractClassifiers_dbo.AspNetUsers_ApplicationUserId");
                 });
 #pragma warning restore 612, 618
         }

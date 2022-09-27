@@ -37,6 +37,7 @@ namespace TemporaryDataLayer
 
             builder.HasIndex(model => model.Subject)
                 .ForSqlServerIsClustered(false)
+                .IsUnique()
                 .HasName("IX_Subject");
         }
     }

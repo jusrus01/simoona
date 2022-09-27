@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TemporaryDataLayer
 {
-    public class WallMembersConfiguration : IEntityTypeConfiguration<WallMember>
+    public class WallMemberEntityConfiguration : IEntityTypeConfiguration<WallMember>
     {
         public void Configure(EntityTypeBuilder<WallMember> builder)
         {
@@ -11,7 +11,7 @@ namespace TemporaryDataLayer
             builder.AddSoftDelete();
 
             builder.HasOne(model => model.User)
-                .WithMany()
+                .WithMany(model => model.WallUsers)
                 .HasForeignKey(model => model.UserId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_dbo.WallUsers_dbo.AspNetUsers_UserId");

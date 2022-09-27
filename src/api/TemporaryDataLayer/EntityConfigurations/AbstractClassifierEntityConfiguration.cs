@@ -10,10 +10,8 @@ namespace TemporaryDataLayer.EntityConfigurations
             builder.ToTable("AbstractClassifiers");
 
             builder.AddDefaultBaseModelConfiguration(true);
-            builder.AddOrganization();
+            builder.AddOrganization(foreignKeyName: "FK_dbo.Projects_dbo.Organizations_OrganizationId");
             builder.AddSoftDelete(true);
-
-
 
             builder.HasMany(model => model.Children)
                 .WithOne(model => model.Parent)
@@ -24,6 +22,7 @@ namespace TemporaryDataLayer.EntityConfigurations
                 .HasValue<Language>("Language");
 
             builder.Property("ClassificatorType")
+                .HasMaxLength(128)
                 .HasDefaultValue("");
         }
     }

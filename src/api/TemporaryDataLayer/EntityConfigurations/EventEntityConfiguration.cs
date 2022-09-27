@@ -9,6 +9,12 @@ namespace TemporaryDataLayer
         {
             builder.HasKey(model => model.Id);
 
+            builder.Property(model => model.MaxChoices)
+                .HasDefaultValue(0);
+
+            builder.Property(model => model.EventRecurring)
+                .HasDefaultValue((EventRecurrenceOptions)0);
+
             builder.Property(model => model.Id)
                 .HasDefaultValueSql("NEWID()"); // TODO: look for alternatives
 
@@ -45,6 +51,7 @@ namespace TemporaryDataLayer
                 .HasConstraintName("FK_dbo.Events_dbo.AspNetUsers_ResponsibleUserId");
 
             builder.Property(model => model.Offices)
+                .HasDefaultValue("")
                 .IsRequired();
 
             builder.HasOne(model => model.Wall)
@@ -84,6 +91,9 @@ namespace TemporaryDataLayer
 
             builder.Property(model => model.AllowNotGoing)
                 .HasDefaultValue(true);
+
+            builder.Property(model => model.Place)
+                .IsRequired();
 
             builder.Ignore(model => model.OfficeIds);
 

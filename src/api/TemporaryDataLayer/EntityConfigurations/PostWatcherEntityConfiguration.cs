@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TemporaryDataLayer
 {
-    public class PostWatcherConfig : IEntityTypeConfiguration<PostWatcher>
+    public class PostWatcherEntityConfiguration : IEntityTypeConfiguration<PostWatcher>
     {
         public void Configure(EntityTypeBuilder<PostWatcher> builder)
         {
+            builder.AddSoftDelete();
             builder.HasKey(model => new { model.PostId, model.UserId });
 
             builder.ToTable("PostWatchers", "dbo");

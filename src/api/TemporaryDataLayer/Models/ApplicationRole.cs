@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
+using TemporaryDataLayer.Models;
 
 namespace TemporaryDataLayer
 {
@@ -28,8 +30,14 @@ namespace TemporaryDataLayer
 
         public Organization Organization { get; set; }
 
-        public virtual ICollection<Permission> Permissions { get; set; }
+        public virtual IEnumerable<Permission> Permissions 
+        {
+            get => RolePermissions.Select(model => model.Permission);
+        }
 
         public DateTime CreatedTime { get; set; }
+
+        // Required for many-to-many
+        internal ICollection<RolePermission> RolePermissions { get; set; }
     }
 }

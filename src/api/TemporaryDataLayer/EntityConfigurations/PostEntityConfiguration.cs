@@ -22,6 +22,7 @@ namespace TemporaryDataLayer
                 .IsRequired();
 
             builder.Property(model => model.LastEdit)
+                .HasColumnType("datetime")
                 .HasDefaultValue("1900-01-01T00:00:00.000");
 
             builder.AddLikes(model => model.Likes);
@@ -38,6 +39,9 @@ namespace TemporaryDataLayer
             builder.HasIndex(model => model.LastActivity)
                 .ForSqlServerIsClustered(false)
                 .HasName("IX_LastActivity");
+
+            builder.Property(model => model.IsHidden)
+                .HasDefaultValue(false);
         }
     }
 }

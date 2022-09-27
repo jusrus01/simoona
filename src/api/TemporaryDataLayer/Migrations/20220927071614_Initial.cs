@@ -4,26 +4,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TemporaryDataLayer.Migrations
 {
-    public partial class RefreshToken1 : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
                 name: "dbo");
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dbo.Roles", x => x.Id);
-                });
 
             migrationBuilder.CreateTable(
                 name: "BadgeCategories",
@@ -55,7 +41,7 @@ namespace TemporaryDataLayer.Migrations
                     ModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: false),
                     Value = table.Column<decimal>(nullable: false),
-                    Type = table.Column<int>(nullable: false, defaultValue: 0),
+                    Type = table.Column<int>(nullable: false, defaultValue: 1),
                     Description = table.Column<string>(maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(nullable: false, defaultValue: true),
                     IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
@@ -184,27 +170,6 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    RoleId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dbo.RoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BadgeTypes",
                 columns: table => new
                 {
@@ -258,6 +223,85 @@ namespace TemporaryDataLayer.Migrations
                         principalTable: "KudosTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Permissions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    Scope = table.Column<string>(nullable: true),
+                    ModuleId = table.Column<int>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Permissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.Permissions_dbo.ShroomsModules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalTable: "Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 128, nullable: false),
+                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(maxLength: 256, nullable: false),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    CreatedTime = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.AspNetRoles", x => x.Id)
+                        .Annotation("SqlServer:Clustered", true);
+                    table.ForeignKey(
+                        name: "FK_dbo.AspNetRoles_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Committees",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    PictureId = table.Column<string>(nullable: true),
+                    Website = table.Column<string>(nullable: true),
+                    IsKudosCommittee = table.Column<bool>(nullable: false, defaultValue: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.Committees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.Committees_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -522,10 +566,6 @@ namespace TemporaryDataLayer.Migrations
                     Description = table.Column<string>(nullable: true),
                     PictureId = table.Column<string>(nullable: true),
                     Type = table.Column<int>(nullable: false, defaultValue: 0),
-                    Sources_PostId = table.Column<int>(nullable: false),
-                    Sources_EventId = table.Column<string>(nullable: true),
-                    Sources_ProjectId = table.Column<string>(nullable: true),
-                    Sources_WallId = table.Column<int>(nullable: false),
                     Sources = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -638,6 +678,31 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "QualificationLevels",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    SortOrder = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.QualificationLevels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.QualificationLevels_dbo.Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -678,7 +743,7 @@ namespace TemporaryDataLayer.Migrations
                     IconId = table.Column<string>(nullable: true),
                     IsWorkingRoom = table.Column<bool>(nullable: false, defaultValue: false),
                     Color = table.Column<string>(maxLength: 7, nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
+                    IsDeleted = table.Column<bool>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -754,10 +819,10 @@ namespace TemporaryDataLayer.Migrations
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     Logo = table.Column<string>(nullable: true, defaultValue: "wall-default.png"),
-                    IsHiddenFromAllWalls = table.Column<bool>(nullable: false),
-                    AddForNewUsers = table.Column<bool>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    Access = table.Column<int>(nullable: false),
+                    IsHiddenFromAllWalls = table.Column<bool>(nullable: false, defaultValue: false),
+                    AddForNewUsers = table.Column<bool>(nullable: false, defaultValue: false),
+                    Type = table.Column<int>(nullable: false, defaultValue: 0),
+                    Access = table.Column<int>(nullable: false, defaultValue: 0),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -769,6 +834,51 @@ namespace TemporaryDataLayer.Migrations
                         principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    RoleId = table.Column<string>(nullable: false),
+                    ClaimType = table.Column<string>(nullable: true),
+                    ClaimValue = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.AspNetRoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.AspNetRoleClaims_dbo.AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RolePermissions",
+                columns: table => new
+                {
+                    RoleId = table.Column<string>(nullable: false),
+                    PermissionId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.RolePermissions", x => new { x.PermissionId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_dbo.RolePermissions_dbo.Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.RolePermissions_dbo.AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -879,9 +989,9 @@ namespace TemporaryDataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_dbo.AspNetUserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        name: "FK_dbo.AspNetUserRoles_dbo.AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
@@ -903,22 +1013,22 @@ namespace TemporaryDataLayer.Migrations
                     Value = table.Column<string>(nullable: true),
                     ParentId = table.Column<int>(nullable: true),
                     SortOrder = table.Column<string>(nullable: true),
-                    ClassificatorType = table.Column<string>(nullable: false, defaultValue: ""),
+                    ClassificatorType = table.Column<string>(maxLength: 128, nullable: false, defaultValue: ""),
                     IsDeleted = table.Column<bool>(nullable: false, defaultValue: false),
                     InProgress = table.Column<bool>(nullable: true),
                     ApplicationUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_dbo.dbo.AbstractClassifiers", x => x.Id);
+                    table.PrimaryKey("PK_dbo.AbstractClassifiers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_dbo.dbo.AbstractClassifiers_dbo.dbo.Organizations_OrganizationId",
+                        name: "FK_dbo.Projects_dbo.Organizations_OrganizationId",
                         column: x => x.OrganizationId,
                         principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_dbo.dbo.AbstractClassifiers_dbo.dbo.AbstractClassifiers_ParentId",
+                        name: "FK_dbo.AbstractClassifiers_dbo.AbstractClassifiers_ParentId",
                         column: x => x.ParentId,
                         principalTable: "AbstractClassifiers",
                         principalColumn: "Id",
@@ -973,21 +1083,23 @@ namespace TemporaryDataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_dbo.UserClaims", x => x.Id);
+                    table.PrimaryKey("PK_dbo.AspNetUserClaims", x => x.Id)
+                        .Annotation("SqlServer:Clustered", true);
                 });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(nullable: false),
-                    ProviderKey = table.Column<string>(nullable: false),
-                    ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
+                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    UserId = table.Column<string>(nullable: false),
+                    ProviderDisplayName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_dbo.AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey, x.UserId });
+                    table.UniqueConstraint("Temporary", x => new { x.LoginProvider, x.ProviderKey });
                 });
 
             migrationBuilder.CreateTable(
@@ -1001,7 +1113,7 @@ namespace TemporaryDataLayer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_dbo.AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                 });
 
             migrationBuilder.CreateTable(
@@ -1185,6 +1297,112 @@ namespace TemporaryDataLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CommitteeSuggestions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime", nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    User_Id = table.Column<string>(nullable: true),
+                    CommitteeId = table.Column<int>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.CommitteeSuggestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteeSuggestions_dbo.Committees_CommitteeId",
+                        column: x => x.CommitteeId,
+                        principalTable: "Committees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommitteeSuggestionsIDs",
+                columns: table => new
+                {
+                    Committees_Id = table.Column<int>(nullable: false),
+                    CommitteeSuggestions_Id = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.CommitteeSuggestionsIDs", x => new { x.Committees_Id, x.CommitteeSuggestions_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteeSuggestionsIDs_dbo.Committees_Committees_Id",
+                        column: x => x.Committees_Id,
+                        principalTable: "Committees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteeSuggestionsIDs_dbo.CommitteeSuggestions_CommitteeSuggestions_Id",
+                        column: x => x.CommitteeSuggestions_Id,
+                        principalTable: "CommitteeSuggestions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommitteesUsersDelegates",
+                columns: table => new
+                {
+                    Committee_Id = table.Column<int>(nullable: false),
+                    ApplicationUser_Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.CommitteesUsersDelegates", x => new { x.ApplicationUser_Id, x.Committee_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteesUsersDelegates_dbo.Committees_Committee_Id",
+                        column: x => x.Committee_Id,
+                        principalTable: "Committees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommitteesUsersLeadership",
+                columns: table => new
+                {
+                    Committee_Id = table.Column<int>(nullable: false),
+                    ApplicationUser_Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.CommitteesUsersLeadership", x => new { x.ApplicationUser_Id, x.Committee_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteesUsersLeadership_dbo.Committees_Committee_Id",
+                        column: x => x.Committee_Id,
+                        principalTable: "Committees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommitteesUsersMembership",
+                columns: table => new
+                {
+                    Committee_Id = table.Column<int>(nullable: false),
+                    ApplicationUser_Id = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dbo.CommitteesUsersMembership", x => new { x.ApplicationUser_Id, x.Committee_Id });
+                    table.ForeignKey(
+                        name: "FK_dbo.CommitteeApplicationUsers_dbo.Committees_Committee_Id",
+                        column: x => x.Committee_Id,
+                        principalTable: "Committees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EventParticipants",
                 columns: table => new
                 {
@@ -1198,7 +1416,6 @@ namespace TemporaryDataLayer.Migrations
                     ApplicationUserId = table.Column<string>(nullable: false, defaultValue: ""),
                     AttendStatus = table.Column<int>(nullable: false, defaultValue: 1),
                     AttendComment = table.Column<string>(nullable: true),
-                    EventId1 = table.Column<Guid>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -1221,19 +1438,19 @@ namespace TemporaryDataLayer.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     RegistrationDeadline = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(2016, 5, 11, 11, 57, 2, 755, DateTimeKind.Local)),
-                    EventRecurring = table.Column<int>(nullable: false),
+                    EventRecurring = table.Column<int>(nullable: false, defaultValue: 0),
                     AllowMaybeGoing = table.Column<bool>(nullable: false, defaultValue: true),
                     AllowNotGoing = table.Column<bool>(nullable: false, defaultValue: true),
                     OfficeId = table.Column<int>(nullable: true),
-                    Place = table.Column<string>(nullable: true),
+                    Place = table.Column<string>(nullable: false),
                     Description = table.Column<string>(nullable: true),
                     MaxParticipants = table.Column<int>(maxLength: 32767, nullable: false),
-                    MaxChoices = table.Column<int>(maxLength: 32767, nullable: false),
+                    MaxChoices = table.Column<int>(maxLength: 32767, nullable: false, defaultValue: 0),
                     EventTypeId = table.Column<int>(nullable: false),
                     ResponsibleUserId = table.Column<string>(nullable: true),
                     WallId = table.Column<int>(nullable: false),
                     IsPinned = table.Column<bool>(nullable: false),
-                    Offices = table.Column<string>(nullable: false),
+                    Offices = table.Column<string>(nullable: false, defaultValue: ""),
                     IsDeleted = table.Column<bool>(nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -1278,7 +1495,6 @@ namespace TemporaryDataLayer.Migrations
                     EventId = table.Column<Guid>(nullable: false, defaultValue: new Guid("00000000-0000-0000-0000-000000000000")),
                     Option = table.Column<string>(nullable: false),
                     Rule = table.Column<int>(nullable: false, defaultValue: 0),
-                    EventId1 = table.Column<Guid>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -1287,12 +1503,6 @@ namespace TemporaryDataLayer.Migrations
                     table.ForeignKey(
                         name: "FK_dbo.EventOptions_dbo.Events_EventId",
                         column: x => x.EventId,
-                        principalTable: "Events",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_EventOptions_Events_EventId1",
-                        column: x => x.EventId1,
                         principalTable: "Events",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -1456,10 +1666,10 @@ namespace TemporaryDataLayer.Migrations
                     Likes = table.Column<string>(nullable: true, defaultValue: "{}"),
                     MessageBody = table.Column<string>(nullable: true),
                     LastActivity = table.Column<DateTime>(nullable: false),
-                    LastEdit = table.Column<DateTime>(nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
+                    LastEdit = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     AuthorId = table.Column<string>(nullable: true),
                     Images = table.Column<string>(nullable: true),
-                    IsHidden = table.Column<bool>(nullable: false),
+                    IsHidden = table.Column<bool>(nullable: false, defaultValue: false),
                     SharedEventId = table.Column<string>(nullable: true),
                     WallId = table.Column<int>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
@@ -1498,6 +1708,8 @@ namespace TemporaryDataLayer.Migrations
                     Modified = table.Column<DateTime>(type: "datetime", nullable: false),
                     ModifiedBy = table.Column<string>(nullable: true),
                     OrganizationId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Desc = table.Column<string>(nullable: true),
                     OwnerId = table.Column<string>(nullable: false),
                     WallId = table.Column<int>(nullable: false),
                     Logo = table.Column<string>(nullable: true)
@@ -1744,56 +1956,70 @@ namespace TemporaryDataLayer.Migrations
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     Bio = table.Column<string>(nullable: true),
-                    EmploymentDate = table.Column<DateTime>(nullable: true),
-                    BirthDay = table.Column<DateTime>(nullable: true),
+                    EmploymentDate = table.Column<DateTime>(type: "datetime", nullable: true),
+                    BirthDay = table.Column<DateTime>(type: "datetime", nullable: true),
                     WorkingHoursId = table.Column<int>(nullable: true),
-                    IsAbsent = table.Column<bool>(nullable: false),
-                    IsAnonymized = table.Column<bool>(nullable: false),
+                    IsAbsent = table.Column<bool>(nullable: false, defaultValue: false),
+                    IsAnonymized = table.Column<bool>(nullable: false, defaultValue: false),
                     AbsentComment = table.Column<string>(nullable: true),
-                    TotalKudos = table.Column<decimal>(nullable: false),
-                    RemainingKudos = table.Column<decimal>(nullable: false),
-                    SittingPlacesChanged = table.Column<int>(nullable: false),
-                    SpentKudos = table.Column<decimal>(nullable: false),
+                    TotalKudos = table.Column<decimal>(nullable: false, defaultValue: 0m),
+                    RemainingKudos = table.Column<decimal>(nullable: false, defaultValue: 0m),
+                    SittingPlacesChanged = table.Column<int>(nullable: false, defaultValue: 0),
+                    SpentKudos = table.Column<decimal>(nullable: false, defaultValue: 0m),
+                    RoomId = table.Column<int>(nullable: true),
                     PictureId = table.Column<string>(nullable: true),
+                    QualificationLevelId = table.Column<int>(nullable: true),
                     ManagerId = table.Column<string>(nullable: true),
                     OrganizationId = table.Column<int>(nullable: false),
-                    IsOwner = table.Column<bool>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false),
+                    IsOwner = table.Column<bool>(nullable: false, defaultValue: false),
+                    Created = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     CreatedBy = table.Column<string>(nullable: true),
-                    Modified = table.Column<DateTime>(nullable: false),
+                    Modified = table.Column<DateTime>(type: "datetime", nullable: false, defaultValue: new DateTime(1900, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)),
                     ModifiedBy = table.Column<string>(nullable: true),
                     VacationTotalTime = table.Column<double>(nullable: true),
                     VacationUsedTime = table.Column<double>(nullable: true),
                     VacationUnusedTime = table.Column<double>(nullable: true),
-                    VacationLastTimeUpdated = table.Column<DateTime>(nullable: true),
+                    VacationLastTimeUpdated = table.Column<DateTime>(type: "datetime", nullable: true),
                     DailyMailingHour = table.Column<TimeSpan>(nullable: true),
-                    IsManagingDirector = table.Column<bool>(nullable: false),
-                    CultureCode = table.Column<string>(nullable: true),
-                    TimeZone = table.Column<string>(nullable: true),
-                    IsTutorialComplete = table.Column<bool>(nullable: false),
+                    IsManagingDirector = table.Column<bool>(nullable: false, defaultValue: false),
+                    CultureCode = table.Column<string>(nullable: true, defaultValue: "en-US"),
+                    JobPositionId = table.Column<int>(nullable: true),
+                    TimeZone = table.Column<string>(nullable: true, defaultValue: "FLE Standard Time"),
+                    IsTutorialComplete = table.Column<bool>(nullable: false, defaultValue: true),
                     GoogleEmail = table.Column<string>(nullable: true),
                     FacebookEmail = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    JobPositionId = table.Column<int>(nullable: true),
-                    RoomId = table.Column<int>(nullable: true)
+                    IsDeleted = table.Column<bool>(nullable: false, defaultValue: false),
+                    LockoutEndDateUtc = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_dbo.ApplicationUser", x => x.Id);
+                    table.PrimaryKey("PK_dbo.AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_dbo.ApplicationUser_dbo.JobPositions_JobPositionId",
+                        name: "FK_dbo.AspNetUsers_dbo.JobPositions_JobPositionId",
                         column: x => x.JobPositionId,
                         principalTable: "JobPositions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId",
+                        name: "FK_dbo.AspNetUsers_dbo.AspNetUsers_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.AspNetUsers_dbo.Organizations_OrganizationId",
                         column: x => x.OrganizationId,
                         principalTable: "Organizations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_dbo.ApplicationUser_dbo.Rooms_RoomId",
+                        name: "FK_dbo.AspNetUsers_dbo.QualificationLevels_QualificationLevelId",
+                        column: x => x.QualificationLevelId,
+                        principalTable: "QualificationLevels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_dbo.AspNetUsers_dbo.Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
@@ -1812,7 +2038,8 @@ namespace TemporaryDataLayer.Migrations
                 columns: table => new
                 {
                     PostId = table.Column<int>(nullable: false),
-                    UserId = table.Column<string>(nullable: false)
+                    UserId = table.Column<string>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1872,38 +2099,58 @@ namespace TemporaryDataLayer.Migrations
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
+                name: "IX_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
+                name: "IX_NormalizedName",
                 table: "AspNetRoles",
                 column: "NormalizedName",
                 unique: true,
                 filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
+                name: "IX_OrganizationId",
+                table: "AspNetRoles",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId_Name",
+                table: "AspNetRoles",
+                columns: new[] { "OrganizationId", "Name" })
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserId",
                 table: "AspNetUserClaims",
-                column: "UserId");
+                column: "UserId")
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
+                name: "IX_UserId",
                 table: "AspNetUserLogins",
-                column: "UserId");
+                column: "UserId")
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
+                name: "IX_RoleId",
                 table: "AspNetUserRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_Email",
+                name: "IX_UserId",
+                table: "AspNetUserRoles",
+                column: "UserId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "Email",
                 table: "AspNetUsers",
                 column: "Email",
-                unique: true,
-                filter: "[Email] IS NOT NULL");
+                unique: true)
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_JobPositionId",
@@ -1911,12 +2158,17 @@ namespace TemporaryDataLayer.Migrations
                 column: "JobPositionId");
 
             migrationBuilder.CreateIndex(
-                name: "EmailIndex",
+                name: "IX_ManagerId",
+                table: "AspNetUsers",
+                column: "ManagerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NormalizedEmail",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
+                name: "IX_NormalizedUserName",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true,
@@ -1927,6 +2179,11 @@ namespace TemporaryDataLayer.Migrations
                 table: "AspNetUsers",
                 column: "OrganizationId")
                 .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QualificationLevelId",
+                table: "AspNetUsers",
+                column: "QualificationLevelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomId",
@@ -1989,7 +2246,8 @@ namespace TemporaryDataLayer.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserId",
                 table: "BlacklistUsers",
-                column: "UserId");
+                column: "UserId")
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationUserId",
@@ -2047,14 +2305,74 @@ namespace TemporaryDataLayer.Migrations
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
+                table: "Committees",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommitteeId",
+                table: "CommitteeSuggestions",
+                column: "CommitteeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_Id",
+                table: "CommitteeSuggestions",
+                column: "User_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Committees_Id",
+                table: "CommitteeSuggestionsIDs",
+                column: "Committees_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommitteeSuggestions_Id",
+                table: "CommitteeSuggestionsIDs",
+                column: "CommitteeSuggestions_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Id",
+                table: "CommitteesUsersDelegates",
+                column: "ApplicationUser_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Committee_Id",
+                table: "CommitteesUsersDelegates",
+                column: "Committee_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Id",
+                table: "CommitteesUsersLeadership",
+                column: "ApplicationUser_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Committee_Id",
+                table: "CommitteesUsersLeadership",
+                column: "Committee_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_Id",
+                table: "CommitteesUsersMembership",
+                column: "ApplicationUser_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Committee_Id",
+                table: "CommitteesUsersMembership",
+                column: "Committee_Id")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EventId",
                 table: "EventOptions",
                 column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventOptions_EventId1",
-                table: "EventOptions",
-                column: "EventId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventOption_Id",
@@ -2077,11 +2395,6 @@ namespace TemporaryDataLayer.Migrations
                 name: "IX_EventId",
                 table: "EventParticipants",
                 column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventParticipants_EventId1",
-                table: "EventParticipants",
-                column: "EventId1");
 
             migrationBuilder.CreateIndex(
                 name: "nci_wi_EventParticipants_CA1F6B4699FAB2347B166CEA9639C7E8",
@@ -2307,6 +2620,11 @@ namespace TemporaryDataLayer.Migrations
                 column: "ParentPageId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ModuleId",
+                table: "Permissions",
+                column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrganizationId",
                 table: "Pictures",
                 column: "OrganizationId")
@@ -2371,14 +2689,34 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrganizationId",
+                table: "QualificationLevels",
+                column: "OrganizationId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrganizationId",
                 table: "RefreshTokens",
                 column: "OrganizationId")
                 .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_Subject",
+                name: "IX_Subject",
                 table: "RefreshTokens",
-                column: "Subject");
+                column: "Subject",
+                unique: true)
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PermissionId",
+                table: "RolePermissions",
+                column: "PermissionId")
+                .Annotation("SqlServer:Clustered", false);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleId",
+                table: "RolePermissions",
+                column: "RoleId")
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_FloorId",
@@ -2542,7 +2880,7 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                name: "FK_dbo.AspNetUserRoles_dbo.AspNetUsers_UserId",
                 table: "AspNetUserRoles",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -2550,7 +2888,7 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_dbo.AbstractClassifiers_dbo.ApplicationUser_ApplicationUserId",
+                name: "FK_dbo.AbstractClassifiers_dbo.AspNetUsers_ApplicationUserId",
                 table: "AbstractClassifiers",
                 column: "ApplicationUserId",
                 principalTable: "AspNetUsers",
@@ -2574,7 +2912,7 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                name: "FK_dbo.AspNetUserClaims_dbo.AspNetUsers_UserId",
                 table: "AspNetUserClaims",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -2582,7 +2920,7 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                name: "FK_dbo.AspNetUserLogins_dbo.AspNetUsers_UserId",
                 table: "AspNetUserLogins",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -2590,7 +2928,7 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                name: "FK_dbo.AspNetUserTokens_dbo.AspNetUsers_UserId",
                 table: "AspNetUserTokens",
                 column: "UserId",
                 principalTable: "AspNetUsers",
@@ -2670,7 +3008,39 @@ namespace TemporaryDataLayer.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_dbo.EventParticipants_dbo.ApplicationUser_ApplicationUserId",
+                name: "FK_dbo.CommitteeSuggestions_dbo.AspNetUsers_UserId",
+                table: "CommitteeSuggestions",
+                column: "User_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.CommitteesUsersDelegates_dbo.AspNetUsers_ApplicationUser_Id",
+                table: "CommitteesUsersDelegates",
+                column: "ApplicationUser_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.CommitteesUsersLeadership_dbo.AspNetUsers_ApplicationUser_Id",
+                table: "CommitteesUsersLeadership",
+                column: "ApplicationUser_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.CommitteeApplicationUsers_dbo.AspNetUsers_ApplicationUser_Id",
+                table: "CommitteesUsersMembership",
+                column: "ApplicationUser_Id",
+                principalTable: "AspNetUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_dbo.EventParticipants_dbo.AspNetUsers_ApplicationUserId",
                 table: "EventParticipants",
                 column: "ApplicationUserId",
                 principalTable: "AspNetUsers",
@@ -2681,14 +3051,6 @@ namespace TemporaryDataLayer.Migrations
                 name: "FK_dbo.EventParticipants_dbo.Events_EventId",
                 table: "EventParticipants",
                 column: "EventId",
-                principalTable: "Events",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_EventParticipants_Events_EventId1",
-                table: "EventParticipants",
-                column: "EventId1",
                 principalTable: "Events",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
@@ -2825,7 +3187,7 @@ namespace TemporaryDataLayer.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_dbo.ApplicationUser_dbo.Organizations_OrganizationId",
+                name: "FK_dbo.AspNetUsers_dbo.Organizations_OrganizationId",
                 table: "AspNetUsers");
 
             migrationBuilder.DropForeignKey(
@@ -2843,6 +3205,10 @@ namespace TemporaryDataLayer.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_dbo.Pictures_dbo.Organizations_OrganizationId",
                 table: "Pictures");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_dbo.QualificationLevels_dbo.Organizations_OrganizationId",
+                table: "QualificationLevels");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_dbo.Rooms_dbo.Organizations_OrganizationId",
@@ -2897,6 +3263,18 @@ namespace TemporaryDataLayer.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
+                name: "CommitteeSuggestionsIDs");
+
+            migrationBuilder.DropTable(
+                name: "CommitteesUsersDelegates");
+
+            migrationBuilder.DropTable(
+                name: "CommitteesUsersLeadership");
+
+            migrationBuilder.DropTable(
+                name: "CommitteesUsersMembership");
+
+            migrationBuilder.DropTable(
                 name: "EventParticipantEventOptions");
 
             migrationBuilder.DropTable(
@@ -2936,6 +3314,9 @@ namespace TemporaryDataLayer.Migrations
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
+                name: "RolePermissions");
+
+            migrationBuilder.DropTable(
                 name: "ServiceRequestCategoryApplicationUsers");
 
             migrationBuilder.DropTable(
@@ -2958,9 +3339,6 @@ namespace TemporaryDataLayer.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
                 name: "KudosTypes");
 
             migrationBuilder.DropTable(
@@ -2968,6 +3346,9 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "BookOffices");
+
+            migrationBuilder.DropTable(
+                name: "CommitteeSuggestions");
 
             migrationBuilder.DropTable(
                 name: "EventOptions");
@@ -2988,9 +3369,6 @@ namespace TemporaryDataLayer.Migrations
                 name: "Lotteries");
 
             migrationBuilder.DropTable(
-                name: "Modules");
-
-            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
@@ -2998,6 +3376,12 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Skills");
+
+            migrationBuilder.DropTable(
+                name: "Permissions");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "ServiceRequestCategories");
@@ -3015,7 +3399,13 @@ namespace TemporaryDataLayer.Migrations
                 name: "Books");
 
             migrationBuilder.DropTable(
+                name: "Committees");
+
+            migrationBuilder.DropTable(
                 name: "Events");
+
+            migrationBuilder.DropTable(
+                name: "Modules");
 
             migrationBuilder.DropTable(
                 name: "KudosShopItems");
@@ -3040,6 +3430,9 @@ namespace TemporaryDataLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "JobPositions");
+
+            migrationBuilder.DropTable(
+                name: "QualificationLevels");
 
             migrationBuilder.DropTable(
                 name: "Rooms");

@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace TemporaryDataLayer
 {
-    internal static class Extensions
+    public static class Extensions
     {
         public const string IsDeleted = nameof(IsDeleted); // TODO: save somewhere
 
@@ -37,6 +39,59 @@ namespace TemporaryDataLayer
             builder.OwnsOne(image)
                .Property(model => model.Serialized)
                .HasColumnName("Images");
+        }
+
+        // TODO: replace this with .HasMany().WithMany() after upgrading to EF Core 5+
+        public static void ConfigureManyToMany<T, TFirstEntity, TSecondEntity>(
+            this EntityTypeBuilder<T> builder,
+            Expression<Func<T, object>> key,
+            string partialKeyName,
+            Expression<Func<TFirstEntity, IEnumerable<T>>> firstWithMany,
+            Expression<Func<T, object>> firstForeignKey,
+            Expression<Func<T, TFirstEntity>> firstObject,
+            string partialFirstForeignKeyName,
+            string firstForeignKeyConstraintName,
+            Expression<Func<TSecondEntity, IEnumerable<T>>> secondWithMany,
+            Expression<Func<T, object>> secondForeignKey,
+            Expression<Func<T, TSecondEntity>> secondObject,
+            string partialSecondForeignKeyName,
+            string secondForeignKeyConstraintName,
+            bool includeUnderscore = true
+            ) 
+            where T : class
+            where TFirstEntity : class
+            where TSecondEntity : class
+        {
+            var idPrefix = includeUnderscore ? "_Id" : "Id";
+
+            builder.Property(firstForeignKey)
+                .HasColumnName($"{partialFirstForeignKeyName}{idPrefix}");
+
+            builder.Property(secondForeignKey)
+                .HasColumnName($"{partialSecondForeignKeyName}{idPrefix}");
+
+            builder.HasKey(key)
+                .HasName($"PK_dbo.{partialKeyName}");
+
+            builder.HasOne(firstObject)
+                .WithMany(firstWithMany)
+                .HasForeignKey(firstForeignKey)
+                .HasConstraintName(firstForeignKeyConstraintName)
+                .IsRequired();
+
+            builder.HasOne(secondObject)
+                .WithMany(secondWithMany)
+                .HasForeignKey(secondForeignKey)
+                .HasConstraintName(secondForeignKeyConstraintName)
+                .IsRequired();
+
+            builder.HasIndex(firstForeignKey)
+                .ForSqlServerIsClustered(false)
+                .HasName($"IX_{partialFirstForeignKeyName}{idPrefix}");
+
+            builder.HasIndex(secondForeignKey)
+                .ForSqlServerIsClustered(false)
+                .HasName($"IX_{partialSecondForeignKeyName}{idPrefix}");
         }
 
         public static void AddDefaultBaseModelConfiguration<T>(this EntityTypeBuilder<T> builder, bool hasDefaultValue  = false) where T : BaseModel

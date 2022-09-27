@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using TemporaryDataLayer.Models.Comittees;
 
 namespace TemporaryDataLayer
 {
@@ -14,12 +16,33 @@ namespace TemporaryDataLayer
 
         public bool IsKudosCommittee { get; set; }
 
-        public virtual ICollection<ApplicationUser> Members { get; set; }
+        public IEnumerable<ApplicationUser> Members 
+        {
+            get => CommitteesUserMembership.Select(model => model.ApplicationUser);
+        }
 
-        public virtual ICollection<CommitteeSuggestion> Suggestions { get; set; }
+        public IEnumerable<CommitteeSuggestion> Suggestions
+        {
+            get => CommitteeSuggestionIds.Select(model => model.CommitteeSuggestion);
+        }
 
-        public virtual ICollection<ApplicationUser> Leads { get; set; }
+        public IEnumerable<ApplicationUser> Leads 
+        {
+            get => CommitteesUserLeadership.Select(model => model.ApplicationUser);
+        }
 
-        public virtual ICollection<ApplicationUser> Delegates { get; set; }
+        public virtual IEnumerable<ApplicationUser> Delegates 
+        {
+            get => CommitteesUserDelegates.Select(model => model.ApplicationUser);
+        }
+
+        // Required for many-to-many
+        internal ICollection<CommitteesUserMembership> CommitteesUserMembership { get; set; }
+
+        internal ICollection<CommitteesUserLeadership> CommitteesUserLeadership { get; set; }
+
+        internal ICollection<CommitteesUserDelegates> CommitteesUserDelegates { get; set; }
+
+        internal ICollection<CommitteeSuggestionID> CommitteeSuggestionIds { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shrooms.Contracts.Enums;
 
 namespace TemporaryDataLayer
 {
@@ -13,6 +14,18 @@ namespace TemporaryDataLayer
 
             builder.Property(model => model.Logo)
                 .HasDefaultValue("wall-default.png");
+
+            builder.Property(model => model.Type)
+                .HasDefaultValue((WallType)0);
+
+            builder.Property(model => model.Access)
+                .HasDefaultValue((WallAccess)0);
+
+            builder.Property(model => model.IsHiddenFromAllWalls)
+                .HasDefaultValue(false);
+
+            builder.Property(model => model.AddForNewUsers)
+                .HasDefaultValue(false);
         }
     }
 }

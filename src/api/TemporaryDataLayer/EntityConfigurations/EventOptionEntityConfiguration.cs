@@ -22,7 +22,7 @@ namespace TemporaryDataLayer
                 .HasDefaultValue(OptionRules.Default);
 
             builder.HasOne(model => model.Event)
-                .WithMany()
+                .WithMany(model => model.EventOptions)
                 .HasForeignKey(model => model.EventId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

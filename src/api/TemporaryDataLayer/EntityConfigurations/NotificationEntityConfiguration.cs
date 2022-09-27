@@ -13,6 +13,10 @@ namespace TemporaryDataLayer
             builder.AddSoftDelete();
 
             builder.OwnsOne(model => model.Sources)
+                .Ignore(model => model.WallId)
+                .Ignore(model => model.PostId)
+                .Ignore(model => model.ProjectId)
+                .Ignore(model => model.EventId)
                 .Property(model => model.Serialized)
                 .HasColumnName("Sources");
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using TemporaryDataLayer.Models;
 
 namespace TemporaryDataLayer
 {
@@ -9,11 +10,17 @@ namespace TemporaryDataLayer
 
         public string Scope { get; set; }
 
-        public virtual ICollection<ApplicationRole> Roles { get; set; }
+        public virtual IEnumerable<ApplicationRole> Roles
+        {
+            get => RolePermissions.Select(model => model.Role); 
+        }
 
         public virtual Module Module { get; set; }
 
-        [ForeignKey("Module")]
+        //[ForeignKey("Module")]
         public int? ModuleId { get; set; }
+
+        // Required for many-to-many
+        internal ICollection<RolePermission> RolePermissions { get; set; }
     }
 }

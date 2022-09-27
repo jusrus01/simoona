@@ -21,7 +21,6 @@ namespace TemporaryDataLayer
 
             builder.Property(filter => filter.ForPage)
                 .IsRequired();
-
         }
     }
 }

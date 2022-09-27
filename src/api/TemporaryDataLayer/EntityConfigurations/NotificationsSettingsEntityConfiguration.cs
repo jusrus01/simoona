@@ -11,13 +11,15 @@ namespace TemporaryDataLayer.EntityConfigurations
             builder.AddSoftDelete();
 
             builder.HasOne(model => model.ApplicationUser)
-                .WithMany()
-                .HasForeignKey("ApplicationUser_Id")
-                .HasConstraintName("FK_dbo.NotificationsSettings_dbo.AspNetUsers_ApplicationUser_Id");
+                .WithOne(model => model.NotificationsSettings)
+                .HasForeignKey<NotificationsSettings>("ApplicationUser_Id")
+                .HasConstraintName("FK_dbo.NotificationsSettings_dbo.AspNetUsers_ApplicationUser_Id")
+                .IsRequired(false);
 
             builder.HasIndex("ApplicationUser_Id")
                 .ForSqlServerIsClustered(false)
-                .HasName("IX_ApplicationUser_Id");
+                .HasName("IX_ApplicationUser_Id")
+                .IsUnique(false);
 
             builder.Property(model => model.MyPostsAppNotifications)
                 .HasDefaultValue(false);

@@ -7,9 +7,9 @@ namespace TemporaryDataLayer
 {
     public class Project : BaseModelWithOrg
     {
-        //public string Name { get; set; }
+        public string Name { get; set; }
 
-        //public string Desc { get; set; }
+        public string Desc { get; set; }
 
         public string OwnerId { get; set; }
 

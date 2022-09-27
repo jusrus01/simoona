@@ -49,6 +49,10 @@ namespace TemporaryDataLayer
 
             builder.Property(u => u.ModifiedBy)
                 .IsRequired();
+
+            builder.HasIndex(model => model.UserId)
+                .ForSqlServerIsClustered(false)
+                .HasName("IX_UserId");
         }
     }
 }

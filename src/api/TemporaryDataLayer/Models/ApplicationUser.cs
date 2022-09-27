@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
+using Shrooms.Contracts.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using TemporaryDataLayer.Models;
+using TemporaryDataLayer.Models.Comittees;
 using TemporaryDataLayer.Models.Users;
 
 namespace TemporaryDataLayer
@@ -52,31 +54,38 @@ namespace TemporaryDataLayer
         public decimal SpentKudos { get; set; }
 
         //[ForeignKey(nameof(Room))]
-        //public int? RoomId { get; set; }
+        public int? RoomId { get; set; }
 
-        //public virtual Room Room { get; set; }
+        public virtual Room Room { get; set; }
 
         public string PictureId { get; set; }
 
         //[ForeignKey(nameof(QualificationLevel))]
-        //public int? QualificationLevelId { get; set; }
+        public int? QualificationLevelId { get; set; }
 
-        //public virtual QualificationLevel QualificationLevel { get; set; }
+        public virtual QualificationLevel QualificationLevel { get; set; }
 
         public string ManagerId { get; set; }
 
         //[ForeignKey(nameof(ManagerId))]
-        //public virtual ApplicationUser Manager { get; set; }
+        public virtual ApplicationUser Manager { get; set; }
 
-        //public virtual ICollection<ApplicationUser> ManagedUsers { get; set; }
+        public virtual ICollection<ApplicationUser> ManagedUsers { get; set; }
 
-        //public virtual ICollection<Committee> Committees { get; set; }
+        public IEnumerable<Committee> Committees 
+        {
+            get => CommitteesUserMembership.Select(model => model.Committee);
+        }
 
-        //[InverseProperty(nameof(Committee.Leads))]
-        //public virtual ICollection<Committee> LeadingCommittees { get; set; }
+        public IEnumerable<Committee> LeadingCommittees
+        {
+            get => CommitteesUserLeadership.Select(model => model.Committee);
+        }
 
-        //[InverseProperty(nameof(Committee.Delegates))]
-        //public virtual ICollection<Committee> DelegatingCommittees { get; set; }
+        public IEnumerable<Committee> DelegatingCommittees
+        {
+            get => CommitteesUserDelegates.Select(model => model.Committee); 
+        }
 
         public int OrganizationId { get; set; }
 
@@ -104,15 +113,15 @@ namespace TemporaryDataLayer
             get => ApplicationUserSkills.Select(model => model.Skill); 
         }
 
-        //public virtual ICollection<Book> Books { get; set; }
+        public virtual ICollection<Book> Books { get; set; }
 
-        //public virtual ICollection<BookLog> BookLogs { get; set; }
+        public virtual ICollection<BookLog> BookLogs { get; set; }
 
-        //public virtual ICollection<BadgeLog> BadgeLogs { get; set; }
+        public virtual ICollection<BadgeLog> BadgeLogs { get; set; }
 
-        //public virtual ICollection<Event> Events { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
 
-        //public virtual ICollection<WallMember> WallUsers { get; set; }
+        public virtual ICollection<WallMember> WallUsers { get; set; }
 
         public virtual IEnumerable<ServiceRequestCategory> ServiceRequestCategoriesAssigned
         { 
@@ -140,36 +149,35 @@ namespace TemporaryDataLayer
 
         public ICollection<Project> OwnedProjects { get; set; }
 
-        //public int? JobPositionId { get; set; }
+        public int? JobPositionId { get; set; }
 
         //[ForeignKey(nameof(JobPositionId))]
-        //public virtual JobPosition JobPosition { get; set; }
+        public virtual JobPosition JobPosition { get; set; }
 
         //[InverseProperty(nameof(BlacklistUser.User))]
-        //public virtual ICollection<BlacklistUser> BlacklistEntries { get; set; }
+        public virtual ICollection<BlacklistUser> BlacklistEntries { get; set; }
 
         //[NotMapped]
-        //public bool UserWasPreviouslyBlacklisted
-        //{
-        //    get
-        //    {
-        //        return BlacklistEntries != null && BlacklistEntries.Any(entry => entry.Status != BlacklistStatus.Active);
-        //    }
-        //}
+        public bool UserWasPreviouslyBlacklisted
+        {
+            get
+            {
+                return BlacklistEntries != null && BlacklistEntries.Any(entry => entry.Status != BlacklistStatus.Active);
+            }
+        }
 
         public string TimeZone { get; set; }
 
-        //public virtual ICollection<NotificationUser> NotificationUsers { get; set; }
+        public virtual ICollection<NotificationUser> NotificationUsers { get; set; }
 
         public bool IsTutorialComplete { get; set; }
 
-        //public virtual NotificationsSettings NotificationsSettings { get; set; }
+        public virtual NotificationsSettings NotificationsSettings { get; set; }
 
         public string GoogleEmail { get; set; }
 
         public string FacebookEmail { get; set; }
 
-        [NotMapped]
         public int YearsEmployed
         {
             get
@@ -205,6 +213,12 @@ namespace TemporaryDataLayer
 
         internal ICollection<ApplicationUserExam> ApplicationUserExams { get; set; }
         
-        internal virtual ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
+        internal ICollection<ApplicationUserSkill> ApplicationUserSkills { get; set; }
+
+        internal ICollection<CommitteesUserMembership> CommitteesUserMembership { get; set; }
+
+        internal ICollection<CommitteesUserLeadership> CommitteesUserLeadership { get; set; }
+
+        internal ICollection<CommitteesUserDelegates> CommitteesUserDelegates { get; set; }
     }
 }
