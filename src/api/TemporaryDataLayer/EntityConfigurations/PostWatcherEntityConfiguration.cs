@@ -7,7 +7,6 @@ namespace TemporaryDataLayer
     {
         public void Configure(EntityTypeBuilder<PostWatcher> builder)
         {
-            builder.AddSoftDelete();
             builder.HasKey(model => new { model.PostId, model.UserId });
 
             builder.ToTable("PostWatchers", "dbo");

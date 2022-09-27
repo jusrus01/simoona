@@ -30,6 +30,12 @@ namespace TemporaryDataLayer
                 .ForSqlServerIsClustered(false)
                 .HasName("nci_wi_EventParticipants_CA1F6B4699FAB2347B166CEA9639C7E8")
                 .ForSqlServerInclude("EventId");
+
+            builder.HasOne(model => model.ApplicationUser)
+                .WithMany()
+                .HasForeignKey(model => model.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_dbo.EventParticipants_dbo.AspNetUsers_ApplicationUserId");
         }
     }
 }

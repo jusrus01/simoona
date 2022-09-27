@@ -2367,8 +2367,6 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("UserId");
 
-                    b.Property<bool>("IsDeleted");
-
                     b.HasKey("PostId", "UserId");
 
                     b.HasIndex("PostId")
@@ -3469,7 +3467,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
                         .HasConstraintName("FK_dbo.EventParticipants_dbo.AspNetUsers_ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.Event", "Event")
                         .WithMany("EventParticipants")

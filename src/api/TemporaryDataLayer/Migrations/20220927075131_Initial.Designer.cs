@@ -10,7 +10,7 @@ using TemporaryDataLayer;
 namespace TemporaryDataLayer.Migrations
 {
     [DbContext(typeof(TempShroomsDbContext))]
-    [Migration("20220927071614_Initial")]
+    [Migration("20220927075131_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -2369,8 +2369,6 @@ namespace TemporaryDataLayer.Migrations
 
                     b.Property<string>("UserId");
 
-                    b.Property<bool>("IsDeleted");
-
                     b.HasKey("PostId", "UserId");
 
                     b.HasIndex("PostId")
@@ -3471,7 +3469,7 @@ namespace TemporaryDataLayer.Migrations
                         .WithMany()
                         .HasForeignKey("ApplicationUserId")
                         .HasConstraintName("FK_dbo.EventParticipants_dbo.AspNetUsers_ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TemporaryDataLayer.Event", "Event")
                         .WithMany("EventParticipants")
