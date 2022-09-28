@@ -1,4 +1,6 @@
-﻿namespace Shrooms.DataLayer.EntityModels.ModelsCore.Books
+﻿using System.Collections.Generic;
+
+namespace Shrooms.DataLayer.EntityModels.ModelsCore.Books
 {
     public class Book : BaseModelWithOrg
     {
@@ -10,7 +12,7 @@
 
         public string Code { get; set; }
 
-        //public virtual ICollection<BookOffice> BookOffices { get; set; }
+        public virtual ICollection<BookOffice> BookOffices { get; set; }
 
         public string ApplicationUserId { get; set; }
 

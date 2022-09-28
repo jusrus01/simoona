@@ -13,7 +13,7 @@ namespace TemporaryDataLayer
 
         public string Code { get; set; }
 
-        //public virtual ICollection<BookOffice> BookOffices { get; set; }
+        public virtual ICollection<BookOffice> BookOffices { get; set; }
 
         public string ApplicationUserId { get; set; }
 
