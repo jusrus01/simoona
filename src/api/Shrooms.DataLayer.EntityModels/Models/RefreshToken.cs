@@ -1,12 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using Shrooms.Contracts.DataTransferObjects;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
     public class RefreshToken : IOrganization, ITrackable
     {
-        [Key]
         public string Id { get; set; }
 
         public string Subject { get; set; }

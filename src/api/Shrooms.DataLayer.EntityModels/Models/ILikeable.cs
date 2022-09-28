@@ -1,4 +1,4 @@
-﻿using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+﻿using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {

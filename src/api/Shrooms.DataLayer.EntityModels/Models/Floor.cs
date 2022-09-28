@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
@@ -7,7 +6,6 @@ namespace Shrooms.DataLayer.EntityModels.Models
     {
         public string Name { get; set; }
 
-        [ForeignKey("Office")]
         public int? OfficeId { get; set; }
 
         public virtual Office Office { get; set; }

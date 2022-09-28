@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -37,18 +36,6 @@
     <CodeAnalysisRuleSet>..\shared.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.2\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.2\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.AspNetCore.Authentication, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNetCore.Authentication.2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.dll</HintPath>
     </Reference>
@@ -186,15 +173,15 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.OracleClient" />
-    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.6.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Interactive.Async, Version=3.2.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.2.0\lib\net46\System.Interactive.Async.dll</HintPath>
     </Reference>
-    <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.1\lib\netstandard2.0\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http.WebRequest" />
@@ -202,8 +189,8 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.1\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.5.0.0\lib\net45\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -232,100 +219,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\SqlDefaultValueAttribute.cs" />
-    <Compile Include="ModelsCore\AbstractClassifier.cs" />
-    <Compile Include="ModelsCore\Address.cs" />
-    <Compile Include="ModelsCore\ApplicationRole.cs" />
-    <Compile Include="ModelsCore\ApplicationUser.cs" />
-    <Compile Include="ModelsCore\Badges\BadgeCalculationPolicyType.cs" />
-    <Compile Include="ModelsCore\Badges\BadgeCategory.cs" />
-    <Compile Include="ModelsCore\Badges\BadgeCategoryKudosType.cs" />
-    <Compile Include="ModelsCore\Badges\BadgeLog.cs" />
-    <Compile Include="ModelsCore\Badges\BadgeType.cs" />
-    <Compile Include="ModelsCore\BaseModel.cs" />
-    <Compile Include="ModelsCore\BaseModelWithOrg.cs" />
-    <Compile Include="ModelsCore\BlacklistUser.cs" />
-    <Compile Include="ModelsCore\Books\Book.cs" />
-    <Compile Include="ModelsCore\Books\BookLog.cs" />
-    <Compile Include="ModelsCore\Books\BookOffice.cs" />
-    <Compile Include="ModelsCore\Certificate.cs" />
-    <Compile Include="ModelsCore\Committees\Committee.cs" />
-    <Compile Include="ModelsCore\Committees\CommitteeSuggestion.cs" />
-    <Compile Include="ModelsCore\Committees\CommitteeSuggestionID.cs" />
-    <Compile Include="ModelsCore\Committees\CommitteesUserDelegates.cs" />
-    <Compile Include="ModelsCore\Committees\CommitteesUserLeadership.cs" />
-    <Compile Include="ModelsCore\Committees\CommitteesUserMembership.cs" />
-    <Compile Include="ModelsCore\Events\Event.cs" />
-    <Compile Include="ModelsCore\Events\EventOption.cs" />
-    <Compile Include="ModelsCore\Events\EventParticipant.cs" />
-    <Compile Include="ModelsCore\Events\EventParticipantEventOption.cs" />
-    <Compile Include="ModelsCore\Events\EventRecurringPeriod.cs" />
-    <Compile Include="ModelsCore\Events\EventType.cs" />
-    <Compile Include="ModelsCore\Exam.cs" />
-    <Compile Include="ModelsCore\ExamCertificate.cs" />
-    <Compile Include="ModelsCore\ExternalLink.cs" />
-    <Compile Include="ModelsCore\FilterPreset.cs" />
-    <Compile Include="ModelsCore\Floor.cs" />
-    <Compile Include="ModelsCore\ILikeable.cs" />
-    <Compile Include="ModelsCore\ImageCollection.cs" />
-    <Compile Include="ModelsCore\IOrganization.cs" />
-    <Compile Include="ModelsCore\JobPosition.cs" />
-    <Compile Include="ModelsCore\KudosBasket.cs" />
-    <Compile Include="ModelsCore\Kudos\KudosLog.cs" />
-    <Compile Include="ModelsCore\Kudos\KudosShopItem.cs" />
-    <Compile Include="ModelsCore\Kudos\KudosStatus.cs" />
-    <Compile Include="ModelsCore\Kudos\KudosType.cs" />
-    <Compile Include="ModelsCore\Language.cs" />
-    <Compile Include="ModelsCore\LikeBaseModel.cs" />
-    <Compile Include="ModelsCore\Lottery\Lottery.cs" />
-    <Compile Include="ModelsCore\Lottery\LotteryParticipant.cs" />
-    <Compile Include="ModelsCore\Module.cs" />
-    <Compile Include="ModelsCore\ModuleOrganization.cs" />
-    <Compile Include="ModelsCore\Multiwall\Comment.cs" />
-    <Compile Include="ModelsCore\Multiwall\Like.cs" />
-    <Compile Include="ModelsCore\Multiwall\LikesCollection.cs" />
-    <Compile Include="ModelsCore\Multiwall\Post.cs" />
-    <Compile Include="ModelsCore\Multiwall\PostWatcher.cs" />
-    <Compile Include="ModelsCore\Multiwall\Wall.cs" />
-    <Compile Include="ModelsCore\Multiwall\WallMember.cs" />
-    <Compile Include="ModelsCore\Multiwall\WallModerator.cs" />
-    <Compile Include="ModelsCore\Notifications\Notification.cs" />
-    <Compile Include="ModelsCore\Notifications\NotificationsSettings.cs" />
-    <Compile Include="ModelsCore\Notifications\NotificationUser.cs" />
-    <Compile Include="ModelsCore\Notifications\Sources.cs" />
-    <Compile Include="ModelsCore\Office.cs" />
-    <Compile Include="ModelsCore\Organization.cs" />
-    <Compile Include="ModelsCore\Page.cs" />
-    <Compile Include="ModelsCore\Permission.cs" />
-    <Compile Include="ModelsCore\Picture.cs" />
-    <Compile Include="ModelsCore\Project.cs" />
-    <Compile Include="ModelsCore\ProjectApplicationUser.cs" />
-    <Compile Include="ModelsCore\ProjectSkill.cs" />
-    <Compile Include="ModelsCore\QualificationLevel.cs" />
-    <Compile Include="ModelsCore\RefreshToken.cs" />
-    <Compile Include="ModelsCore\RolePermission.cs" />
-    <Compile Include="ModelsCore\Room.cs" />
-    <Compile Include="ModelsCore\RoomType.cs" />
-    <Compile Include="ModelsCore\ServiceRequest.cs" />
-    <Compile Include="ModelsCore\ServiceRequestCategory.cs" />
-    <Compile Include="ModelsCore\ServiceRequestCategoryApplicationUser.cs" />
-    <Compile Include="ModelsCore\ServiceRequestComment.cs" />
-    <Compile Include="ModelsCore\ServiceRequestPriority.cs" />
-    <Compile Include="ModelsCore\ServiceRequestStatus.cs" />
-    <Compile Include="ModelsCore\Skill.cs" />
-    <Compile Include="ModelsCore\SyncToken.cs" />
-    <Compile Include="ModelsCore\Users\ApplicationUserExam.cs" />
-    <Compile Include="ModelsCore\Users\ApplicationUserSkill.cs" />
-    <Compile Include="ModelsCore\VacationPage.cs" />
-    <Compile Include="ModelsCore\WorkingHours.cs" />
     <Compile Include="Models\AbstractClassifier.cs" />
     <Compile Include="Models\Address.cs" />
-    <Compile Include="Models\ApplicationRole.cs" />
-    <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\Users\ApplicationRole.cs" />
+    <Compile Include="Models\Users\ApplicationUser.cs" />
     <Compile Include="Models\Badges\BadgeCalculationPolicyType.cs" />
     <Compile Include="Models\Badges\BadgeCategory.cs" />
     <Compile Include="Models\Badges\BadgeCategoryKudosType.cs" />
-    <Compile Include="Models\Badges\BadgeType.cs" />
     <Compile Include="Models\Badges\BadgeLog.cs" />
+    <Compile Include="Models\Badges\BadgeType.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\BaseModelWithOrg.cs" />
     <Compile Include="Models\BlacklistUser.cs" />
@@ -333,63 +235,76 @@
     <Compile Include="Models\Books\BookLog.cs" />
     <Compile Include="Models\Books\BookOffice.cs" />
     <Compile Include="Models\Certificate.cs" />
-    <Compile Include="Models\FilterPreset.cs" />
-    <Compile Include="Models\ILikeable.cs" />
-    <Compile Include="Models\JobPosition.cs" />
-    <Compile Include="Models\Kudos\KudosShopItem.cs" />
-    <Compile Include="Models\LikeBaseModel.cs" />
-    <Compile Include="Models\ImageCollection.cs" />
-    <Compile Include="Models\Lottery\Lottery.cs" />
-    <Compile Include="Models\Lottery\LotteryParticipant.cs" />
-    <Compile Include="Models\Multiwall\Comment.cs" />
-    <Compile Include="Models\Committee\Committee.cs" />
-    <Compile Include="Models\Committee\CommitteeSuggestion.cs" />
+    <Compile Include="Models\Committees\Committee.cs" />
+    <Compile Include="Models\Committees\CommitteeSuggestion.cs" />
+    <Compile Include="Models\Committees\CommitteeSuggestionID.cs" />
+    <Compile Include="Models\Committees\CommitteesUserDelegates.cs" />
+    <Compile Include="Models\Committees\CommitteesUserLeadership.cs" />
+    <Compile Include="Models\Committees\CommitteesUserMembership.cs" />
     <Compile Include="Models\Events\Event.cs" />
     <Compile Include="Models\Events\EventOption.cs" />
     <Compile Include="Models\Events\EventParticipant.cs" />
+    <Compile Include="Models\Events\EventParticipantEventOption.cs" />
     <Compile Include="Models\Events\EventRecurringPeriod.cs" />
     <Compile Include="Models\Events\EventType.cs" />
     <Compile Include="Models\Exam.cs" />
+    <Compile Include="Models\ExamCertificate.cs" />
     <Compile Include="Models\ExternalLink.cs" />
-    <Compile Include="Models\Multiwall\PostWatcher.cs" />
-    <Compile Include="Models\Notifications\Notification.cs" />
-    <Compile Include="Models\Notifications\NotificationUser.cs" />
-    <Compile Include="Models\Notifications\Sources.cs" />
-    <Compile Include="Models\Project.cs" />
+    <Compile Include="Models\FilterPreset.cs" />
     <Compile Include="Models\Floor.cs" />
+    <Compile Include="Models\ILikeable.cs" />
+    <Compile Include="Models\ImageCollection.cs" />
     <Compile Include="Models\IOrganization.cs" />
+    <Compile Include="Models\JobPosition.cs" />
     <Compile Include="Models\KudosBasket.cs" />
     <Compile Include="Models\Kudos\KudosLog.cs" />
+    <Compile Include="Models\Kudos\KudosShopItem.cs" />
     <Compile Include="Models\Kudos\KudosStatus.cs" />
     <Compile Include="Models\Kudos\KudosType.cs" />
     <Compile Include="Models\Language.cs" />
+    <Compile Include="Models\LikeBaseModel.cs" />
+    <Compile Include="Models\Lottery\Lottery.cs" />
+    <Compile Include="Models\Lottery\LotteryParticipant.cs" />
+    <Compile Include="Models\Module.cs" />
+    <Compile Include="Models\ModuleOrganization.cs" />
+    <Compile Include="Models\Multiwall\Comment.cs" />
     <Compile Include="Models\Multiwall\Like.cs" />
     <Compile Include="Models\Multiwall\LikesCollection.cs" />
+    <Compile Include="Models\Multiwall\Post.cs" />
+    <Compile Include="Models\Multiwall\PostWatcher.cs" />
     <Compile Include="Models\Multiwall\Wall.cs" />
-    <Compile Include="Models\Multiwall\WallModerator.cs" />
     <Compile Include="Models\Multiwall\WallMember.cs" />
+    <Compile Include="Models\Multiwall\WallModerator.cs" />
+    <Compile Include="Models\Notifications\Notification.cs" />
+    <Compile Include="Models\Notifications\NotificationsSettings.cs" />
+    <Compile Include="Models\Notifications\NotificationUser.cs" />
+    <Compile Include="Models\Notifications\Sources.cs" />
     <Compile Include="Models\Office.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\Page.cs" />
     <Compile Include="Models\Permission.cs" />
     <Compile Include="Models\Picture.cs" />
-    <Compile Include="Models\Multiwall\Post.cs" />
+    <Compile Include="Models\Projects\Project.cs" />
+    <Compile Include="Models\Projects\ProjectApplicationUser.cs" />
+    <Compile Include="Models\Projects\ProjectSkill.cs" />
     <Compile Include="Models\QualificationLevel.cs" />
     <Compile Include="Models\RefreshToken.cs" />
+    <Compile Include="Models\RolePermission.cs" />
     <Compile Include="Models\Room.cs" />
     <Compile Include="Models\RoomType.cs" />
-    <Compile Include="Models\ServiceRequest.cs" />
-    <Compile Include="Models\ServiceRequestCategory.cs" />
-    <Compile Include="Models\ServiceRequestComment.cs" />
-    <Compile Include="Models\ServiceRequestPriority.cs" />
-    <Compile Include="Models\ServiceRequestStatus.cs" />
-    <Compile Include="Models\Module.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequest.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequestCategory.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequestCategoryApplicationUser.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequestComment.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequestPriority.cs" />
+    <Compile Include="Models\ServiceRequests\ServiceRequestStatus.cs" />
     <Compile Include="Models\Skill.cs" />
     <Compile Include="Models\SyncToken.cs" />
+    <Compile Include="Models\Users\ApplicationUserExam.cs" />
+    <Compile Include="Models\Users\ApplicationUserSkill.cs" />
     <Compile Include="Models\VacationPage.cs" />
     <Compile Include="Models\WorkingHours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\Notifications\NotificationsSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json">
@@ -410,12 +325,4 @@
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
-  </Target>
-  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
 </Project>

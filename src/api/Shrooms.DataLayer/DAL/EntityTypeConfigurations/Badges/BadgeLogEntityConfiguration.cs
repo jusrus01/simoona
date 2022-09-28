@@ -1,26 +1,21 @@
-﻿using System.Data.Entity.ModelConfiguration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models.Badges;
 
-namespace Shrooms.DataLayer.DAL.EntityTypeConfigurations.Badges
+namespace Shrooms.DataLayer.EntityTypeConfigurations.Badges
 {
-    internal class BadgeLogEntityConfiguration : EntityTypeConfiguration<BadgeLog>
+    public class BadgeLogEntityConfiguration : IEntityTypeConfiguration<BadgeLog>
     {
-        public BadgeLogEntityConfiguration()
+        public void Configure(EntityTypeBuilder<BadgeLog> builder)
         {
-            Map(e => e.Requires("IsDeleted").HasValue(false));
+            builder.AddDefaultBaseModelConfiguration();
 
-            Property(u => u.ModifiedBy)
-                .HasMaxLength(50);
-
-            Property(u => u.CreatedBy)
-                .HasMaxLength(50);
-
-            Property(log => log.OrganizationId)
-                .IsRequired();
-
-            HasRequired(x => x.Employee)
-                .WithMany(x => x.BadgeLogs)
-                .WillCascadeOnDelete(false);
+            builder.HasOne(model => model.Employee)
+                .WithMany()
+                .HasForeignKey(model => model.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_dbo.BadgeLogs_dbo.AspNetUsers_EmployeeId");
         }
     }
 }

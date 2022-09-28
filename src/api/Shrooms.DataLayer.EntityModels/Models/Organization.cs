@@ -1,29 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Shrooms.Contracts.Constants;
+using System.Linq;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
     public class Organization : BaseModel
     {
-        [Required]
-        [StringLength(BusinessLayerConstants.MaxOrganizationNameLength)]
         public string Name { get; set; }
 
-        [Required]
-        [StringLength(BusinessLayerConstants.MaxOrganizationShortNameLength)]
         public string ShortName { get; set; }
 
-        [StringLength(50)]
         public string HostName { get; set; }
 
-        [Required]
         public bool HasRestrictedAccess { get; set; }
 
-        public virtual ICollection<Module> ShroomsModules { get; set; }
-
-        [Required]
-        [StringLength(BusinessLayerConstants.WelcomeEmailLength)]
         public string WelcomeEmail { get; set; }
 
         public bool RequiresUserConfirmation { get; set; }
@@ -39,5 +28,13 @@ namespace Shrooms.DataLayer.EntityModels.Models
         public string AuthenticationProviders { get; set; }
 
         public string KudosYearlyMultipliers { get; set; }
+
+        public IEnumerable<Module> ShroomsModules
+        {
+            get => ShroomsModuleOrganizations.Select(x => x.Module);
+        }
+
+        // Required for many-to-many
+        public ICollection<ModuleOrganization> ShroomsModuleOrganizations { get; set; }
     }
 }

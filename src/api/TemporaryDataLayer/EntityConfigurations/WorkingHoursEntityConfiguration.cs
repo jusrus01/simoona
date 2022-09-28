@@ -22,7 +22,7 @@ namespace TemporaryDataLayer.EntityConfigurations
             builder.HasOne(model => model.ApplicationUser)
                 .WithMany()
                 .HasConstraintName("FK_dbo.WorkingHours_dbo.AspNetUsers_ApplicationUserId")
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict); 
 
             builder.HasIndex(model => model.ApplicationUserId)
                 .ForSqlServerIsClustered(false)

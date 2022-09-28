@@ -1,15 +1,12 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Enums;
 
-namespace Shrooms.DataLayer.EntityModels.Models.Lottery
+namespace Shrooms.DataLayer.EntityModels.Models.Lotteries
 {
     public class Lottery : BaseModelWithOrg
     {
         public string Title { get; set; }
 
-        [StringLength(ValidationConstants.MaxPostMessageBodyLength)]
         public string Description { get; set; }
 
         public DateTime EndDate { get; set; }

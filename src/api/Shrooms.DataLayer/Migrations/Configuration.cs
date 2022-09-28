@@ -1,26 +1,28 @@
-using System.Data.Entity.Migrations;
-using Shrooms.DataLayer.DAL;
-using Shrooms.DataLayer.Migrations.DataInitializer;
+// TODO: figure out what to do with this
 
-namespace Shrooms.DataLayer.Migrations
-{
-    public sealed class Configuration : DbMigrationsConfiguration<ShroomsDbContext>
-    {
-        public Configuration()
-        {
-            AutomaticMigrationsEnabled = false;
-            AutomaticMigrationDataLossAllowed = false;
-            ContextKey = "Shrooms.DataLayer.ShroomsDbContext";
-            CommandTimeout = 60 * 5;
+//using System.Data.Entity.Migrations;
+//using Shrooms.DataLayer.DAL;
+//using Shrooms.DataLayer.Migrations.DataInitializer;
 
-            SetSqlGenerator("System.Data.SqlClient", new DefaultValueSqlServerMigrationSqlGenerator());
-        }
+//namespace Shrooms.DataLayer.Migrations
+//{
+//    public sealed class Configuration : DbMigrationsConfiguration<ShroomsDbContext>
+//    {
+//        public Configuration()
+//        {
+//            AutomaticMigrationsEnabled = false;
+//            AutomaticMigrationDataLossAllowed = false;
+//            ContextKey = "Shrooms.DataLayer.ShroomsDbContext";
+//            CommandTimeout = 60 * 5;
 
-        protected override void Seed(ShroomsDbContext context)
-        {
-            RoleInitializer.CreateRoles(context);
-            ModulesInitializer.Create(context);
-            PermissionInitializer.CreatePermissions(context);
-        }
-    }
-}
+//            SetSqlGenerator("System.Data.SqlClient", new DefaultValueSqlServerMigrationSqlGenerator());
+//        }
+
+//        protected override void Seed(ShroomsDbContext context)
+//        {
+//            RoleInitializer.CreateRoles(context);
+//            ModulesInitializer.Create(context);
+//            PermissionInitializer.CreatePermissions(context);
+//        }
+//    }
+//}

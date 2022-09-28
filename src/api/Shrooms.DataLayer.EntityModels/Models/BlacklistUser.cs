@@ -1,6 +1,5 @@
 ﻿using Shrooms.Contracts.Enums;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
@@ -8,7 +7,6 @@ namespace Shrooms.DataLayer.EntityModels.Models
     {
         public string Reason { get; set; }
 
-        [ForeignKey(nameof(User))]
         public string UserId { get; set; }
 
         public ApplicationUser User { get; set; }

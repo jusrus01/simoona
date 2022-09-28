@@ -1,26 +1,24 @@
-﻿using System.Data.Entity.ModelConfiguration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 
-namespace Shrooms.DataLayer.DAL.EntityTypeConfigurations
+namespace Shrooms.DataLayer.EntityTypeConfigurations
 {
-    internal class KudosBasketEntityConfig : EntityTypeConfiguration<KudosBasket>
+    public class KudosBasketEntityConfig : IEntityTypeConfiguration<KudosBasket>
     {
-        public KudosBasketEntityConfig()
+        public void Configure(EntityTypeBuilder<KudosBasket> builder)
         {
-            Property(b => b.Title)
-                .IsRequired()
-                .HasMaxLength(25);
+            builder.AddSoftDelete();
+            builder.AddOrganization();
+            builder.AddDefaultBaseModelConfiguration();
 
-            Property(b => b.Description)
-                .HasMaxLength(5000);
+            builder.Property(model => model.Title)
+                .HasMaxLength(25)
+                .IsRequired();
 
-            Map(m => m.Requires("IsDeleted")
-                .HasValue(false));
-
-            HasRequired(k => k.Organization)
-                .WithMany()
-                .HasForeignKey(k => k.OrganizationId)
-                .WillCascadeOnDelete(false);
+            builder.Property(model => model.IsActive)
+                .HasDefaultValue(false);
         }
     }
 }

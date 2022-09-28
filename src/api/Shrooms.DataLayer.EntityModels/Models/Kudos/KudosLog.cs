@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
@@ -8,7 +7,6 @@ namespace Shrooms.DataLayer.EntityModels.Models.Kudos
 {
     public class KudosLog : BaseModelWithOrg
     {
-        [ForeignKey("Employee")]
         public string EmployeeId { get; set; }
 
         public virtual ApplicationUser Employee { get; set; }
@@ -27,7 +25,6 @@ namespace Shrooms.DataLayer.EntityModels.Models.Kudos
 
         public int MultiplyBy { get; set; }
 
-        [ForeignKey("KudosBasket")]
         public int? KudosBasketId { get; set; }
 
         public virtual KudosBasket KudosBasket { get; set; }

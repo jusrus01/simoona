@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
@@ -9,14 +8,12 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public virtual string Value { get; set; }
 
-        [ForeignKey("Parent")]
         public virtual int? ParentId { get; set; }
 
         public virtual AbstractClassifier Parent { get; set; }
 
         public virtual string SortOrder { get; set; }
 
-        [InverseProperty("Parent")]
         public virtual ICollection<AbstractClassifier> Children { get; set; }
     }
 }

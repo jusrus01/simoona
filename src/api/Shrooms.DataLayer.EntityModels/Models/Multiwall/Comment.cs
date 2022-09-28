@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Shrooms.Contracts.Constants;
 
-namespace Shrooms.DataLayer.EntityModels.Models.Multiwall
+namespace Shrooms.DataLayer.EntityModels.Models.Multiwalls
 {
     public class Comment : LikeBaseModel
     {
-        [StringLength(ValidationConstants.MaxCommentMessageBodyLength)]
         public string MessageBody { get; set; }
 
-        [ForeignKey("Author")]
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
 
-        [ForeignKey("Post")]
         public int PostId { get; set; }
 
         public virtual Post Post { get; set; }

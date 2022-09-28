@@ -1,36 +1,15 @@
-﻿using System.Data.Entity.ModelConfiguration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Shrooms.DataLayer.EntityModels.Models.Badges;
+using Shrooms.DataLayer.DAL;
 
-namespace Shrooms.DataLayer.DAL.EntityTypeConfigurations.Badges
+namespace Shrooms.DataLayer.EntityTypeConfigurations.Badges
 {
-    internal class BadgeCategoryEntityConfiguration : EntityTypeConfiguration<BadgeCategory>
+    public class BadgeCategoryEntityConfiguration : IEntityTypeConfiguration<BadgeCategory>
     {
-        public BadgeCategoryEntityConfiguration()
+        public void Configure(EntityTypeBuilder<BadgeCategory> builder)
         {
-            Map(e => e.Requires("IsDeleted").HasValue(false));
-
-            Property(u => u.Title)
-                .IsRequired()
-                .HasMaxLength(50);
-
-            Property(u => u.Description)
-                .HasMaxLength(4000);
-
-            Property(u => u.ModifiedBy)
-                .HasMaxLength(50);
-
-            Property(u => u.CreatedBy)
-                .HasMaxLength(50);
-
-            HasMany(x => x.RelationshipsWithKudosTypes)
-                .WithRequired()
-                .HasForeignKey(x => x.BadgeCategoryId)
-                .WillCascadeOnDelete(value: false);
-
-            HasMany(x => x.BadgeTypes)
-                .WithRequired()
-                .HasForeignKey(x => x.BadgeCategoryId)
-                .WillCascadeOnDelete(value: true);
+            builder.AddDefaultBaseModelConfiguration();
         }
     }
 }

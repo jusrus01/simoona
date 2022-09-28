@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Shrooms.DataLayer.EntityModels.Models.Books;
+﻿using Shrooms.DataLayer.EntityModels.Models.Books;
+using System.Collections.Generic;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {

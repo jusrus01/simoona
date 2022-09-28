@@ -1,7 +1,7 @@
 ﻿using System;
 using Shrooms.Contracts.Enums;
 
-namespace Shrooms.DataLayer.EntityModels.Models.Multiwall
+namespace Shrooms.DataLayer.EntityModels.Models.Multiwalls
 {
     public class Like
     {

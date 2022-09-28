@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Shrooms.DataLayer.EntityModels.ModelsCore;
+using Shrooms.DataLayer.EntityModels.Models;
 
 namespace Shrooms.DataLayer.DAL
 {

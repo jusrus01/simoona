@@ -7,7 +7,6 @@ namespace Shrooms.DataLayer.EntityModels.Models
 {
     public class BaseModel : ITrackable, ISoftDelete, IValidatableObject
     {
-        [Key]
         public virtual int Id { get; set; }
 
         public DateTime Created { get; set; }

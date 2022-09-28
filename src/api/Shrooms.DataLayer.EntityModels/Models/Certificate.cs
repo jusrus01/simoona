@@ -1,17 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Shrooms.DataLayer.EntityModels.Models
 {
     public class Certificate : AbstractClassifier
     {
-        public virtual ICollection<Exam> Exams { get; set; }
+        public virtual IEnumerable<Exam> Exams
+        {
+            get => ExamCertificates.Select(model => model.Exam); 
+        }
 
         public bool InProgress { get; set; }
 
-        [ForeignKey("ApplicationUser")]
         public string ApplicationUserId { get; set; }
 
         public virtual ApplicationUser ApplicationUser { get; set; }
+
+        // Required for many-to-many
+        public ICollection<ExamCertificate> ExamCertificates { get; set; }
     }
 }

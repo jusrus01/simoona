@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Shrooms.DataLayer.EntityModels.Models.Books
 {
@@ -15,7 +14,6 @@ namespace Shrooms.DataLayer.EntityModels.Models.Books
 
         public virtual ICollection<BookOffice> BookOffices { get; set; }
 
-        [ForeignKey("ApplicationUser")]
         public string ApplicationUserId { get; set; }
 
         public ApplicationUser ApplicationUser { get; set; }

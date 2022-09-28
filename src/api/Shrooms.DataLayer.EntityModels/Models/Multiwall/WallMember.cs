@@ -1,15 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Shrooms.DataLayer.EntityModels.Models.Multiwall
+﻿namespace Shrooms.DataLayer.EntityModels.Models.Multiwalls
 {
     public class WallMember : BaseModel
     {
-        [ForeignKey("Wall")]
         public int WallId { get; set; }
 
         public Wall Wall { get; set; }
 
-        [ForeignKey("User")]
         public string UserId { get; set; }
 
         public ApplicationUser User { get; set; }
