@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models;
@@ -50,7 +50,7 @@ namespace Shrooms.DataLayer.DAL
 
             if (maxResults > 0)
             {
-                queryableSet = queryableSet.Take(() => maxResults);
+                queryableSet = queryableSet.Take(maxResults);
             }
 
             if (!string.IsNullOrWhiteSpace(includeProperties))
@@ -86,7 +86,7 @@ namespace Shrooms.DataLayer.DAL
 
             if (maxResults > 0)
             {
-                queryableSet = queryableSet.Take(() => maxResults);
+                queryableSet = queryableSet.Take(maxResults);
             }
 
             if (!string.IsNullOrWhiteSpace(includeProperties))

@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Infrastructure;
@@ -380,6 +379,7 @@ namespace Shrooms.Presentation.Api.Controllers
             }
 
             var externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+
             if (externalLogin.Email == null)
             {
                 var uri = CreateErrorUri("emailError");

@@ -8,6 +8,7 @@ using Shrooms.Contracts.ViewModels;
 using Shrooms.Contracts.ViewModels.User;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.Presentation.ModelMappings.Resolvers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.Certificate;
@@ -104,7 +105,6 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
                 .ForMember(dest => dest.Certificates, src => src.Ignore())
                 .ForMember(dest => dest.Exams, src => src.Ignore())
                 .ForMember(dest => dest.QualificationLevel, src => src.Ignore())
-                .ForMember(dest => dest.Roles, src => src.Ignore())
                 .ForMember(dest => dest.Organization, src => src.Ignore())
                 .ForMember(dest => dest.OrganizationId, src => src.Ignore());
 
@@ -224,7 +224,6 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
             CreateMap<ApplicationRole, RoleViewModel>();
 
             CreateMap<RoleViewModel, ApplicationRole>()
-                .ForMember(dest => dest.Users, src => src.Ignore())
                 .ForMember(dest => dest.Permissions, src => src.Ignore());
 
             CreateMap<ApplicationRole, ApplicationRoleMiniViewModel>();
@@ -236,7 +235,6 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
                 .ForMember(dest => dest.Users, src => src.Ignore())
                 .ForMember(dest => dest.Permissions, src => src.Ignore());
             CreateMap<RoleMiniViewModel, ApplicationRole>()
-                .ForMember(dest => dest.Users, src => src.Ignore())
                 .ForMember(dest => dest.Permissions, src => src.Ignore());
 
             CreateMap<Organization, OrganizationViewModel>();

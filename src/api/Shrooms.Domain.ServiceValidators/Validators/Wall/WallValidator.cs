@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.Wall
 {
     public class WallValidator : IWallValidator
     {
-        private readonly IDbSet<WallMember> _wallUsersDbSet;
+        private readonly DbSet<WallMember> _wallUsersDbSet;
 
         public WallValidator(IUnitOfWork2 uow)
         {

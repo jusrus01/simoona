@@ -2,14 +2,14 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 
 namespace Shrooms.Authentification.Membership
 {
-    public class ShroomsClaimsIdentityFactory : ClaimsIdentityFactory<ApplicationUser, string>
+    public class ShroomsClaimsIdentityFactory : IClaimsIdentityFactory<ApplicationUser>
     {
         private readonly IDbContext _context;
 
@@ -18,7 +18,7 @@ namespace Shrooms.Authentification.Membership
             _context = context;
         }
 
-        public override async Task<ClaimsIdentity> CreateAsync(UserManager<ApplicationUser, string> userManager, ApplicationUser user, string authenticationType)
+        public override async Task<ClaimsIdentity> CreateAsync(UserManager<ApplicationUser> userManager, ApplicationUser user, string authenticationType)
         {
             var contextUser = HttpContext.Current.User as ClaimsPrincipal;
             var claimsIdentity = await base.CreateAsync(userManager, user, authenticationType);

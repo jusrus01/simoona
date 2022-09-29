@@ -1,47 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
-using Shrooms.DataLayer.DAL.EntityTypeConfigurations;
 using Shrooms.DataLayer.EntityModels.Attributes;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Badges;
 using Shrooms.DataLayer.EntityModels.Models.Books;
-using Shrooms.DataLayer.EntityModels.Models.Committee;
+using Shrooms.DataLayer.EntityModels.Models.Committees;
 using Shrooms.DataLayer.EntityModels.Models.Events;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
-using Shrooms.DataLayer.EntityModels.Models.Lottery;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Lotteries;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.DataLayer.EntityModels.Models.Notifications;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
+using Shrooms.DataLayer.EntityModels.Models.ServiceRequests;
 
 namespace Shrooms.DataLayer.DAL
 {
-    [DbConfigurationType(typeof(ShroomsContextConfiguration))]
-    public class ShroomsDbContext : DbContext, IDbContext
+    //[DbConfigurationType(typeof(ShroomsContextConfiguration))]
+    public class ShroomsDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>, IDbContext
     {
-        public ShroomsDbContext()
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        // By default, EF Core won't use lazy load with proxy.
+        public ShroomsDbContext(
+            DbContextOptions<ShroomsDbContext> options,
+            string connectionName,
+            IHttpContextAccessor httpContextAccessor) // Do not forget to configure this
+            :
+            base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
+
+            ChangeTracker.LazyLoadingEnabled = false;
+            ConnectionName = connectionName; // TODO: look into better ways to retrieve this
         }
 
-        public ShroomsDbContext(string connectionStringName)
-            : base(connectionStringName)
-        {
-            ConnectionName = connectionStringName;
-            Configuration.LazyLoadingEnabled = false;
-            Configuration.ProxyCreationEnabled = false;
-            Database.SetInitializer<ShroomsDbContext>(null);
-        }
-
-        public virtual DbSet<ApplicationUser> Users { get; set; }
-
-        public virtual DbSet<ApplicationRole> Roles { get; set; }
+        // Connection string will be passed via IoC
+        // like so: UseSqlSever(string)...
+        // leaving for reference
+        //public ShroomsDbContext(string connectionStringName)
+        //    : base(connectionStringName)
+        //{
+        //    ConnectionName = connectionStringName;
+        //    Configuration.LazyLoadingEnabled = false;
+        //    Configuration.ProxyCreationEnabled = false;
+        //    Database.SetInitializer<ShroomsDbContext>(null);
+        //}
 
         public virtual DbSet<Office> Offices { get; set; }
 
@@ -106,7 +121,7 @@ namespace Shrooms.DataLayer.DAL
         public virtual DbSet<SyncToken> SyncTokens { get; set; }
 
         public virtual DbSet<Module> Modules { get; set; }
-
+        
         public virtual DbSet<KudosBasket> KudosBaskets { get; set; }
 
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -147,10 +162,21 @@ namespace Shrooms.DataLayer.DAL
 
         public string ConnectionName { get; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // TODO: Refactor
+            ApplyCustomNamingConvention(modelBuilder); // TODO: figure this out after updating to EF Core 6
+
+            modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+        }
+
         public int SaveChanges(string userId)
         {
             UpdateEntityMetadata(ChangeTracker.Entries(), userId);
-            SoftDeleteHandler.Execute(ChangeTracker.Entries(), this);
+
+            new SoftDeleteHandler().Execute(ChangeTracker.Entries(), this);
 
             return base.SaveChanges();
         }
@@ -158,7 +184,9 @@ namespace Shrooms.DataLayer.DAL
         public async Task<int> SaveChangesAsync(string userId)
         {
             UpdateEntityMetadata(ChangeTracker.Entries(), userId);
-            await SoftDeleteHandler.ExecuteAsync(ChangeTracker.Entries(), this);
+
+            await new SoftDeleteHandler().ExecuteAsync(ChangeTracker.Entries(), this);
+
             return await base.SaveChangesAsync();
         }
 
@@ -169,69 +197,30 @@ namespace Shrooms.DataLayer.DAL
                 UpdateEntityMetadata(ChangeTracker.Entries());
             }
 
-            await SoftDeleteHandler.ExecuteAsync(ChangeTracker.Entries(), this);
+            await new SoftDeleteHandler().ExecuteAsync(ChangeTracker.Entries(), this);
+
             return await base.SaveChangesAsync();
         }
 
-        public int SaveChanges(bool useMetaTracking = true)
+        public new int SaveChanges(bool useMetaTracking = true)
         {
             if (useMetaTracking)
             {
                 UpdateEntityMetadata(ChangeTracker.Entries());
             }
 
-            SoftDeleteHandler.Execute(ChangeTracker.Entries(), this);
+            new SoftDeleteHandler().Execute(ChangeTracker.Entries(), this);
 
             return base.SaveChanges();
         }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        private void UpdateEntityMetadata(IEnumerable<EntityEntry> entries, string userId = "")
         {
-            modelBuilder.Configurations.Add(new KudosBasketEntityConfig());
-            modelBuilder.Configurations.Add(new KudosLogEntityConfig());
-            modelBuilder.Configurations.Add(new ApplicationUserConfiguration());
-            modelBuilder.Configurations.Add(new IdentityUserRoleEntityConfig());
-            modelBuilder.Configurations.Add(new IdentityUserLoginEntityConfig());
-            modelBuilder.Configurations.Add(new IdentityUserClaimEntityConfig());
-            modelBuilder.Configurations.Add(new ApplicationRoleConfiguration());
-            modelBuilder.Configurations.Add(new AbstractClassifierConfiguration());
-            modelBuilder.Configurations.Add(new RoomEntityConfig());
-            modelBuilder.Configurations.Add(new PageEntityConfig());
-            modelBuilder.Configurations.Add(new PermissionEntityConfig());
-            modelBuilder.Configurations.Add(new EventEntityConfig());
-            modelBuilder.Configurations.Add(new EventTypeEntityConfig());
-            modelBuilder.Configurations.Add(new EventParticipantEntityConfig());
-            modelBuilder.Configurations.Add(new EventOptionEntityConfig());
-            modelBuilder.Configurations.Add(new CommitteeEntityConfig());
-            modelBuilder.Configurations.Add(new BookOfficeEntityConfig());
-            modelBuilder.Configurations.Add(new BookLogEntityConfig());
-            modelBuilder.Configurations.Add(new BookEntityConfig());
-            modelBuilder.Configurations.Add(new OfficeEntityConfig());
-            modelBuilder.Configurations.Add(new OrganizationEntityConfig());
-            modelBuilder.Configurations.Add(new RefreshTokenConfiguration());
-            modelBuilder.Configurations.Add(new WallConfiguration());
-            modelBuilder.Configurations.Add(new WallMembersConfiguration());
-            modelBuilder.Configurations.Add(new WallModeratorsConfiguration());
-            modelBuilder.Configurations.Add(new PostEntityConfig());
-            modelBuilder.Configurations.Add(new ExternalLinkConfig());
-            modelBuilder.Configurations.Add(new NotificationConfig());
-            modelBuilder.Configurations.Add(new NotifiationUserConfig());
-            modelBuilder.Configurations.Add(new PostWatcherConfig());
-            modelBuilder.Configurations.Add(new VacationEntityConfig());
-            modelBuilder.Configurations.Add(new FilterPresetEntityConfig());
-            modelBuilder.Configurations.Add(new BlacklistUserEntityConfig());
-
-            var convention = new AttributeToColumnAnnotationConvention<SqlDefaultValueAttribute, string>("SqlDefaultValue", (p, attributes) => attributes.Single().DefaultValue);
-            modelBuilder.Conventions.Add(convention);
-
-            new OtherEntitiesConfig(modelBuilder).Add();
-        }
-
-        private static void UpdateEntityMetadata(IEnumerable<DbEntityEntry> entries, string userId = "")
-        {
-            if (string.IsNullOrEmpty(userId) && HttpContext.Current != null && HttpContext.Current.User != null)
+            // Guessed _httpContextAccessor.HttpContext.Request != null, could be wrong
+            if (string.IsNullOrEmpty(userId) && _httpContextAccessor.HttpContext.Request != null && _httpContextAccessor.HttpContext.User != null)
             {
-                userId = HttpContext.Current.User.Identity.GetUserId();
+                //userId = HttpContext.Current.User.Identity.GetUserId();
+                userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
 
             var now = DateTime.UtcNow;
@@ -257,6 +246,76 @@ namespace Shrooms.DataLayer.DAL
                     item.Entity.ModifiedBy = userId;
                 }
             }
+        }
+
+        private void ApplyCustomNamingConvention(ModelBuilder builder)
+        {
+            foreach (var mutableEntityType in builder.Model.GetEntityTypes())
+            {
+                ApplyCustomForeignKeyNamingConvention(mutableEntityType);
+                ApplyCustomPrimaryKeyNamingConvention(mutableEntityType);
+                ApplyCustomIndexNamingConvetion(mutableEntityType);
+            }
+        }
+
+        private void ApplyCustomIndexNamingConvetion(IMutableEntityType mutableEntityType)
+        {
+            var properties = mutableEntityType.GetProperties();
+
+            foreach (var property in properties)
+            {
+                var index = mutableEntityType.FindIndex(property);
+
+                if (index == null)
+                {
+                    continue;
+                }
+
+                index.Relational().Name = $"IX_{property.Name}";
+            }
+        }
+
+        private void ApplyCustomForeignKeyNamingConvention(IMutableEntityType entityType)
+        {
+            // There is a better way of implementing this. Relational().ColumnName
+            foreach (var property in entityType.GetProperties())
+            {
+                foreach (var fk in entityType.FindForeignKeys(property))
+                {
+                    var name = fk.Relational().Name;
+                    // TODO: export these variables to a better place
+                    var prefix = "_dbo.";
+                    var requiredPrefixCount = 2;
+
+                    var containsPrefix = new Regex(prefix).Matches(name).Count == requiredPrefixCount;
+
+                    if (containsPrefix)
+                    {
+                        continue;
+                    }
+
+                    fk.Relational().Name = new Regex("_").Replace(name, "_dbo.", requiredPrefixCount);
+                }
+            }
+        }
+
+        private void ApplyCustomPrimaryKeyNamingConvention(IMutableEntityType entityType)
+        {
+            var pk = entityType.FindPrimaryKey();
+
+            if (pk == null)
+            {
+                return;
+            }
+
+            var name = pk.Relational().Name;
+
+            if (name.Contains("dbo"))
+            {
+                return;
+            }
+
+            pk.Relational().Name = pk.Relational().Name.Replace("PK_", "PK_dbo.");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Shrooms.Contracts.DataTransferObjects.Models.Projects;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.Presentation.WebViewModels.Models.Projects;
 
 namespace Shrooms.Presentation.ModelMappings.Profiles

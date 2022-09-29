@@ -1,19 +1,19 @@
-﻿using Shrooms.Contracts.Constants;
+﻿using Microsoft.EntityFrameworkCore;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using System;
-using System.Data.Entity;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.BlacklistUsers
 {
     public class BlacklistValidator : IBlacklistValidator
     {
-        private readonly IDbSet<BlacklistUser> _blacklistUsersDbSet;
-        private readonly IDbSet<ApplicationUser> _applicationUsersDbSet;
+        private readonly DbSet<BlacklistUser> _blacklistUsersDbSet;
+        private readonly DbSet<ApplicationUser> _applicationUsersDbSet;
 
         public BlacklistValidator(IUnitOfWork2 uow)
         {

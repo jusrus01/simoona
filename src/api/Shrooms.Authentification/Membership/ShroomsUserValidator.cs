@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
 using Shrooms.DataLayer.EntityModels.Models;
 
 namespace Shrooms.Authentification.Membership

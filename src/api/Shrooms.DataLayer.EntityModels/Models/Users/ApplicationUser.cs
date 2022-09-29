@@ -29,6 +29,8 @@ namespace Shrooms.DataLayer.EntityModels.Models
             Modified = DateTime.UtcNow;
         }
 
+        //public string Id { get; set; } // Could cause problems
+
         public string FirstName { get; set; }
 
         public string LastName { get; set; }

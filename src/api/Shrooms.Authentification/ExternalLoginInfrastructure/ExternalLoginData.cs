@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
-using Microsoft.AspNet.Identity;
 
 namespace Shrooms.Authentification.ExternalLoginInfrastructure
 {

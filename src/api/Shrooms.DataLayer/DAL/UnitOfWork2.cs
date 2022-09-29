@@ -1,5 +1,5 @@
-﻿using System.Data.Entity;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 
 namespace Shrooms.DataLayer.DAL

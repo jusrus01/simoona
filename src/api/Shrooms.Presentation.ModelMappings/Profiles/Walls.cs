@@ -8,7 +8,7 @@ using Shrooms.Contracts.DataTransferObjects.Wall;
 using Shrooms.Contracts.DataTransferObjects.Wall.Comments;
 using Shrooms.Contracts.DataTransferObjects.Wall.Posts;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.Presentation.WebViewModels.Models.Wall;
 using Shrooms.Presentation.WebViewModels.Models.Wall.Moderator;
 

@@ -8,8 +8,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
-using System.Data.Entity;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.FilterPresets
 {
