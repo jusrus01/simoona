@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 using System.Web.Http;
 using Autofac;
 using Autofac.Integration.SignalR;
 using Autofac.Integration.WebApi;
 using AutoMapper;
+using Autofac.Extensions.DependencyInjection;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json;
 using Owin;
@@ -18,8 +20,8 @@ using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.DAL;
+using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Email.Posting;
-using Shrooms.Domain.Services.Impersonate;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Projects;
@@ -31,7 +33,6 @@ using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.Infrastructure.Logger;
 using Shrooms.IoC.Modules;
-using TemporaryDataLayer;
 
 namespace Shrooms.IoC
 {
@@ -67,42 +68,9 @@ namespace Shrooms.IoC
             // Interceptor
             builder.Register(_ => new TelemetryLoggingInterceptor());
 
+            RegisterIdentityDbContext(builder, getConnectionStringName);
+
             builder.RegisterType(typeof(UnitOfWork2)).As(typeof(IUnitOfWork2)).InstancePerRequest();
-
-            builder.Register(c => HttpContext.Current == null ? new ShroomsDbContext(c.Resolve<ITenantNameContainer>().TenantName) : new ShroomsDbContext(getConnectionStringName()))
-                .As<IDbContext>().InstancePerRequest();
-
-            // TODO: figure out and test this if this works fine (need to add identity)
-            // Useful link: https://autofac.readthedocs.io/en/v4.0.0/integration/aspnetcore.html
-            // ==========================================================================
-            // Registering temporary DbContext (commenting this out will not copy assembly and migration will fail)
-            builder.Register(contextBuilder =>
-            {
-                const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
-
-                var serviceProvider = contextBuilder.Resolve<IServiceProvider>();
-                var configuration = contextBuilder.Resolve<IConfiguration>();
-
-                var optionsBuilder = new DbContextOptionsBuilder<TempShroomsDbContext>()
-                    .UseApplicationServiceProvider(serviceProvider)
-                    .UseSqlServer(tempConnString, serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));
-
-                return optionsBuilder.Options;
-            });
-
-            builder.Register(context => context.Resolve<DbContextOptions<TempShroomsDbContext>>())
-                .As<DbContextOptions>()
-                .InstancePerLifetimeScope();
-
-            builder.RegisterType<TempShroomsDbContext>()
-                .AsSelf()
-                .InstancePerLifetimeScope();
-
-            // Trying to see if Identity assembly is missing
-            // TODO: move from startup class
-
-            // ==========================================================================
-
             builder.RegisterType(typeof(EfUnitOfWork)).As(typeof(IUnitOfWork)).InstancePerRequest();
             builder.RegisterGeneric(typeof(EfRepository<>)).As(typeof(IRepository<>));
 
@@ -141,6 +109,28 @@ namespace Shrooms.IoC
             GlobalConfiguration.Configuration.UseAutofacActivator(container);
 
             return container;
+        }
+
+        private static void RegisterIdentityDbContext(ContainerBuilder builder, Func<string> getConnectionStringName)
+        {
+            const string connectionStringTemp = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=SimoonaDbClone"; // TODO: take from Web.config
+
+            var serviceCollection = new ServiceCollection();
+
+            var connectionString = System.Web.HttpContext.Current == null ?
+                    connectionStringTemp :
+                    getConnectionStringName();
+
+            serviceCollection.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+
+            serviceCollection.AddDbContext<ShroomsDbContext>(options =>
+                options.UseSqlServer(connectionString, serverOptions =>
+                    serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null)));
+
+            serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddEntityFrameworkStores<ShroomsDbContext>();
+
+            builder.Populate(serviceCollection);
         }
 
         private static void RegisterExtensions(ContainerBuilder builder, ILogger logger)
