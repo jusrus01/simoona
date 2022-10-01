@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -13,12 +13,13 @@ using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.UserService;
 using Shrooms.Domain.Services.Wall.Posts;
 using Shrooms.Resources.Emails;
 using Shrooms.Resources.Models.Walls.Posts;
-using MultiwallWall = Shrooms.DataLayer.EntityModels.Models.Multiwall.Wall;
+using MultiwallWall = Shrooms.DataLayer.EntityModels.Models.Multiwalls.Wall;
 
 namespace Shrooms.Domain.Services.Email.Posting
 {
@@ -31,9 +32,9 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly IApplicationSettings _appSettings;
         private readonly IOrganizationService _organizationService;
 
-        private readonly IDbSet<MultiwallWall> _wallsDbSet;
-        private readonly IDbSet<Event> _eventsDbSet;
-        private readonly IDbSet<Project> _projectsDbSet;
+        private readonly DbSet<MultiwallWall> _wallsDbSet;
+        private readonly DbSet<Event> _eventsDbSet;
+        private readonly DbSet<Project> _projectsDbSet;
 
         public PostNotificationService(
             IUnitOfWork2 uow,

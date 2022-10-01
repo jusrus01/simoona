@@ -6,13 +6,12 @@ using System.Web;
 using System.Web.Configuration;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNet.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.Infrastructure.Email;
 
 namespace Shrooms.Infrastructure.Email
 {
-    public class MailingService : IMailingService, IIdentityMessageService
+    public class MailingService : IMailingService
     {
         private readonly TelemetryClient _telemetryClient;
 
@@ -42,27 +41,7 @@ namespace Shrooms.Infrastructure.Email
 
             return false;
         }
-
-        public async Task SendAsync(IdentityMessage message)
-        {
-            if (!HasSmtpServerConfigured(HttpRuntime.AppDomainAppVirtualPath))
-            {
-                return;
-            }
-
-            using (var client = new SmtpClient())
-            {
-                try
-                {
-                    await client.SendMailAsync(BuildMessage(new EmailDto(message.Destination, message.Subject, message.Body)));
-                }
-                catch (SmtpException ex)
-                {
-                    LogSendFailure(ex);
-                }
-            }
-        }
-
+        
         public async Task SendEmailAsync(EmailDto email, bool skipDomainChange = false)
         {
             if (!HasSmtpServerConfigured(HttpRuntime.AppDomainAppVirtualPath))

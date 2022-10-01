@@ -5,13 +5,13 @@ using Shrooms.Contracts.Enums;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.ServiceValidators.Validators.FilterPresets;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
 using System;
 using Shrooms.DataLayer.EntityModels.Models.Events;
+using Microsoft.EntityFrameworkCore;
 
 namespace Shrooms.Domain.Services.FilterPresets
 {
@@ -23,9 +23,9 @@ namespace Shrooms.Domain.Services.FilterPresets
 
         private readonly DbSet<FilterPreset> _filterPresetDbSet;
 
-        private readonly IDbSet<KudosType> _kudosTypeDbSet;
-        private readonly IDbSet<Office> _officeDbSet;
-        private readonly IDbSet<EventType> _eventTypeDbSet;
+        private readonly DbSet<KudosType> _kudosTypeDbSet;
+        private readonly DbSet<Office> _officeDbSet;
+        private readonly DbSet<EventType> _eventTypeDbSet;
 
         private readonly IFilterPresetValidator _validator;
 

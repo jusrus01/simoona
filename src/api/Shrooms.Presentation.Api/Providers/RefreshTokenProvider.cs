@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security.Infrastructure;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.RefreshTokens;
@@ -27,46 +26,46 @@ namespace Shrooms.Presentation.Api.Providers
 
         public async Task CreateAsync(AuthenticationTokenCreateContext context)
         {
-            using (var requestScope = _ioc.BeginLifetimeScope("AutofacWebRequest"))
-            {
-                var tokenService = requestScope.Resolve(typeof(IRefreshTokenService)) as IRefreshTokenService;
-                var clientId = context.Ticket.Properties.Dictionary["client_id"];
+            //using (var requestScope = _ioc.BeginLifetimeScope("AutofacWebRequest"))
+            //{
+            //    var tokenService = requestScope.Resolve(typeof(IRefreshTokenService)) as IRefreshTokenService;
+            //    var clientId = context.Ticket.Properties.Dictionary["client_id"];
 
-                if (string.IsNullOrEmpty(clientId))
-                {
-                    await Task.CompletedTask;
-                }
+            //    if (string.IsNullOrEmpty(clientId))
+            //    {
+            //        await Task.CompletedTask;
+            //    }
 
-                var refreshTokenId = Guid.NewGuid().ToString("n");
+            //    var refreshTokenId = Guid.NewGuid().ToString("n");
 
-                var refreshTokenLifeTimeInDays = Convert.ToInt16(ConfigurationManager.AppSettings["RefreshTokenLifeTimeInDays"]);
-                var token = new RefreshTokenDto
-                {
-                    Id = CryptoHelper.GetHash(refreshTokenId),
-                    Subject = context.Ticket.Identity.GetUserId(),
-                    IssuedUtc = DateTime.UtcNow,
-                    ExpiresUtc = DateTime.UtcNow.AddDays(refreshTokenLifeTimeInDays),
-                    OrganizationId = context.Ticket.Identity.GetOrganizationId()
-                };
+            //    var refreshTokenLifeTimeInDays = Convert.ToInt16(ConfigurationManager.AppSettings["RefreshTokenLifeTimeInDays"]);
+            //    var token = new RefreshTokenDto
+            //    {
+            //        Id = CryptoHelper.GetHash(refreshTokenId),
+            //        Subject = context.Ticket.Identity.GetUserId(),
+            //        IssuedUtc = DateTime.UtcNow,
+            //        ExpiresUtc = DateTime.UtcNow.AddDays(refreshTokenLifeTimeInDays),
+            //        OrganizationId = context.Ticket.Identity.GetOrganizationId()
+            //    };
 
-                context.Ticket.Properties.IssuedUtc = token.IssuedUtc;
-                context.Ticket.Properties.ExpiresUtc = token.ExpiresUtc;
+            //    context.Ticket.Properties.IssuedUtc = token.IssuedUtc;
+            //    context.Ticket.Properties.ExpiresUtc = token.ExpiresUtc;
 
-                token.ProtectedTicket = context.SerializeTicket();
-                var userOrg = new UserAndOrganizationDto
-                {
-                    OrganizationId = context.Ticket.Identity.GetOrganizationId(),
-                    UserId = context.Ticket.Identity.GetUserId()
-                };
+            //    token.ProtectedTicket = context.SerializeTicket();
+            //    var userOrg = new UserAndOrganizationDto
+            //    {
+            //        OrganizationId = context.Ticket.Identity.GetOrganizationId(),
+            //        UserId = context.Ticket.Identity.GetUserId()
+            //    };
 
-                if (tokenService != null)
-                {
-                    await tokenService.RemoveTokenBySubjectAsync(userOrg);
-                    await tokenService.AddNewTokenAsync(token);
-                }
+            //    if (tokenService != null)
+            //    {
+            //        await tokenService.RemoveTokenBySubjectAsync(userOrg);
+            //        await tokenService.AddNewTokenAsync(token);
+            //    }
 
-                context.SetToken(refreshTokenId);
-            }
+            //    context.SetToken(refreshTokenId);
+            //}
 
             await Task.CompletedTask;
         }

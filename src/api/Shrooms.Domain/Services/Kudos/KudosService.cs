@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -8,6 +7,7 @@ using System.Linq.Expressions;
 using System.Resources;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -24,7 +24,6 @@ using Shrooms.Domain.Services.Email.Kudos;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.ServiceValidators.Validators.Kudos;
 using Shrooms.Resources;
-using ConstantsRoles = Shrooms.Contracts.Constants.Roles;
 
 namespace Shrooms.Domain.Services.Kudos
 {
@@ -186,8 +185,8 @@ namespace Shrooms.Domain.Services.Kudos
 
             var entriesCountToSkip = EntriesCountToSkip(options.Page);
             var kudosLogs = await kudosLogsQuery
-                .Skip(() => entriesCountToSkip)
-                .Take(() => BusinessLayerConstants.MaxKudosLogsPerPage)
+                .Skip(entriesCountToSkip)
+                .Take(BusinessLayerConstants.MaxKudosLogsPerPage)
                 .ToListAsync();
 
             var user = await _usersDbSet.FindAsync(options.UserId);
@@ -245,8 +244,8 @@ namespace Shrooms.Domain.Services.Kudos
 
             var entriesCountToSkip = EntriesCountToSkip(page);
             var userLogs = await userLogsQuery
-                .Skip(() => entriesCountToSkip)
-                .Take(() => BusinessLayerConstants.MaxKudosLogsPerPage)
+                .Skip(entriesCountToSkip)
+                .Take(BusinessLayerConstants.MaxKudosLogsPerPage)
                 .ToListAsync();
 
             var user = await _usersDbSet.FindAsync(userId);
@@ -282,7 +281,7 @@ namespace Shrooms.Domain.Services.Kudos
                     log.OrganizationId == userAndOrg.OrganizationId)
                 .Join(_usersDbSet, l => l.CreatedBy, s => s.Id, MapKudosLogToWallKudosLogDto())
                 .OrderByDescending(log => log.Created)
-                .Take(() => BusinessLayerConstants.WallKudosLogCount)
+                .Take(BusinessLayerConstants.WallKudosLogCount)
                 .ToListAsync();
 
             return approvedKudos;
@@ -561,7 +560,7 @@ namespace Shrooms.Domain.Services.Kudos
                     KudosAmount = log.Sum(s => s.Points)
                 })
                 .OrderByDescending(log => log.KudosAmount)
-                .Take(() => amount)
+                .Take(amount)
                 .ToListAsync();
 
             var userIds = kudosLogsStats.Select(s => s.Name).ToArray();

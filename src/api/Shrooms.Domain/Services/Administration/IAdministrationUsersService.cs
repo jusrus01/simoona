@@ -2,8 +2,7 @@
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
 using Shrooms.DataLayer.EntityModels.Models;
@@ -20,7 +19,7 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<bool> HasExistingExternalLoginAsync(string email, string loginProvider);
 
-        Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization);
+        //Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization);
 
         Task<IdentityResult> CreateNewUserAsync(ApplicationUser user, string password, string requestedOrganization);
 

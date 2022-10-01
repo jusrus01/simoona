@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
-using Shrooms.Contracts.Constants;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
@@ -16,8 +15,8 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
 {
     public class BirthdaysNotificationWebHookService : IBirthdaysNotificationWebHookService
     {
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
-        private readonly IDbSet<Organization> _organizationsDbSet;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<Organization> _organizationsDbSet;
         private readonly DateTime _date;
         private readonly IMailingService _mailingService;
         private readonly IRoleService _roleService;

@@ -6,7 +6,6 @@ using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.ServiceValidators.Validators.BlacklistUsers;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
@@ -14,6 +13,7 @@ using System;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Shrooms.Domain.Services.BlacklistUsers
 {
@@ -24,7 +24,7 @@ namespace Shrooms.Domain.Services.BlacklistUsers
         private readonly ISystemClock _systemClock;
         private readonly IPermissionService _permissionService;
 
-        private readonly IDbSet<BlacklistUser> _blacklistUsersDbSet;
+        private readonly DbSet<BlacklistUser> _blacklistUsersDbSet;
 
         public BlacklistService(IUnitOfWork2 uow, IBlacklistValidator validator, ISystemClock systemClock, IPermissionService permissionService)
         {

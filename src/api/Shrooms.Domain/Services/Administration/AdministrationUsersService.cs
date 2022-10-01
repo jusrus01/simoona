@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -12,9 +11,8 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Shrooms.Authentification.Membership;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -25,7 +23,7 @@ using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
 using Shrooms.Domain.Services.Kudos;
 using Shrooms.Domain.Services.Organizations;
@@ -42,11 +40,10 @@ namespace Shrooms.Domain.Services.Administration
 
         private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly IRepository<ApplicationRole> _rolesRepository;
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
-        private readonly IDbSet<Organization> _organizationDbSet;
-        private readonly IDbSet<DataLayer.EntityModels.Models.Multiwall.Wall> _wallsDbSet;
-        private readonly IDbSet<WallMember> _wallUsersDbSet;
-        private readonly ShroomsUserManager _userManager;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<Organization> _organizationDbSet;
+        private readonly DbSet<DataLayer.EntityModels.Models.Multiwalls.Wall> _wallsDbSet;
+        private readonly DbSet<WallMember> _wallUsersDbSet;
         private readonly IUserAdministrationValidator _userAdministrationValidator;
         private readonly IOrganizationService _organizationService;
         private readonly IPictureService _pictureService;
@@ -61,7 +58,6 @@ namespace Shrooms.Domain.Services.Administration
             IUnitOfWork unitOfWork,
             IUnitOfWork2 uow,
             IUserAdministrationValidator userAdministrationValidator,
-            ShroomsUserManager userManager,
             IOrganizationService organizationService,
             IPictureService pictureService,
             IDbContext context,
@@ -75,9 +71,8 @@ namespace Shrooms.Domain.Services.Administration
             _rolesRepository = unitOfWork.GetRepository<ApplicationRole>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
             _organizationDbSet = uow.GetDbSet<Organization>();
-            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwall.Wall>();
+            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwalls.Wall>();
             _wallUsersDbSet = uow.GetDbSet<WallMember>();
-            _userManager = userManager;
             _userAdministrationValidator = userAdministrationValidator;
             _organizationService = organizationService;
             _pictureService = pictureService;
@@ -122,33 +117,35 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task<bool> UserIsSoftDeletedAsync(string email)
         {
-            if (_context is not ShroomsDbContext shroomsContext)
-            {
-                throw new ArgumentNullException(nameof(shroomsContext));
-            }
+            throw new NotImplementedException();
+            //if (_context is not ShroomsDbContext shroomsContext)
+            //{
+            //    throw new ArgumentNullException(nameof(shroomsContext));
+            //}
 
-            var user = await shroomsContext
-                .Users
-                .SqlQuery("SELECT * FROM [dbo].[AspNetUsers] WHERE Email = @email", new SqlParameter("@email", email))
-                .SingleOrDefaultAsync();
+            //var user = await shroomsContext
+            //    .Users
+            //    .SqlQuery("SELECT * FROM [dbo].[AspNetUsers] WHERE Email = @email", new SqlParameter("@email", email))
+            //    .SingleOrDefaultAsync();
 
-            return user != null;
+            //return user != null;
         }
 
         public async Task RestoreUserAsync(string email)
         {
-            var shroomsContext = _context as ShroomsDbContext;
+            throw new NotImplementedException();
+            //var shroomsContext = _context as ShroomsDbContext;
 
-            if (shroomsContext == null)
-            {
-                throw new ArgumentNullException(nameof(shroomsContext));
-            }
+            //if (shroomsContext == null)
+            //{
+            //    throw new ArgumentNullException(nameof(shroomsContext));
+            //}
 
-            await shroomsContext.Database
-                .ExecuteSqlCommandAsync("UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = @email", new SqlParameter("@email", email));
+            //await shroomsContext.Database
+            //    .ExecuteSqlCommandAsync("UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = @email", new SqlParameter("@email", email));
 
-            var user = await _userManager.FindByEmailAsync(email);
-            await AddNewUserRolesAsync(user.Id);
+            //var user = await _userManager.FindByEmailAsync(email);
+            //await AddNewUserRolesAsync(user.Id);
         }
 
         public async Task AddProviderImageAsync(string userId, ClaimsIdentity externalIdentity)
@@ -169,124 +166,129 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task SendUserPasswordResetEmailAsync(ApplicationUser user, string organizationName)
         {
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user.Id);
+            throw new NotImplementedException();
+            //var token = await _userManager.GeneratePasswordResetTokenAsync(user.Id);
 
-            await _notificationService.SendUserResetPasswordEmailAsync(user, token, organizationName);
+            //await _notificationService.SendUserResetPasswordEmailAsync(user, token, organizationName);
         }
 
         public async Task SendUserVerificationEmailAsync(ApplicationUser user, string orgazinationName)
         {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user.Id);
+            //var token = await _userManager.GenerateEmailConfirmationTokenAsync(user.Id);
 
-            await _notificationService.SendUserVerificationEmailAsync(user, token, orgazinationName);
+            //await _notificationService.SendUserVerificationEmailAsync(user, token, orgazinationName);
         }
 
         public async Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg)
         {
-            var applicationUser = await _usersDbSet.FirstAsync(user => user.Id == userId);
-            _userAdministrationValidator.CheckIfEmploymentDateIsSet(applicationUser.EmploymentDate);
+            throw new NotImplementedException();
+            //var applicationUser = await _usersDbSet.FirstAsync(user => user.Id == userId);
+            //_userAdministrationValidator.CheckIfEmploymentDateIsSet(applicationUser.EmploymentDate);
 
-            var hasRole = await _userManager.IsInRoleAsync(userId, Contracts.Constants.Roles.FirstLogin);
-            _userAdministrationValidator.CheckIfUserHasFirstLoginRole(hasRole);
+            //var hasRole = await _userManager.IsInRoleAsync(userId, Contracts.Constants.Roles.FirstLogin);
+            //_userAdministrationValidator.CheckIfUserHasFirstLoginRole(hasRole);
 
-            var addRoleResult = await _userManager.AddToRoleAsync(userId, Contracts.Constants.Roles.User);
-            var removeRoleResult = await _userManager.RemoveFromRoleAsync(userId, Contracts.Constants.Roles.NewUser);
+            //var addRoleResult = await _userManager.AddToRoleAsync(userId, Contracts.Constants.Roles.User);
+            //var removeRoleResult = await _userManager.RemoveFromRoleAsync(userId, Contracts.Constants.Roles.NewUser);
 
-            _userAdministrationValidator.CheckForAddingRemovingRoleErrors(addRoleResult.Errors.ToList(), removeRoleResult.Errors.ToList());
-            await _notificationService.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg);
+            //_userAdministrationValidator.CheckForAddingRemovingRoleErrors(addRoleResult.Errors.ToList(), removeRoleResult.Errors.ToList());
+            //await _notificationService.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg);
 
-            SetTutorialStatus(applicationUser, false);
+            //SetTutorialStatus(applicationUser, false);
 
-            await SetWelcomeKudosAsync(applicationUser);
+            //await SetWelcomeKudosAsync(applicationUser);
 
-            await AddWallsToNewUser(applicationUser, userAndOrg);
-            await _uow.SaveChangesAsync(userAndOrg.UserId);
+            //await AddWallsToNewUser(applicationUser, userAndOrg);
+            //await _uow.SaveChangesAsync(userAndOrg.UserId);
         }
 
-        public async Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization)
-        {
-            var externalIdentity = info.ExternalIdentity;
-            var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
-                .Select(u => new { u.CultureCode, u.TimeZone })
-                .FirstAsync();
+        //public async Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization)
+        //{
+        //    var externalIdentity = info.ExternalIdentity;
+        //    var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
+        //        .Select(u => new { u.CultureCode, u.TimeZone })
+        //        .FirstAsync();
 
-            var user = new ApplicationUser
-            {
-                UserName = externalIdentity.FindFirst(ClaimTypes.Email).Value,
-                Email = externalIdentity.FindFirst(ClaimTypes.Email).Value,
-                FirstName = externalIdentity.FindFirst(ClaimTypes.GivenName).Value,
-                LastName = externalIdentity.FindFirst(ClaimTypes.Surname).Value,
-                OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id,
-                EmploymentDate = DateTime.UtcNow,
-                CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture,
-                TimeZone = userSettings.TimeZone,
-                NotificationsSettings = null
-            };
+        //    var user = new ApplicationUser
+        //    {
+        //        UserName = externalIdentity.FindFirst(ClaimTypes.Email).Value,
+        //        Email = externalIdentity.FindFirst(ClaimTypes.Email).Value,
+        //        FirstName = externalIdentity.FindFirst(ClaimTypes.GivenName).Value,
+        //        LastName = externalIdentity.FindFirst(ClaimTypes.Surname).Value,
+        //        OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id,
+        //        EmploymentDate = DateTime.UtcNow,
+        //        CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture,
+        //        TimeZone = userSettings.TimeZone,
+        //        NotificationsSettings = null
+        //    };
 
-            if (externalIdentity.FindFirst("picture") != null)
-            {
-                var data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
-                var picture = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", $"{Guid.NewGuid()}.jpg", user.OrganizationId);
-                user.PictureId = picture;
-            }
+        //    if (externalIdentity.FindFirst("picture") != null)
+        //    {
+        //        var data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
+        //        var picture = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", $"{Guid.NewGuid()}.jpg", user.OrganizationId);
+        //        user.PictureId = picture;
+        //    }
 
-            var result = _userManager.Create(user);
-            if (!result.Succeeded)
-            {
-                return result;
-            }
+        //    var result = _userManager.Create(user);
+        //    if (!result.Succeeded)
+        //    {
+        //        return result;
+        //    }
 
-            await AddNewUserRolesAsync(user.Id);
-            return result;
-        }
+        //    await AddNewUserRolesAsync(user.Id);
+        //    return result;
+        //}
 
         public async Task<IdentityResult> CreateNewUserAsync(ApplicationUser user, string password, string requestedOrganization)
         {
-            var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
-                .Select(u => new { u.CultureCode, u.TimeZone })
-                .FirstAsync();
+            throw new NotImplementedException();
+            //var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
+            //    .Select(u => new { u.CultureCode, u.TimeZone })
+            //    .FirstAsync();
 
-            user.OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id;
-            user.EmploymentDate = DateTime.UtcNow;
-            user.CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture;
-            user.TimeZone = userSettings.TimeZone;
-            user.NotificationsSettings = null;
+            //user.OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id;
+            //user.EmploymentDate = DateTime.UtcNow;
+            //user.CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture;
+            //user.TimeZone = userSettings.TimeZone;
+            //user.NotificationsSettings = null;
 
-            var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-            {
-                return result;
-            }
+            //var result = await _userManager.CreateAsync(user, password);
+            //if (!result.Succeeded)
+            //{
+            //    return result;
+            //}
 
-            var userLoginInfo = new UserLoginInfo(AuthenticationConstants.InternalLoginProvider, user.Id);
-            var addLoginResult = await _userManager.AddLoginAsync(user.Id, userLoginInfo);
-            if (!addLoginResult.Succeeded)
-            {
-                return addLoginResult;
-            }
+            //var userLoginInfo = new UserLoginInfo(AuthenticationConstants.InternalLoginProvider, user.Id);
+            //var addLoginResult = await _userManager.AddLoginAsync(user.Id, userLoginInfo);
+            //if (!addLoginResult.Succeeded)
+            //{
+            //    return addLoginResult;
+            //}
 
-            await AddNewUserRolesAsync(user.Id);
-            await SendUserVerificationEmailAsync(user, requestedOrganization);
+            //await AddNewUserRolesAsync(user.Id);
+            //await SendUserVerificationEmailAsync(user, requestedOrganization);
 
-            return result;
+            //return result;
         }
 
         public async Task<bool> HasExistingExternalLoginAsync(string email, string loginProvider)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return false;
-            }
+            throw new NotImplementedException();
+            //var user = await _userManager.FindByEmailAsync(email);
+            //if (user == null)
+            //{
+            //    return false;
+            //}
 
-            var hasLogin = user.Logins.Any(login => login.LoginProvider == loginProvider);
-            return hasLogin;
+            //var hasLogin = user.Logins.Any(login => login.LoginProvider == loginProvider);
+            //return hasLogin;
         }
 
         public async Task<bool> UserEmailExistsAsync(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            return user != null;
+            throw new NotSupportedException();
+            //var user = await _userManager.FindByEmailAsync(email);
+            //return user != null;
         }
 
         public async Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filterModel, string includeProperties)
@@ -481,21 +483,23 @@ namespace Shrooms.Domain.Services.Administration
 
         private async Task AddNewUserRolesAsync(string id)
         {
-            await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.NewUser);
-            await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.FirstLogin);
+            throw new NotImplementedException();
+            //await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.NewUser);
+            //await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.FirstLogin);
         }
 
         private async Task SetNewUsersValuesAsync(IList<AdministrationUserDto> administrationUserDto, IEnumerable<ApplicationUser> applicationUsers)
         {
-            var newUserRole = await _rolesRepository.Get(x => x.Name == Contracts.Constants.Roles.NewUser).Select(x => x.Id).FirstOrDefaultAsync();
+            throw new NotImplementedException();
+            //var newUserRole = await _rolesRepository.Get(x => x.Name == Contracts.Constants.Roles.NewUser).Select(x => x.Id).FirstOrDefaultAsync();
 
-            var usersWaitingForConfirmationIds =
-                applicationUsers.Where(x => x.Roles.Any(y => y.RoleId == newUserRole)).Select(x => x.Id).ToList();
+            //var usersWaitingForConfirmationIds =
+            //    applicationUsers.Where(x => x.Roles.Any(y => y.RoleId == newUserRole)).Select(x => x.Id).ToList();
 
-            foreach (var user in usersWaitingForConfirmationIds)
-            {
-                administrationUserDto.First(x => x.Id == user).IsNewUser = true;
-            }
+            //foreach (var user in usersWaitingForConfirmationIds)
+            //{
+            //    administrationUserDto.First(x => x.Id == user).IsNewUser = true;
+            //}
         }
 
         private static IList<AdministrationUserDto> FilterResults(IEnumerable<FilterDto> filterModel, IList<AdministrationUserDto> administrationUsers)
@@ -539,14 +543,15 @@ namespace Shrooms.Domain.Services.Administration
             return filteredUsers?.ToList() ?? administrationUsers;
         }
 
-        private async Task<IList<DataLayer.EntityModels.Models.Multiwall.Wall>> GetWallsToAddForNewUserAsync(ApplicationUser applicationUser)
+        private async Task<IList<DataLayer.EntityModels.Models.Multiwalls.Wall>> GetWallsToAddForNewUserAsync(ApplicationUser applicationUser)
         {
-            return await _wallsDbSet
-                .Include(wall => wall.Members)
-                .Where(wall => wall.OrganizationId == applicationUser.OrganizationId &&
-                    (wall.Type == WallType.Main || (wall.AddForNewUsers && wall.Type == WallType.UserCreated)) &&
-                    wall.Members.All(m => m.UserId != applicationUser.Id))
-                .ToListAsync();
+            throw new NotImplementedException();
+            //return await _wallsDbSet
+            //    .Include(wall => wall.Members)
+            //    .Where(wall => wall.OrganizationId == applicationUser.OrganizationId &&
+            //        (wall.Type == WallType.Main || (wall.AddForNewUsers && wall.Type == WallType.UserCreated)) &&
+            //        wall.Members.All(m => m.UserId != applicationUser.Id))
+            //    .ToListAsync();
         }
 
         private async Task AddWallsToNewUser(ApplicationUser applicationUser, UserAndOrganizationDto userOrg)

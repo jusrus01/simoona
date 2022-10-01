@@ -42,16 +42,21 @@ namespace Shrooms.Presentation.Api
             SerializationIgnoreConfigs.Configure();
             RouteConfig.Register(config);
             WebApiConfig.Register(config);
-            FilterConfig.RegisterGlobalMvcFilters(GlobalFilters.Filters);
-            FilterConfig.RegisterGlobalWebApiFilters(config.Filters);
+            //FilterConfig.RegisterGlobalMvcFilters(GlobalFilters.Filters);
+            //FilterConfig.RegisterGlobalWebApiFilters(config.Filters);
 
-            ConfigureAuthMiddleware(app);
+            //ConfigureAuthMiddleware(app);
 
             app.UseCors(SetupCorsOptions());
             app.Use<ImageResizerMiddleware>();
             app.Use<MultiTenancyMiddleware>();
 
-            var container = IocBootstrapper.Bootstrap(app, ExtractConnString, config);
+            var container = IocBootstrapper.Bootstrap(
+                app,
+                () => @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=SimoonaDbClone",
+                config);
+
+            //var container = IocBootstrapper.Bootstrap(app, ExtractConnString, config);
             config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
 
             GlobalHost.DependencyResolver = new Autofac.Integration.SignalR.AutofacDependencyResolver(container);
@@ -60,7 +65,7 @@ namespace Shrooms.Presentation.Api
 
             StartBackgroundWorker(app);
 
-            ConfigureAuthServer(app, container);
+            //ConfigureAuthServer(app, container);
 
             app.UseAutofacMiddleware(container);
             app.UseAutofacWebApi(config);

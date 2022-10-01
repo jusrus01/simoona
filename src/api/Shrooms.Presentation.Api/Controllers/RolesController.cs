@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -9,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Shrooms.Authentification.Membership;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Permissions;
@@ -40,16 +38,11 @@ namespace Shrooms.Presentation.Api.Controllers
 
         private readonly IRoleService _roleService;
 
-        private readonly ShroomsRoleManager _roleManager;
-        private readonly ShroomsUserManager _userManager;
-
         public RolesController(IMapper mapper,
             IUnitOfWork unitOfWork,
             IPermissionService permissionService,
             ICustomCache<string, IEnumerable<string>> permissionsCache,
-            IRoleService roleService,
-            ShroomsUserManager userManager = null,
-            ShroomsRoleManager roleManager = null)
+            IRoleService roleService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -59,9 +52,6 @@ namespace Shrooms.Presentation.Api.Controllers
             _roleRepository = unitOfWork.GetRepository<ApplicationRole>();
             _permissionRepository = unitOfWork.GetRepository<Permission>();
             _applicationUserRepository = unitOfWork.GetRepository<ApplicationUser>();
-
-            _roleManager = roleManager;
-            _userManager = userManager;
         }
 
         [HttpGet]
@@ -130,23 +120,24 @@ namespace Shrooms.Presentation.Api.Controllers
         [PermissionAuthorize(Permission = AdministrationPermissions.Role)]
         public async Task<HttpResponseMessage> Post([FromBody] RoleMiniViewModel roleViewModel)
         {
-            if (await _roleRepository.Get(r => r.Name == roleViewModel.Name).AnyAsync())
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, Resources.Models.Role.Role.RoleNameExistsError);
-            }
+            throw new NotImplementedException();
+            //if (await _roleRepository.Get(r => r.Name == roleViewModel.Name).AnyAsync())
+            //{
+            //    return Request.CreateResponse(HttpStatusCode.BadRequest, Resources.Models.Role.Role.RoleNameExistsError);
+            //}
 
-            roleViewModel.Id = Guid.NewGuid().ToString();
+            //roleViewModel.Id = Guid.NewGuid().ToString();
 
-            var role = _mapper.Map<RoleMiniViewModel, ApplicationRole>(roleViewModel);
-            role.CreatedTime = DateTime.UtcNow;
-            role.OrganizationId = GetUserAndOrganization().OrganizationId;
+            //var role = _mapper.Map<RoleMiniViewModel, ApplicationRole>(roleViewModel);
+            //role.CreatedTime = DateTime.UtcNow;
+            //role.OrganizationId = GetUserAndOrganization().OrganizationId;
 
-            await _roleManager.CreateAsync(role);
-            await AssignPermissionsToRoleAsync(roleViewModel, role);
-            await AssignUsersToRole(roleViewModel);
-            _permissionsCache.Clear();
+            //await _roleManager.CreateAsync(role);
+            //await AssignPermissionsToRoleAsync(roleViewModel, role);
+            //await AssignUsersToRole(roleViewModel);
+            //_permissionsCache.Clear();
 
-            return Request.CreateResponse(HttpStatusCode.OK, role.Id);
+            //return Request.CreateResponse(HttpStatusCode.OK, role.Id);
         }
 
         [ValidationFilter]
@@ -154,36 +145,38 @@ namespace Shrooms.Presentation.Api.Controllers
         [PermissionAuthorize(Permission = AdministrationPermissions.Role)]
         public async Task<HttpResponseMessage> Put([FromBody] RoleMiniViewModel roleViewModel)
         {
-            if (_roleRepository.Get(r => r.Name == roleViewModel.Name && r.Id != roleViewModel.Id).Any())
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, Resources.Models.Role.Role.RoleNameExistsError);
-            }
+            throw new NotImplementedException();
+            //if (_roleRepository.Get(r => r.Name == roleViewModel.Name && r.Id != roleViewModel.Id).Any())
+            //{
+            //    return Request.CreateResponse(HttpStatusCode.BadRequest, Resources.Models.Role.Role.RoleNameExistsError);
+            //}
 
-            var role = await _roleRepository.Get(r => r.Id == roleViewModel.Id, includeProperties: "Permissions").FirstAsync();
-            _mapper.Map(roleViewModel, role);
+            //var role = await _roleRepository.Get(r => r.Id == roleViewModel.Id, includeProperties: "Permissions").FirstAsync();
+            //_mapper.Map(roleViewModel, role);
 
-            await AssignPermissionsToRoleAsync(roleViewModel, role);
-            await AssignUsersToRole(roleViewModel);
-            _permissionsCache.Clear();
+            //await AssignPermissionsToRoleAsync(roleViewModel, role);
+            //await AssignUsersToRole(roleViewModel);
+            //_permissionsCache.Clear();
 
-            return Request.CreateResponse(HttpStatusCode.OK, role.Id);
+            //return Request.CreateResponse(HttpStatusCode.OK, role.Id);
         }
 
         [Route("Delete")]
         [PermissionAuthorize(Permission = AdministrationPermissions.Role)]
         public async Task<HttpResponseMessage> Delete(string roleId)
         {
-            var role = await _roleManager.FindByIdAsync(roleId);
+            throw new NotImplementedException();
+            //var role = await _roleManager.FindByIdAsync(roleId);
 
-            if (role == null)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
-            }
+            //if (role == null)
+            //{
+            //    return Request.CreateResponse(HttpStatusCode.NotFound);
+            //}
 
-            await _roleManager.DeleteAsync(role);
-            _permissionsCache.Clear();
+            //await _roleManager.DeleteAsync(role);
+            //_permissionsCache.Clear();
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            //return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         [HttpGet]
@@ -227,11 +220,12 @@ namespace Shrooms.Presentation.Api.Controllers
 
         private async Task AssignPermissionsToRoleAsync(RoleMiniViewModel roleViewModel, ApplicationRole role)
         {
-            var filteredPermissions = GetFilter(roleViewModel.Permissions.ToList());
-            role.Permissions = await _permissionRepository.Get(filteredPermissions).ToListAsync();
+            throw new NotImplementedException();
+            //var filteredPermissions = GetFilter(roleViewModel.Permissions.ToList());
+            //role.Permissions = await _permissionRepository.Get(filteredPermissions).ToListAsync();
 
-            _roleRepository.Update(role);
-            await _unitOfWork.SaveAsync();
+            //_roleRepository.Update(role);
+            //await _unitOfWork.SaveAsync();
         }
 
         private static Expression<Func<Permission, bool>> GetFilter(IList<PermissionGroupViewModel> permissions)
@@ -244,28 +238,29 @@ namespace Shrooms.Presentation.Api.Controllers
 
         private async Task AssignUsersToRole(RoleMiniViewModel roleViewModel)
         {
-            var usersInModelIds = _mapper.Map<IEnumerable<ApplicationUserViewModel>, string[]>(roleViewModel.Users);
-            var usersToAdd = await _applicationUserRepository.Get(u => u.Roles.Count(r => r.RoleId.Contains(roleViewModel.Id)) == 0 && usersInModelIds.Contains(u.Id)).ToListAsync();
+            throw new NotImplementedException();
+            //var usersInModelIds = _mapper.Map<IEnumerable<ApplicationUserViewModel>, string[]>(roleViewModel.Users);
+            //var usersToAdd = await _applicationUserRepository.Get(u => u.Roles.Count(r => r.RoleId.Contains(roleViewModel.Id)) == 0 && usersInModelIds.Contains(u.Id)).ToListAsync();
 
-            foreach (var user in usersToAdd)
-            {
-                var state = await _userManager.AddToRoleAsync(user.Id, roleViewModel.Name);
-                if (!state.Succeeded)
-                {
-                    throw new SystemException(state.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(string.Join(", ", a)), sb => sb.ToString()));
-                }
-            }
+            //foreach (var user in usersToAdd)
+            //{
+            //    var state = await _userManager.AddToRoleAsync(user.Id, roleViewModel.Name);
+            //    if (!state.Succeeded)
+            //    {
+            //        throw new SystemException(state.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(string.Join(", ", a)), sb => sb.ToString()));
+            //    }
+            //}
 
-            var usersToRemove = await _applicationUserRepository.Get(u => u.Roles.Count(r => r.RoleId.Contains(roleViewModel.Id)) == 1 && !usersInModelIds.Contains(u.Id)).ToListAsync();
+            //var usersToRemove = await _applicationUserRepository.Get(u => u.Roles.Count(r => r.RoleId.Contains(roleViewModel.Id)) == 1 && !usersInModelIds.Contains(u.Id)).ToListAsync();
 
-            foreach (var user in usersToRemove)
-            {
-                var state = await _userManager.RemoveFromRoleAsync(user.Id, roleViewModel.Name);
-                if (!state.Succeeded)
-                {
-                    throw new SystemException(state.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(string.Join(", ", a)), sb => sb.ToString()));
-                }
-            }
+            //foreach (var user in usersToRemove)
+            //{
+            //    var state = await _userManager.RemoveFromRoleAsync(user.Id, roleViewModel.Name);
+            //    if (!state.Succeeded)
+            //    {
+            //        throw new SystemException(state.Errors.Aggregate(new StringBuilder(), (sb, a) => sb.AppendLine(string.Join(", ", a)), sb => sb.ToString()));
+            //    }
+            //}
         }
     }
 }

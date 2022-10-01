@@ -1,6 +1,6 @@
-﻿using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -14,7 +14,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 {
     public class AdministrationUsersNotificationService : IAdministrationNotificationService
     {
-        private readonly IDbSet<Organization> _organizationDbSet;
+        private readonly DbSet<Organization> _organizationDbSet;
         private readonly IMailingService _mailingService;
         private readonly IApplicationSettings _appSettings;
         private readonly IMailTemplate _mailTemplate;

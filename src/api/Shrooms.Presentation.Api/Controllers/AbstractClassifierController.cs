@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Shrooms.Authentification.Membership;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.ViewModels;
@@ -21,8 +20,8 @@ namespace Shrooms.Presentation.Api.Controllers
         private AbstractClassifier _classifierModel;
         private readonly IRepository<AbstractClassifier> _classifierRepository;
 
-        public AbstractClassifierController(IMapper mapper, IUnitOfWork unitOfWork, ShroomsUserManager userManager)
-            : base(mapper, unitOfWork, userManager)
+        public AbstractClassifierController(IMapper mapper, IUnitOfWork unitOfWork)
+            : base(mapper, unitOfWork)
         {
             _classifierRepository = unitOfWork.GetRepository<AbstractClassifier>();
         }

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Infrastructure.Storage;
@@ -12,7 +12,7 @@ namespace Shrooms.Domain.Services.Picture
     public class PictureService : IPictureService
     {
         private readonly IStorage _storage;
-        private readonly IDbSet<Organization> _organizationsDbSet;
+        private readonly DbSet<Organization> _organizationsDbSet;
 
         public PictureService(IStorage storage, IUnitOfWork2 uow)
         {

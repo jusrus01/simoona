@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.DataTransferObjects.Users;
@@ -156,7 +156,7 @@ namespace Shrooms.Presentation.Api.Controllers
                 {
                     foreach (var login in logins.Where(l => l.LoginProvider == providerName))
                     {
-                        await _userService.RemoveLoginAsync(userId, new UserLoginInfo(login.LoginProvider, login.ProviderKey));
+                        await _userService.RemoveLoginAsync(userId, new UserLoginInfo(login.LoginProvider, login.ProviderKey, login.LoginProvider)); // COULD BE WORNG (the last paramater)
                     }
                 }
                 catch (ArgumentException)

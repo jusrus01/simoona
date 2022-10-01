@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Shrooms.Authentification.Membership;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -26,19 +25,8 @@ namespace Shrooms.Presentation.Api.Controllers
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly IRepository<TModel> _repository;
 
-        protected readonly ShroomsUserManager _userManager;
-
         private readonly string _defaultOrderByProperty;
         protected readonly IMapper _mapper;
-
-        protected AbstractWebApiController(IMapper mapper, IUnitOfWork unitOfWork, ShroomsUserManager userManager, string defaultOrderByProperty = null)
-        {
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
-            _repository = _unitOfWork.GetRepository<TModel>();
-            _userManager = userManager;
-            _defaultOrderByProperty = defaultOrderByProperty;
-        }
 
         protected AbstractWebApiController(IMapper mapper, IUnitOfWork unitOfWork, string defaultOrderByProperty = null)
         {

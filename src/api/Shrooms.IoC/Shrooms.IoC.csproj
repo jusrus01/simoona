@@ -367,10 +367,6 @@
       <Project>{550f0c4a-34ab-49e5-83dd-19d3d77af3c5}</Project>
       <Name>Shrooms.Presentation.ModelMappings</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TemporaryDataLayer\TemporaryDataLayer.csproj">
-      <Project>{27277F15-F208-45B9-81C2-CEC87238F63A}</Project>
-      <Name>TemporaryDataLayer</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
-using Shrooms.Authentification.Membership;
 using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Presentation.Api.Providers
@@ -34,39 +33,39 @@ namespace Shrooms.Presentation.Api.Providers
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            using (var requestScope = _ioc.BeginLifetimeScope("AutofacWebRequest"))
-            {
-                if (context.ClientId != _mobileAppClientId && context.ClientId != _jsAppClientId)
-                {
-                    context.SetError("unsupported_client");
-                    return;
-                }
+            //using (var requestScope = _ioc.BeginLifetimeScope("AutofacWebRequest"))
+            //{
+            //    if (context.ClientId != _mobileAppClientId && context.ClientId != _jsAppClientId)
+            //    {
+            //        context.SetError("unsupported_client");
+            //        return;
+            //    }
 
-                if (requestScope.Resolve(typeof(ShroomsUserManager)) is ShroomsUserManager userManager)
-                {
-                    var user = await userManager.FindAsync(context.UserName, context.Password);
+            //    if (requestScope.Resolve(typeof(ShroomsUserManager)) is ShroomsUserManager userManager)
+            //    {
+            //        var user = await userManager.FindAsync(context.UserName, context.Password);
 
-                    if (user == null)
-                    {
-                        context.SetError("invalid_grant", "The user name or password is incorrect");
+            //        if (user == null)
+            //        {
+            //            context.SetError("invalid_grant", "The user name or password is incorrect");
 
-                        return;
-                    }
+            //            return;
+            //        }
 
-                    if (!user.EmailConfirmed)
-                    {
-                        context.SetError("not_verified", "E-mail address is not verified");
+            //        if (!user.EmailConfirmed)
+            //        {
+            //            context.SetError("not_verified", "E-mail address is not verified");
 
-                        return;
-                    }
+            //            return;
+            //        }
 
-                    var identity = await userManager.CreateIdentityAsync(user, context.Options.AuthenticationType);
-                    var properties = CreateProperties(user.Id, context.ClientId);
-                    var ticket = new AuthenticationTicket(identity, properties);
+            //        var identity = await userManager.CreateIdentityAsync(user, context.Options.AuthenticationType);
+            //        var properties = CreateProperties(user.Id, context.ClientId);
+            //        var ticket = new AuthenticationTicket(identity, properties);
 
-                    context.Validated(ticket);
-                }
-            }
+            //        context.Validated(ticket);
+            //    }
+            //}
         }
 
         public override Task TokenEndpoint(OAuthTokenEndpointContext context)

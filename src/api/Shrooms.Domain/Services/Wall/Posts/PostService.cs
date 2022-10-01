@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -15,7 +15,7 @@ using Shrooms.Contracts.DataTransferObjects.Wall.Posts;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.Domain.Exceptions.Exceptions;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Wall.Posts.Comments;
@@ -30,10 +30,10 @@ namespace Shrooms.Domain.Services.Wall.Posts
         private readonly ICommentService _commentService;
 
         private readonly IUnitOfWork2 _uow;
-        private readonly IDbSet<Post> _postsDbSet;
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
-        private readonly IDbSet<WallModerator> _moderatorsDbSet;
-        private readonly IDbSet<DataLayer.EntityModels.Models.Multiwall.Wall> _wallsDbSet;
+        private readonly DbSet<Post> _postsDbSet;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<WallModerator> _moderatorsDbSet;
+        private readonly DbSet<DataLayer.EntityModels.Models.Multiwalls.Wall> _wallsDbSet;
         private readonly DbSet<PostWatcher> _postWatchers;
 
         public PostService(IUnitOfWork2 uow, IPermissionService permissionService, ICommentService commentService)
@@ -45,7 +45,7 @@ namespace Shrooms.Domain.Services.Wall.Posts
             _postsDbSet = uow.GetDbSet<Post>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
             _moderatorsDbSet = uow.GetDbSet<WallModerator>();
-            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwall.Wall>();
+            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwalls.Wall>();
             _postWatchers = uow.GetDbSet<PostWatcher>();
         }
 

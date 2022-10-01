@@ -1,4 +1,5 @@
-﻿using Shrooms.Contracts.Constants;
+﻿using Microsoft.EntityFrameworkCore;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.BlacklistUsers;
@@ -10,7 +11,6 @@ using Shrooms.Domain.Helpers;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Roles;
 using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace Shrooms.Domain.Services.Employees
 {
     public class EmployeeListingService : IEmployeeListingService
     {
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
 
         private readonly IPermissionService _permissionService;
         private readonly IRoleService _roleService;

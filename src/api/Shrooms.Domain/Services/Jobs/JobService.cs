@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -15,7 +15,7 @@ namespace Shrooms.Domain.Services.Jobs
 {
     public class JobService : IJobService
     {
-        private readonly IDbSet<JobPosition> _jobTypesDbSet;
+        private readonly DbSet<JobPosition> _jobTypesDbSet;
         private readonly IUnitOfWork2 _uow;
 
         public JobService(IUnitOfWork2 uow)

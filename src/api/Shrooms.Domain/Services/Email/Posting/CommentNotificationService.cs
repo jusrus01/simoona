@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Shrooms.Contracts.Constants;
@@ -14,14 +13,15 @@ using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
-using Shrooms.Domain.Helpers;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.UserService;
 using Shrooms.Domain.Services.Wall.Posts;
 using Shrooms.Resources.Models.Walls.Comments;
 using Shrooms.Domain.Services.Wall.Posts.Comments;
 using Shrooms.Resources.Emails;
+using Microsoft.EntityFrameworkCore;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 
 namespace Shrooms.Domain.Services.Email.Posting
 {
@@ -35,9 +35,9 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly IOrganizationService _organizationService;
         private readonly IPostService _postService;
 
-        private readonly IDbSet<Event> _eventsDbSet;
-        private readonly IDbSet<Project> _projectsDbSet;
-        private readonly IDbSet<Comment> _commentsDbSet;
+        private readonly DbSet<Event> _eventsDbSet;
+        private readonly DbSet<Project> _projectsDbSet;
+        private readonly DbSet<Comment> _commentsDbSet;
 
         public CommentNotificationService(
             IUnitOfWork2 uow,

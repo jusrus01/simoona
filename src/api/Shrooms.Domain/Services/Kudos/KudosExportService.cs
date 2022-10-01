@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Kudos;
@@ -19,8 +19,8 @@ namespace Shrooms.Domain.Services.Kudos
 {
     public class KudosExportService : IKudosExportService
     {
-        private readonly IDbSet<KudosLog> _kudosLogsDbSet;
-        private readonly IDbSet<ApplicationUser> _userDbSet;
+        private readonly DbSet<KudosLog> _kudosLogsDbSet;
+        private readonly DbSet<ApplicationUser> _userDbSet;
         private readonly IExcelBuilderFactory _excelBuilderFactory;
 
         public KudosExportService(IUnitOfWork2 uow, IExcelBuilderFactory excelBuilderFactory)

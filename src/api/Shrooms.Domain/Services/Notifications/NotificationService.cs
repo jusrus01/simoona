@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -15,17 +15,18 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
 using Shrooms.DataLayer.EntityModels.Models.Notifications;
 using Shrooms.Domain.Services.Wall;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
 
 namespace Shrooms.Domain.Services.Notifications
 {
     public class NotificationService : INotificationService
     {
-        private readonly IDbSet<Notification> _notificationDbSet;
-        private readonly IDbSet<NotificationUser> _notificationUserDbSet;
-        private readonly IDbSet<ApplicationUser> _userDbSet;
-        private readonly IDbSet<DataLayer.EntityModels.Models.Multiwall.Wall> _wallDbSet;
-        private readonly IDbSet<Event> _eventDbSet;
-        private readonly IDbSet<Project> _projectDbSet;
+        private readonly DbSet<Notification> _notificationDbSet;
+        private readonly DbSet<NotificationUser> _notificationUserDbSet;
+        private readonly DbSet<ApplicationUser> _userDbSet;
+        private readonly DbSet<DataLayer.EntityModels.Models.Multiwalls.Wall> _wallDbSet;
+        private readonly DbSet<Event> _eventDbSet;
+        private readonly DbSet<Project> _projectDbSet;
 
         private readonly IWallService _wallService;
 
@@ -37,7 +38,7 @@ namespace Shrooms.Domain.Services.Notifications
         {
             _notificationDbSet = uow.GetDbSet<Notification>();
             _notificationUserDbSet = uow.GetDbSet<NotificationUser>();
-            _wallDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwall.Wall>();
+            _wallDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwalls.Wall>();
             _userDbSet = uow.GetDbSet<ApplicationUser>();
             _eventDbSet = uow.GetDbSet<Event>();
             _projectDbSet = uow.GetDbSet<Project>();
@@ -129,7 +130,7 @@ namespace Shrooms.Domain.Services.Notifications
                              .Where(w => !w.IsAlreadySeen && w.UserId == userOrg.UserId)
                              .Select(s => s.Notification)
                              .OrderByDescending(o => o.Created)
-                            .Take(() => BusinessLayerConstants.MaxNotificationsToShow)
+                             .Take(BusinessLayerConstants.MaxNotificationsToShow)
                              .ToListAsync();
 
             return _mapper.Map<IEnumerable<NotificationDto>>(result);

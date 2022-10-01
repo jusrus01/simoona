@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
@@ -16,7 +16,7 @@ namespace Shrooms.Domain.Services.Permissions
 {
     public class PermissionService : IPermissionService
     {
-        private readonly IDbSet<Permission> _permissionsDbSet;
+        private readonly DbSet<Permission> _permissionsDbSet;
         private readonly ICustomCache<string, IList<string>> _permissionsCache;
 
         public PermissionService(IUnitOfWork2 unitOfWork, ICustomCache<string, IList<string>> permissionsCache)
@@ -27,36 +27,38 @@ namespace Shrooms.Domain.Services.Permissions
 
         public bool UserHasPermission(UserAndOrganizationDto userAndOrg, string permissionName)
         {
-            if (!_permissionsCache.TryGetValue(userAndOrg.UserId, out var permissions))
-            {
-                permissions = _permissionsDbSet
-                    .Where(p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userAndOrg.UserId)))
-                    .Where(FilterActiveModules(userAndOrg.OrganizationId))
-                    .Select(x => x.Name)
-                    .ToList();
+            throw new NotImplementedException();
+            //if (!_permissionsCache.TryGetValue(userAndOrg.UserId, out var permissions))
+            //{
+            //    permissions = _permissionsDbSet
+            //        .Where(p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userAndOrg.UserId)))
+            //        .Where(FilterActiveModules(userAndOrg.OrganizationId))
+            //        .Select(x => x.Name)
+            //        .ToList();
 
-                _permissionsCache.TryAdd(userAndOrg.UserId, permissions);
-            }
+            //    _permissionsCache.TryAdd(userAndOrg.UserId, permissions);
+            //}
 
-            var isPermitted = permissions.Contains(permissionName);
-            return isPermitted;
+            //var isPermitted = permissions.Contains(permissionName);
+            //return isPermitted;
         }
 
         public async Task<bool> UserHasPermissionAsync(UserAndOrganizationDto userAndOrg, string permissionName)
         {
-            if (!_permissionsCache.TryGetValue(userAndOrg.UserId, out var permissions))
-            {
-                permissions = await _permissionsDbSet
-                    .Where(p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userAndOrg.UserId)))
-                    .Where(FilterActiveModules(userAndOrg.OrganizationId))
-                    .Select(x => x.Name)
-                    .ToListAsync();
+            throw new NotImplementedException();
+            //if (!_permissionsCache.TryGetValue(userAndOrg.UserId, out var permissions))
+            //{
+            //    permissions = await _permissionsDbSet
+            //        .Where(p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userAndOrg.UserId)))
+            //        .Where(FilterActiveModules(userAndOrg.OrganizationId))
+            //        .Select(x => x.Name)
+            //        .ToListAsync();
 
-                _permissionsCache.TryAdd(userAndOrg.UserId, permissions);
-            }
+            //    _permissionsCache.TryAdd(userAndOrg.UserId, permissions);
+            //}
 
-            var isPermitted = permissions.Contains(permissionName);
-            return isPermitted;
+            //var isPermitted = permissions.Contains(permissionName);
+            //return isPermitted;
         }
 
         public async Task<IEnumerable<PermissionGroupDto>> GetGroupNamesAsync(int organizationId)
@@ -75,16 +77,17 @@ namespace Shrooms.Domain.Services.Permissions
 
         public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId, int organizationId)
         {
-            if (_permissionsCache.TryGetValue(userId, out var permissions))
-            {
-                return permissions;
-            }
+            throw new NotImplementedException();
+            //if (_permissionsCache.TryGetValue(userId, out var permissions))
+            //{
+            //    return permissions;
+            //}
 
-            Expression<Func<Permission, bool>> userFilter = p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userId));
+            //Expression<Func<Permission, bool>> userFilter = p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userId));
 
-            permissions = (await GetPermissionsAsync(organizationId, userFilter)).Select(x => x.Name).ToList();
+            //permissions = (await GetPermissionsAsync(organizationId, userFilter)).Select(x => x.Name).ToList();
 
-            return permissions;
+            //return permissions;
         }
 
         public async Task<IEnumerable<PermissionDto>> GetRolePermissionsAsync(string roleId, int organizationId)

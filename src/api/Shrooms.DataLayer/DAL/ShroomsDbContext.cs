@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -27,15 +28,31 @@ using Shrooms.DataLayer.EntityModels.Models.ServiceRequests;
 
 namespace Shrooms.DataLayer.DAL
 {
+    public class ShroomsDbContextDesignFactory : IDesignTimeDbContextFactory<ShroomsDbContext>
+    {
+        public ShroomsDbContext CreateDbContext(string[] args)
+        {
+            const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
+            //const string tempConnString = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;Trusted_Connection=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=Test;";
+
+            var builder = new DbContextOptionsBuilder<ShroomsDbContext>();
+
+            builder.UseSqlServer(tempConnString);
+
+            return new ShroomsDbContext(builder.Options, null);
+        }
+    }
+
     //[DbConfigurationType(typeof(ShroomsContextConfiguration))]
     public class ShroomsDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>, IDbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         // By default, EF Core won't use lazy load with proxy.
+        // Note: could be configured badly because we have more stuff here. I guess I could still use
+        // my autofac solution from TemporaryDataLayer and keep Identity on separate configuration?
         public ShroomsDbContext(
             DbContextOptions<ShroomsDbContext> options,
-            string connectionName,
             IHttpContextAccessor httpContextAccessor) // Do not forget to configure this
             :
             base(options)
@@ -43,8 +60,8 @@ namespace Shrooms.DataLayer.DAL
             _httpContextAccessor = httpContextAccessor;
 
             ChangeTracker.LazyLoadingEnabled = false;
-            ConnectionName = connectionName; // TODO: look into better ways to retrieve this
         }
+
 
         // Connection string will be passed via IoC
         // like so: UseSqlSever(string)...

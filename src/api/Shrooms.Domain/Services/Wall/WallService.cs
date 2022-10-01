@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -19,10 +19,10 @@ using Shrooms.Contracts.DataTransferObjects.Wall.Posts;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.Domain.Exceptions.Exceptions;
 using Shrooms.Domain.Services.Permissions;
-using MultiwallWall = Shrooms.DataLayer.EntityModels.Models.Multiwall.Wall;
+using MultiwallWall = Shrooms.DataLayer.EntityModels.Models.Multiwalls.Wall;
 
 namespace Shrooms.Domain.Services.Wall
 {
@@ -34,12 +34,12 @@ namespace Shrooms.Domain.Services.Wall
         private readonly IUnitOfWork2 _uow;
         private readonly IPermissionService _permissionService;
 
-        private readonly IDbSet<Post> _postsDbSet;
-        private readonly IDbSet<WallMember> _wallUsersDbSet;
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
-        private readonly IDbSet<WallModerator> _moderatorsDbSet;
-        private readonly IDbSet<MultiwallWall> _wallsDbSet;
-        private readonly IDbSet<PostWatcher> _postWatchers;
+        private readonly DbSet<Post> _postsDbSet;
+        private readonly DbSet<WallMember> _wallUsersDbSet;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<WallModerator> _moderatorsDbSet;
+        private readonly DbSet<MultiwallWall> _wallsDbSet;
+        private readonly DbSet<PostWatcher> _postWatchers;
 
         public WallService(IMapper mapper, IUnitOfWork2 uow, IPermissionService permissionService)
         {
@@ -51,7 +51,7 @@ namespace Shrooms.Domain.Services.Wall
             _wallUsersDbSet = uow.GetDbSet<WallMember>();
             _moderatorsDbSet = uow.GetDbSet<WallModerator>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
-            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwall.Wall>();
+            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwalls.Wall>();
             _postWatchers = uow.GetDbSet<PostWatcher>();
         }
 
@@ -329,7 +329,7 @@ namespace Shrooms.Domain.Services.Wall
             try
             {
                 var wallTypeFilter = isEventWall
-                    ? (Expression<Func<DataLayer.EntityModels.Models.Multiwall.Wall, bool>>)(w => w.Type == WallType.Events)
+                    ? (Expression<Func<DataLayer.EntityModels.Models.Multiwalls.Wall, bool>>)(w => w.Type == WallType.Events)
                     : (w => w.Type != WallType.Events);
 
                 var wall = await _wallsDbSet
@@ -639,8 +639,8 @@ namespace Shrooms.Domain.Services.Wall
                 .Where(post => wallsIds.Contains(post.WallId))
                 .Where(filter)
                 .OrderByDescending(x => x.LastActivity)
-                .Skip(() => entriesCountToSkip)
-                .Take(() => pageSize)
+                .Skip(entriesCountToSkip)
+                .Take(pageSize)
                 .ToListAsync();
 
             var moderators = await _moderatorsDbSet.Where(x => wallsIds.Contains(x.WallId)).ToListAsync();

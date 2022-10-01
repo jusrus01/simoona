@@ -43,12 +43,13 @@ namespace Shrooms.Authentification.ExternalLoginInfrastructure
                 return null;
             }
 
+            // Could be wrong
             return new ExternalLoginData
             {
                 LoginProvider = providerKeyClaim.Issuer,
                 ProviderKey = providerKeyClaim.Value,
-                UserName = identity.FindFirstValue(ClaimTypes.Name),
-                Email = identity.FindFirstValue(ClaimTypes.Email)
+                UserName = identity.FindFirst(ClaimTypes.Name).Value,
+                Email = identity.FindFirst(ClaimTypes.Email).Value
             };
         }
     }

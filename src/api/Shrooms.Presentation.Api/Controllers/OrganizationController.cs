@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Shrooms.Authentification.Membership;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Exceptions;
@@ -23,8 +22,8 @@ namespace Shrooms.Presentation.Api.Controllers
     {
         private readonly IOrganizationService _organizationService;
 
-        public OrganizationController(IMapper mapper, IUnitOfWork unitOfWork, ShroomsUserManager userManager, IOrganizationService organizationService)
-            : base(mapper, unitOfWork, userManager)
+        public OrganizationController(IMapper mapper, IUnitOfWork unitOfWork, IOrganizationService organizationService)
+            : base(mapper, unitOfWork)
         {
             _organizationService = organizationService;
         }

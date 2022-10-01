@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
@@ -56,38 +56,39 @@ namespace Shrooms.Presentation.Api.Controllers
         [PermissionAuthorize(Permission = BasicPermissions.Certificate)]
         public async Task<IHttpActionResult> Post(CertificatePostViewModel crudViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            return Ok();
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
-            var currentUserId = GetUserAndOrganization().UserId;
-            var isAdministrator = await _permissionService.UserHasPermissionAsync(GetUserAndOrganization(), AdministrationPermissions.Certificate);
-            if (!isAdministrator && crudViewModel.ApplicationUserId != currentUserId)
-            {
-                return BadRequest();
-            }
+            //var currentUserId = GetUserAndOrganization().UserId;
+            //var isAdministrator = await _permissionService.UserHasPermissionAsync(GetUserAndOrganization(), AdministrationPermissions.Certificate);
+            //if (!isAdministrator && crudViewModel.ApplicationUserId != currentUserId)
+            //{
+            //    return BadRequest();
+            //}
 
-            var certificate = await _certificateRepository
-                .Get(c => c.Name == crudViewModel.Name && c.ApplicationUserId == crudViewModel.ApplicationUserId, includeProperties: "Exams")
-                .FirstOrDefaultAsync();
+            //var certificate = await _certificateRepository
+            //    .Get(c => c.Name == crudViewModel.Name && c.ApplicationUserId == crudViewModel.ApplicationUserId, includeProperties: "Exams")
+            //    .FirstOrDefaultAsync();
 
-            if (certificate == null)
-            {
-                certificate = _mapper.Map<Certificate>(crudViewModel);
-                certificate.Exams = await MapExamsAsync(crudViewModel);
-                _certificateRepository.Insert(certificate);
-            }
-            else
-            {
-                certificate.InProgress = crudViewModel.InProgress;
-                var examsToAdd = await MapExamsAsync(crudViewModel);
-                examsToAdd.ForEach(e => certificate.Exams.Add(e));
-                _certificateRepository.Update(certificate);
-            }
+            //if (certificate == null)
+            //{
+            //    certificate = _mapper.Map<Certificate>(crudViewModel);
+            //    certificate.Exams = await MapExamsAsync(crudViewModel);
+            //    _certificateRepository.Insert(certificate);
+            //}
+            //else
+            //{
+            //    certificate.InProgress = crudViewModel.InProgress;
+            //    var examsToAdd = await MapExamsAsync(crudViewModel);
+            //    examsToAdd.ForEach(e => certificate.Exams.Add(e));
+            //    _certificateRepository.Update(certificate);
+            //}
 
-            await _unitOfWork.SaveAsync();
-            return Ok(_mapper.Map<CertificateMiniViewModel>(certificate));
+            //await _unitOfWork.SaveAsync();
+            //return Ok(_mapper.Map<CertificateMiniViewModel>(certificate));
         }
 
         [HttpDelete]
@@ -121,31 +122,32 @@ namespace Shrooms.Presentation.Api.Controllers
         [PermissionAuthorize(Permission = BasicPermissions.Certificate)]
         public async Task<IHttpActionResult> Put(CertificatePostViewModel crudViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            return Ok();
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
-            var currentUserId = GetUserAndOrganization().UserId;
-            var isAdministrator = await _permissionService.UserHasPermissionAsync(GetUserAndOrganization(), AdministrationPermissions.Certificate);
-            if (!isAdministrator && crudViewModel.ApplicationUserId != currentUserId)
-            {
-                return BadRequest();
-            }
+            //var currentUserId = GetUserAndOrganization().UserId;
+            //var isAdministrator = await _permissionService.UserHasPermissionAsync(GetUserAndOrganization(), AdministrationPermissions.Certificate);
+            //if (!isAdministrator && crudViewModel.ApplicationUserId != currentUserId)
+            //{
+            //    return BadRequest();
+            //}
 
-            var certificate = await _certificateRepository.Get(c => c.Id == crudViewModel.Id, includeProperties: "Exams").FirstOrDefaultAsync();
-            if (certificate == null)
-            {
-                return NotFound();
-            }
+            //var certificate = await _certificateRepository.Get(c => c.Id == crudViewModel.Id, includeProperties: "Exams").FirstOrDefaultAsync();
+            //if (certificate == null)
+            //{
+            //    return NotFound();
+            //}
 
-            certificate.Exams = await MapExamsAsync(crudViewModel);
-            certificate.InProgress = crudViewModel.InProgress;
-            _certificateRepository.Update(certificate);
+            //certificate.Exams = await MapExamsAsync(crudViewModel);
+            //certificate.InProgress = crudViewModel.InProgress;
+            //_certificateRepository.Update(certificate);
 
-            await _unitOfWork.SaveAsync();
+            //await _unitOfWork.SaveAsync();
 
-            return Ok(_mapper.Map<CertificateMiniViewModel>(certificate));
+            //return Ok(_mapper.Map<CertificateMiniViewModel>(certificate));
         }
 
         private async Task<ICollection<Exam>> MapExamsAsync(CertificatePostViewModel crudViewModel)

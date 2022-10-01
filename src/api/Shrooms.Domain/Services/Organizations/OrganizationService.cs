@@ -1,7 +1,8 @@
-﻿using System.Data.Entity;
+﻿using System;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -125,27 +126,28 @@ namespace Shrooms.Domain.Services.Organizations
 
         public async Task SetManagingDirectorAsync(string userId, UserAndOrganizationDto userAndOrganizationDto)
         {
-            if (!await _roleService.HasRoleAsync(userId, Contracts.Constants.Roles.Manager))
-            {
-                throw new ValidationException(ErrorCodes.UserIsNotAManager, "User need to have manager role to become a managing director");
-            }
+            throw new NotImplementedException();
+            //if (!await _roleService.HasRoleAsync(userId, Contracts.Constants.Roles.Manager))
+            //{
+            //    throw new ValidationException(ErrorCodes.UserIsNotAManager, "User need to have manager role to become a managing director");
+            //}
 
-            var managingDirectors = await _usersDbSet
-                .Include(x => x.Roles)
-                .Where(x => x.OrganizationId == userAndOrganizationDto.OrganizationId)
-                .Where(x => x.IsManagingDirector || x.Id == userId)
-                .ToListAsync();
+            //var managingDirectors = await _usersDbSet
+            //    .Include(x => x.Roles)
+            //    .Where(x => x.OrganizationId == userAndOrganizationDto.OrganizationId)
+            //    .Where(x => x.IsManagingDirector || x.Id == userId)
+            //    .ToListAsync();
 
-            foreach (var currentDirector in managingDirectors.Where(x => x.IsManagingDirector))
-            {
-                currentDirector.IsManagingDirector = false;
-            }
+            //foreach (var currentDirector in managingDirectors.Where(x => x.IsManagingDirector))
+            //{
+            //    currentDirector.IsManagingDirector = false;
+            //}
 
-            var newManagingDirector = managingDirectors.First(x => x.Id == userId);
+            //var newManagingDirector = managingDirectors.First(x => x.Id == userId);
 
-            newManagingDirector.IsManagingDirector = true;
+            //newManagingDirector.IsManagingDirector = true;
 
-            await _uow.SaveChangesAsync(userAndOrganizationDto.UserId);
+            //await _uow.SaveChangesAsync(userAndOrganizationDto.UserId);
         }
 
         private static string GetHostFromEmail(string email)

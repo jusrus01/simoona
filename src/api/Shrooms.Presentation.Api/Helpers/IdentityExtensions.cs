@@ -1,5 +1,4 @@
 ﻿using System.Security.Principal;
-using Microsoft.AspNet.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 
 namespace Shrooms.Presentation.Api.Helpers
@@ -8,11 +7,12 @@ namespace Shrooms.Presentation.Api.Helpers
     {
         public static UserAndOrganizationDto GetUserAndOrganization(this IIdentity identity)
         {
-            return new UserAndOrganizationDto
-            {
-                OrganizationId = identity.GetOrganizationId(),
-                UserId = identity.GetUserId()
-            };
+            //return new UserAndOrganizationDto
+            //{
+            //    OrganizationId = identity.GetOrganizationId(),
+            //    UserId = identity.GetUserId()
+            //};
+            return new UserAndOrganizationDto();
         }
     }
 }

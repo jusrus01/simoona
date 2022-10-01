@@ -1,6 +1,7 @@
-﻿using System.Data.Entity;
+﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.VacationPages;
@@ -11,7 +12,7 @@ namespace Shrooms.Domain.Services.VacationPages
     public class VacationPageService : IVacationPageService
     {
         private readonly IUnitOfWork2 _uow;
-        private readonly IDbSet<VacationPage> _vacationPagesDbSet;
+        private readonly DbSet<VacationPage> _vacationPagesDbSet;
         private readonly IMapper _mapper;
 
         public VacationPageService(IUnitOfWork2 uow, IMapper mapper)

@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.SignalR;
+﻿using Microsoft.AspNet.SignalR;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Presentation.Api.Helpers;
+using System;
 
 namespace Shrooms.Presentation.Api.Hubs
 {
@@ -9,13 +9,14 @@ namespace Shrooms.Presentation.Api.Hubs
     {
         protected UserAndOrganizationHubDto GetUserAndTenant()
         {
-            var userHub = new UserAndOrganizationHubDto
-            {
-                UserId = Context.User.Identity.GetUserId(),
-                OrganizationName = Context.User.Identity.GetOrganizationName(),
-                OrganizationId = Context.User.Identity.GetOrganizationId()
-            };
-            return userHub;
+            throw new NotImplementedException();
+            //var userHub = new UserAndOrganizationHubDto
+            //{
+            //    UserId = Context.User.Identity.GetUserId(),
+            //    OrganizationName = Context.User.Identity.GetOrganizationName(),
+            //    OrganizationId = Context.User.Identity.GetOrganizationId()
+            //};
+            //return userHub;
         }
     }
 }

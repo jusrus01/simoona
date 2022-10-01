@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Configuration;
-using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Picture;
@@ -34,29 +34,30 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.UserAnonymization
 
         public async Task AnonymizeUsersAsync(string organizationName)
         {
-            var organization = await _organizationsDbSet.FirstAsync(org => org.ShortName == organizationName);
+            throw new NotImplementedException();
+            //var organization = await _organizationsDbSet.FirstAsync(org => org.ShortName == organizationName);
 
-            var sqlQuery = @"SELECT TOP(@userLimit) * FROM [dbo].[AspNetUsers] WHERE
-                             IsDeleted = 1 AND
-                             OrganizationId = @organizationId AND
-                             IsAnonymized = 0 AND
-                             DATEDIFF(DAY, Modified, GETDATE()) >= @anonymizeAfterDays";
+            //var sqlQuery = @"SELECT TOP(@userLimit) * FROM [dbo].[AspNetUsers] WHERE
+            //                 IsDeleted = 1 AND
+            //                 OrganizationId = @organizationId AND
+            //                 IsAnonymized = 0 AND
+            //                 DATEDIFF(DAY, Modified, GETDATE()) >= @anonymizeAfterDays";
 
-            var sqlParameters = new object[]
-            {
-                new SqlParameter("@organizationId", organization.Id),
-                new SqlParameter("@anonymizeAfterDays", _anonymizeUsersAfterDays),
-                new SqlParameter("@userLimit", _anonymizeUsersPerRequest)
-            };
+            //var sqlParameters = new object[]
+            //{
+            //    new SqlParameter("@organizationId", organization.Id),
+            //    new SqlParameter("@anonymizeAfterDays", _anonymizeUsersAfterDays),
+            //    new SqlParameter("@userLimit", _anonymizeUsersPerRequest)
+            //};
 
-            var usersToAnonymize = await _usersDbSet.SqlQuery(sqlQuery, sqlParameters).ToListAsync();
+            //var usersToAnonymize = await _usersDbSet.SqlQuery(sqlQuery, sqlParameters).ToListAsync();
 
-            foreach (var user in usersToAnonymize)
-            {
-                await AnonymizeAsync(user, organization.Id);
+            //foreach (var user in usersToAnonymize)
+            //{
+            //    await AnonymizeAsync(user, organization.Id);
 
-                await _uow.SaveChangesAsync();
-            }
+            //    await _uow.SaveChangesAsync();
+            //}
         }
 
         private async Task AnonymizeAsync(ApplicationUser user, int organizationId)

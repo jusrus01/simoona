@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 
 namespace Shrooms.Domain.Services.DailyMailingService
 {
     public class DailyMailingService : IDailyMailingService
     {
-        private readonly IDbSet<ApplicationUser> _applicationUserDbSeb;
-        private readonly IDbSet<Post> _postDbSet;
+        private readonly DbSet<ApplicationUser> _applicationUserDbSeb;
+        private readonly DbSet<Post> _postDbSet;
         private readonly IMailingService _emailService;
         private readonly ISystemClock _systemClock;
 

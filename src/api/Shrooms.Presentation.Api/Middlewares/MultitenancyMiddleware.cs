@@ -16,6 +16,7 @@ namespace Shrooms.Presentation.Api.Middlewares
         {
         }
 
+        // TODO
         public override async Task Invoke(IOwinContext context)
         {
             var request = context.Request;
@@ -26,28 +27,29 @@ namespace Shrooms.Presentation.Api.Middlewares
             }
             else
             {
-                var tenantKey = ExtractTenant(context);
+                await Next.Invoke(context);
+                //var tenantKey = ExtractTenant(context);
 
-                if (string.IsNullOrEmpty(tenantKey))
-                {
-                    Unauthorized(context);
-                }
-                else if (!TryFindTenant(out var tenantName, tenantKey))
-                {
-                    await ReturnInvalidOrganizationResponse(context);
-                }
-                else
-                {
-                    request.Set("tenantName", tenantName);
+                //if (string.IsNullOrEmpty(tenantKey))
+                //{
+                //    Unauthorized(context);
+                //}
+                //else if (!TryFindTenant(out var tenantName, tenantKey))
+                //{
+                //    await ReturnInvalidOrganizationResponse(context);
+                //}
+                //else
+                //{
+                //    request.Set("tenantName", tenantName);
 
-                    try
-                    {
-                        await Next.Invoke(context);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                    }
-                }
+                //    try
+                //    {
+                //        await Next.Invoke(context);
+                //    }
+                //    catch (OperationCanceledException)
+                //    {
+                //    }
+                //}
             }
         }
 
@@ -92,7 +94,7 @@ namespace Shrooms.Presentation.Api.Middlewares
                 }
             }
 
-            return tenantKey;
+             return tenantKey;
         }
 
         private static async Task ReturnInvalidOrganizationResponse(IOwinContext context)

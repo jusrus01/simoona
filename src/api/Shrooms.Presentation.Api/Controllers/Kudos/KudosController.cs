@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
-using Microsoft.AspNet.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Kudos;
 using Shrooms.Contracts.DataTransferObjects.Models.Kudos;
@@ -130,7 +129,7 @@ namespace Shrooms.Presentation.Api.Controllers.Kudos
         [PermissionAuthorize(Permission = BasicPermissions.Kudos)]
         public async Task<IEnumerable<KudosPieChartSliceViewModel>> KudosPieChartData(string userId = null)
         {
-            userId ??= User.Identity.GetUserId();
+            userId ??= GetUserId();
 
             var pieChartDto = await _kudosService.GetKudosPieChartDataAsync(GetUserAndOrganization().OrganizationId, userId);
             var result = _mapper.Map<IEnumerable<KudosPieChartSliceDto>, IEnumerable<KudosPieChartSliceViewModel>>(pieChartDto);
@@ -339,7 +338,7 @@ namespace Shrooms.Presentation.Api.Controllers.Kudos
         [PermissionAuthorize(Permission = BasicPermissions.Kudos)]
         public async Task<UserKudosViewModel> GetUserKudosInformationById(string id = null)
         {
-            id ??= User.Identity.GetUserId();
+            id ??= GetUserId();
 
             var userKudosDto = await _kudosService.GetUserKudosInformationByIdAsync(id, GetUserAndOrganization().OrganizationId);
             var userKudosViewModel = _mapper.Map<UserKudosDto, UserKudosViewModel>(userKudosDto);
@@ -354,7 +353,7 @@ namespace Shrooms.Presentation.Api.Controllers.Kudos
         [PermissionAuthorize(Permission = BasicPermissions.Kudos)]
         public async Task<IHttpActionResult> GetApprovedKudosList(string id = null)
         {
-            id ??= User.Identity.GetUserId();
+            id ??= GetUserId();
 
             try
             {

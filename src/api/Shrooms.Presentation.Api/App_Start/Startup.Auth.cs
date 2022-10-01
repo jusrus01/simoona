@@ -2,15 +2,16 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.AspNet.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Facebook;
 using Microsoft.Owin.Security.Google;
 using Microsoft.Owin.Security.OAuth;
+using Microsoft.AspNetCore.Owin;
 using Owin;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Presentation.Api.Providers;
+using Shrooms.Authentification;
 
 namespace Shrooms.Presentation.Api
 {
@@ -35,14 +36,16 @@ namespace Shrooms.Presentation.Api
 
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions
             {
-                AuthenticationType = DefaultAuthenticationTypes.ExternalBearer,
+                //AuthenticationType = DefaultAuthenticationTypes,
+                AuthenticationType = "ExternalBearer", // TODO: Change later
                 Provider = new QueryStringBearerAuthProvider()
             });
         }
 
         public void ConfigureAuthServer(IAppBuilder app, IContainer container)
         {
-            app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
+            // TODO: implement this somehow
+            //app.UseExternalSignInCookie(ShroomsDefaultAuthenticationTypes.ExternalCookie);
 
             var tokenTimeSpanInHours = ConfigurationManager.AppSettings["AccessTokenLifeTimeInHours"];
 

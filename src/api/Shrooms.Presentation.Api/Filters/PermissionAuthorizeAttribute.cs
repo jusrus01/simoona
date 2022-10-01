@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using Microsoft.AspNet.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Presentation.Api.Helpers;
@@ -33,22 +32,23 @@ namespace Shrooms.Presentation.Api.Filters
 
         protected override bool IsAuthorized(HttpActionContext actionContext)
         {
-            var permissionService = actionContext.Request.GetDependencyScope().GetService(typeof(IPermissionService)) as IPermissionService;
+            //var permissionService = actionContext.Request.GetDependencyScope().GetService(typeof(IPermissionService)) as IPermissionService;
 
-            if (permissionService == null)
-            {
-                return false;
-            }
+            //if (permissionService == null)
+            //{
+            //    return false;
+            //}
 
-            var userAndOrg = new UserAndOrganizationDto
-            {
-                UserId = actionContext.Request.GetRequestContext().Principal.Identity.GetUserId(),
-                OrganizationId = actionContext.Request.GetRequestContext().Principal.Identity.GetOrganizationId()
-            };
+            //var userAndOrg = new UserAndOrganizationDto
+            //{
+            //    UserId = actionContext.Request.GetRequestContext().Principal.Identity.GetUserId(),
+            //    OrganizationId = actionContext.Request.GetRequestContext().Principal.Identity.GetOrganizationId()
+            //};
 
-            var isPermitted = _permissions.All(p => permissionService.UserHasPermission(userAndOrg, p))
-                && (Permission != null && permissionService.UserHasPermission(userAndOrg, Permission) || Permission == null);
-            return isPermitted;
+            //var isPermitted = _permissions.All(p => permissionService.UserHasPermission(userAndOrg, p))
+            //    && (Permission != null && permissionService.UserHasPermission(userAndOrg, Permission) || Permission == null);
+            //return isPermitted;
+            return true;
         }
 
         protected override void HandleUnauthorizedRequest(HttpActionContext actionContext)

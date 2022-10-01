@@ -9,7 +9,7 @@ using Shrooms.Presentation.WebViewModels.Models.VacationPage;
 
 namespace Shrooms.Presentation.Api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [RoutePrefix("VacationPage")]
     public class VacationPageController : BaseController
     {

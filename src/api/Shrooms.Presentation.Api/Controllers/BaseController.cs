@@ -1,15 +1,24 @@
-﻿using System.Net;
+﻿using System.Security.Claims;
+using System.Net;
 using System.Web.Http;
 using System.Web.Http.Results;
-using Microsoft.AspNet.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Presentation.Api.Helpers;
+using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Shrooms.Presentation.Api.Controllers
 {
     public class BaseController : ApiController
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        //public BaseController(IHttpContextAccessor httpContextAccessor)
+        //{
+        //    _httpContextAccessor = httpContextAccessor;
+        //}
+
         public StatusCodeResult Forbidden()
         {
             return StatusCode(HttpStatusCode.Forbidden);
@@ -35,7 +44,9 @@ namespace Shrooms.Presentation.Api.Controllers
             return new UserAndOrganizationHubDto
             {
                 OrganizationId = User.Identity.GetOrganizationId(),
-                UserId = User.Identity.GetUserId(),
+                //UserId = User.Identity.GetUserId(),
+                //UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                UserId = GetUserId(),
                 OrganizationName = User.Identity.GetOrganizationName()
             };
         }
@@ -53,7 +64,44 @@ namespace Shrooms.Presentation.Api.Controllers
         public void SetOrganizationAndUser(UserAndOrganizationDto obj)
         {
             obj.OrganizationId = User.Identity.GetOrganizationId();
-            obj.UserId = User.Identity.GetUserId();
+            obj.UserId = GetUserId();
+        }
+
+        public string GetUserFullName()
+        {
+            return GetClaimTypeValueFromUser(ClaimTypes.GivenName);
+        }
+
+        public string GetUserId()
+        {
+            return GetClaimTypeValueFromUser(ClaimTypes.NameIdentifier);
+        }
+
+        public string GetUserEmail()
+        {
+            return GetClaimTypeValueFromUser(ClaimTypes.Email);
+        }
+
+        private string GetClaimTypeValueFromUser(string claimTypeName)
+        {
+            var user = GetCurrentRequestUser();
+
+            if (user == null)
+            {
+                return string.Empty;
+            }
+
+            return user.FindFirst(claimTypeName).Value;
+        }
+
+        private ClaimsPrincipal GetCurrentRequestUser()
+        {
+            if (_httpContextAccessor == null)
+            {
+                throw new Exception($"{nameof(IHttpContextAccessor)} not injected into {nameof(BaseController)}");
+            }
+
+            return _httpContextAccessor.HttpContext.User;
         }
     }
 }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -12,6 +12,7 @@ using Shrooms.Contracts.DataTransferObjects.Wall;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.Domain.Exceptions.Exceptions;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Wall;
@@ -160,93 +161,95 @@ namespace Shrooms.Domain.Services.Projects
 
         public async Task NewProjectAsync(NewProjectDto dto)
         {
-            var owningUserExists = await _usersDbSet
-                .AnyAsync(u => u.Id == dto.OwningUserId && u.OrganizationId == dto.OrganizationId);
+            throw new NotImplementedException();
+            //var owningUserExists = await _usersDbSet
+            //    .AnyAsync(u => u.Id == dto.OwningUserId && u.OrganizationId == dto.OrganizationId);
 
-            if (!owningUserExists)
-            {
-                throw new ValidationException(ErrorCodes.ContentDoesNotExist, "Incorrect user");
-            }
+            //if (!owningUserExists)
+            //{
+            //    throw new ValidationException(ErrorCodes.ContentDoesNotExist, "Incorrect user");
+            //}
 
-            var members = await _usersDbSet
-                .Where(u => dto.MembersIds.Contains(u.Id))
-                .ToListAsync();
+            //var members = await _usersDbSet
+            //    .Where(u => dto.MembersIds.Contains(u.Id))
+            //    .ToListAsync();
 
-            var completeListOfAttributes = await ManageProjectAttributesAsync(dto.Attributes);
+            //var completeListOfAttributes = await ManageProjectAttributesAsync(dto.Attributes);
 
-            var project = new Project
-            {
-                Name = dto.Title,
-                Desc = dto.Description,
-                OwnerId = dto.OwningUserId,
-                OrganizationId = dto.OrganizationId,
-                Logo = dto.Logo,
-                Attributes = completeListOfAttributes.ToList(),
-                Members = members
-            };
+            //var project = new Project
+            //{
+            //    Name = dto.Title,
+            //    Desc = dto.Description,
+            //    OwnerId = dto.OwningUserId,
+            //    OrganizationId = dto.OrganizationId,
+            //    Logo = dto.Logo,
+            //    Attributes = completeListOfAttributes.ToList(),
+            //    Members = members
+            //};
 
-            var wall = new CreateWallDto
-            {
-                Name = dto.Title,
-                UserId = dto.OwningUserId,
-                OrganizationId = dto.OrganizationId,
-                Type = WallType.Project,
-                Description = dto.Description,
-                Logo = dto.Logo,
-                Access = WallAccess.Public,
-                MembersIds = members.Select(m => m.Id).Concat(new List<string> { dto.OwningUserId }),
-                ModeratorsIds = new List<string> { dto.OwningUserId }
-            };
+            //var wall = new CreateWallDto
+            //{
+            //    Name = dto.Title,
+            //    UserId = dto.OwningUserId,
+            //    OrganizationId = dto.OrganizationId,
+            //    Type = WallType.Project,
+            //    Description = dto.Description,
+            //    Logo = dto.Logo,
+            //    Access = WallAccess.Public,
+            //    MembersIds = members.Select(m => m.Id).Concat(new List<string> { dto.OwningUserId }),
+            //    ModeratorsIds = new List<string> { dto.OwningUserId }
+            //};
 
-            _projectsDbSet.Add(project);
-            await _wallService.CreateNewWallAsync(wall);
+            //_projectsDbSet.Add(project);
+            //await _wallService.CreateNewWallAsync(wall);
 
-            await _uow.SaveChangesAsync(dto.UserId);
+            //await _uow.SaveChangesAsync(dto.UserId);
         }
 
         public async Task EditProjectAsync(EditProjectDto dto)
         {
-            var project = await _projectsDbSet
-                .Include(p => p.Members)
-                .Include(p => p.Wall.Members)
-                .Include(p => p.Wall.Moderators)
-                .Include(p => p.Attributes)
-                .FirstOrDefaultAsync(p =>
-                    p.Id == dto.Id &&
-                    p.OrganizationId == dto.OrganizationId);
+            throw new NotImplementedException();
+            //var project = await _projectsDbSet
+            //    .Include(p => p.Members)
+            //    .Include(p => p.Wall.Members)
+            //    .Include(p => p.Wall.Moderators)
+            //    .Include(p => p.Attributes)
+            //    .FirstOrDefaultAsync(p =>
+            //        p.Id == dto.Id &&
+            //        p.OrganizationId == dto.OrganizationId);
 
-            if (project == null)
-            {
-                throw new ValidationException(ErrorCodes.ContentDoesNotExist, "Project not found");
-            }
+            //if (project == null)
+            //{
+            //    throw new ValidationException(ErrorCodes.ContentDoesNotExist, "Project not found");
+            //}
 
-            await ValidateOwnershipPermissionsAsync(project.OwnerId, dto);
+            //await ValidateOwnershipPermissionsAsync(project.OwnerId, dto);
 
-            if (project.OwnerId != dto.OwningUserId)
-            {
-                var owningUserExists = await _usersDbSet.AnyAsync(u => u.Id == dto.OwningUserId && u.OrganizationId == dto.OrganizationId);
-                if (!owningUserExists)
-                {
-                    throw new ValidationException(ErrorCodes.ContentDoesNotExist, "User not found");
-                }
-            }
+            //if (project.OwnerId != dto.OwningUserId)
+            //{
+            //    var owningUserExists = await _usersDbSet.AnyAsync(u => u.Id == dto.OwningUserId && u.OrganizationId == dto.OrganizationId);
+            //    if (!owningUserExists)
+            //    {
+            //        throw new ValidationException(ErrorCodes.ContentDoesNotExist, "User not found");
+            //    }
+            //}
 
-            project.Members = await _usersDbSet.Where(x => dto.MembersIds.Contains(x.Id)).ToListAsync();
+            //project.Members = await _usersDbSet.Where(x => dto.MembersIds.Contains(x.Id)).ToListAsync();
 
-            await _wallService.ReplaceMembersInWallAsync(project.Members.ToList(), project.WallId, dto.UserId);
+            //await _wallService.ReplaceMembersInWallAsync(project.Members.ToList(), project.WallId, dto.UserId);
 
-            var completeListOfAttributes = await ManageProjectAttributesAsync(dto.Attributes);
+            //var completeListOfAttributes = await ManageProjectAttributesAsync(dto.Attributes);
 
-            project.Name = dto.Title;
-            project.Desc = dto.Description;
-            project.Logo = dto.Logo;
-            project.OwnerId = dto.OwningUserId;
-            project.Attributes = completeListOfAttributes.ToList();
-            await UpdateProjectWallModeratorAsync(dto, project);
+            //project.Name = dto.Title;
+            //project.Desc = dto.Description;
+            //project.Logo = dto.Logo;
+            //project.OwnerId = dto.OwningUserId;
+            //project.Attributes = completeListOfAttributes.ToList();
+            //await UpdateProjectWallModeratorAsync(dto, project);
 
-            await UpdateWallAsync(dto, project.WallId);
+            //await UpdateWallAsync(dto, project.WallId);
 
-            await _uow.SaveChangesAsync(dto.UserId);
+            //await _uow.SaveChangesAsync(dto.UserId);
         }
 
         public async Task DeleteAsync(int id, UserAndOrganizationDto userOrg)
@@ -275,41 +278,43 @@ namespace Shrooms.Domain.Services.Projects
 
         public async Task ExpelMemberAsync(UserAndOrganizationDto userAndOrg, int projectId, string expelUserId)
         {
-            var project = await _projectsDbSet
-                .Include(x => x.Members)
-                .FirstOrDefaultAsync(x => x.Id == projectId && x.OrganizationId == userAndOrg.OrganizationId);
+            throw new NotImplementedException();
+            //var project = await _projectsDbSet
+            //    .Include(x => x.Members)
+            //    .FirstOrDefaultAsync(x => x.Id == projectId && x.OrganizationId == userAndOrg.OrganizationId);
 
-            await ValidateExpelMemberAsync(project, userAndOrg);
+            //await ValidateExpelMemberAsync(project, userAndOrg);
 
-            project?.Members.Remove(project.Members.FirstOrDefault(x => x.Id == expelUserId));
+            //project?.Members.Remove(project.Members.FirstOrDefault(x => x.Id == expelUserId));
 
-            if (project != null)
-            {
-                await _wallService.RemoveMemberFromWallAsync(expelUserId, project.WallId);
-            }
+            //if (project != null)
+            //{
+            //    await _wallService.RemoveMemberFromWallAsync(expelUserId, project.WallId);
+            //}
 
-            await _uow.SaveChangesAsync(userAndOrg.UserId);
+            //await _uow.SaveChangesAsync(userAndOrg.UserId);
         }
 
         public async Task AddProjectsToUserAsync(string userId, IEnumerable<int> newProjectIds, UserAndOrganizationDto userOrg)
         {
-            var user = await _usersDbSet
-                .Include(x => x.Projects)
-                .FirstAsync(x => x.Id == userId && x.OrganizationId == userOrg.OrganizationId);
+            throw new NotImplementedException();
+            //var user = await _usersDbSet
+            //    .Include(x => x.Projects)
+            //    .FirstAsync(x => x.Id == userId && x.OrganizationId == userOrg.OrganizationId);
 
-            var wallsThatShouldBeRemovedFromUser = user.Projects
-                .Where(x => !newProjectIds.Contains(x.Id))
-                .Select(x => x.WallId)
-                .ToList();
+            //var wallsThatShouldBeRemovedFromUser = user.Projects
+            //    .Where(x => !newProjectIds.Contains(x.Id))
+            //    .Select(x => x.WallId)
+            //    .ToList();
 
-            var wallsThatShouldBeAddedToUser = await _projectsDbSet.Where(x => newProjectIds.Contains(x.Id)).Select(x => x.WallId).ToListAsync();
+            //var wallsThatShouldBeAddedToUser = await _projectsDbSet.Where(x => newProjectIds.Contains(x.Id)).Select(x => x.WallId).ToListAsync();
 
-            await _wallService.AddMemberToWallsAsync(userId, wallsThatShouldBeAddedToUser);
-            await _wallService.RemoveMemberFromWallsAsync(userId, wallsThatShouldBeRemovedFromUser);
+            //await _wallService.AddMemberToWallsAsync(userId, wallsThatShouldBeAddedToUser);
+            //await _wallService.RemoveMemberFromWallsAsync(userId, wallsThatShouldBeRemovedFromUser);
 
-            user.Projects = await _projectsDbSet.Where(p => newProjectIds.Contains(p.Id)).ToListAsync();
+            //user.Projects = await _projectsDbSet.Where(p => newProjectIds.Contains(p.Id)).ToListAsync();
 
-            await _uow.SaveChangesAsync(userOrg.UserId);
+            //await _uow.SaveChangesAsync(userOrg.UserId);
         }
 
         public async Task<bool> ValidateManagerIdAsync(string userId, string managerId)

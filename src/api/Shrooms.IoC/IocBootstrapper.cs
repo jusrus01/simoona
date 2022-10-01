@@ -44,9 +44,9 @@ namespace Shrooms.IoC
             var shroomsApi = Assembly.Load("Shrooms.Presentation.Api");
             var dataLayer = Assembly.Load("Shrooms.DataLayer");
             var modelMappings = Assembly.Load("Shrooms.Presentation.ModelMappings");
-
-            builder.RegisterApiControllers(shroomsApi);
-
+            
+            RegisterIdentityDbContext(builder, getConnectionStringName);
+            
             var settings = new JsonSerializerSettings();
             settings.ContractResolver = new SignalRContractResolver();
             var serializer = JsonSerializer.Create(settings);
@@ -67,8 +67,6 @@ namespace Shrooms.IoC
 
             // Interceptor
             builder.Register(_ => new TelemetryLoggingInterceptor());
-
-            RegisterIdentityDbContext(builder, getConnectionStringName);
 
             builder.RegisterType(typeof(UnitOfWork2)).As(typeof(IUnitOfWork2)).InstancePerRequest();
             builder.RegisterType(typeof(EfUnitOfWork)).As(typeof(IUnitOfWork)).InstancePerRequest();
@@ -102,7 +100,9 @@ namespace Shrooms.IoC
             builder.RegisterModule(new BlacklistUserModule());
             builder.RegisterModule(new EmployeeModule());
 
-            RegisterExtensions(builder, new Logger());
+            builder.RegisterApiControllers(shroomsApi);
+
+            //RegisterExtensions(builder, new Logger());
             RegisterMapper(builder);
 
             var container = builder.Build();
@@ -123,12 +123,12 @@ namespace Shrooms.IoC
 
             serviceCollection.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
 
-            serviceCollection.AddDbContext<ShroomsDbContext>(options =>
-                options.UseSqlServer(connectionString, serverOptions =>
+            serviceCollection.AddDbContext<IDbContext, ShroomsDbContext>(options =>
+                options.UseSqlServer(connectionString, serverOptions => 
                     serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null)));
 
             serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ShroomsDbContext>();
+                .AddEntityFrameworkStores<ShroomsDbContext>(); // If this fails, maybe IDbContext should be there instead
 
             builder.Populate(serviceCollection);
         }

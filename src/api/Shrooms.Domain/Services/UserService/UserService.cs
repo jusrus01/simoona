@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Shrooms.Authentification.Membership;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -9,34 +8,32 @@ using Shrooms.Contracts.DataTransferObjects.Users;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Multiwall;
+using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.DataLayer.EntityModels.Models.Notifications;
 using Shrooms.Domain.Services.Roles;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ConstantsRoles = Shrooms.Contracts.Constants.Roles;
-using WallModel = Shrooms.DataLayer.EntityModels.Models.Multiwall.Wall;
+using WallModel = Shrooms.DataLayer.EntityModels.Models.Multiwalls.Wall;
 
 namespace Shrooms.Domain.Services.UserService
 {
     public class UserService : IUserService
     {
-        private readonly IDbSet<ApplicationRole> _rolesDbSet;
-        private readonly IDbSet<ApplicationUser> _usersDbSet;
-        private readonly IDbSet<WallMember> _wallMembersDbSet;
-        private readonly IDbSet<WallModerator> _wallModeratorsDbSet;
-        private readonly IDbSet<WallModel> _wallDbSet;
+        private readonly DbSet<ApplicationRole> _rolesDbSet;
+        private readonly DbSet<ApplicationUser> _usersDbSet;
+        private readonly DbSet<WallMember> _wallMembersDbSet;
+        private readonly DbSet<WallModerator> _wallModeratorsDbSet;
+        private readonly DbSet<WallModel> _wallDbSet;
 
         private readonly IUnitOfWork2 _uow;
-        private readonly ShroomsUserManager _userManager;
         private readonly IRoleService _roleService;
 
-        public UserService(IUnitOfWork2 uow, ShroomsUserManager userManager, IRoleService roleService)
+        public UserService(IUnitOfWork2 uow, IRoleService roleService)
         {
             _rolesDbSet = uow.GetDbSet<ApplicationRole>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
@@ -45,7 +42,6 @@ namespace Shrooms.Domain.Services.UserService
             _wallDbSet = uow.GetDbSet<WallModel>();
 
             _uow = uow;
-            _userManager = userManager;
             _roleService = roleService;
         }
 
@@ -146,42 +142,44 @@ namespace Shrooms.Domain.Services.UserService
 
         public async Task DeleteAsync(string userToDelete, UserAndOrganizationDto userOrg)
         {
-            var user = await _usersDbSet
-                .SingleAsync(u => u.Id == userToDelete && u.OrganizationId == userOrg.OrganizationId);
+            throw new NotImplementedException();
+            //var user = await _usersDbSet
+            //    .SingleAsync(u => u.Id == userToDelete && u.OrganizationId == userOrg.OrganizationId);
 
-            ClearUserKudos(user);
-            await UnassignUserFromWallsAsync(userToDelete, userOrg.OrganizationId);
-            await _userManager.RemoveLoginsAsync(userToDelete);
+            //ClearUserKudos(user);
+            //await UnassignUserFromWallsAsync(userToDelete, userOrg.OrganizationId);
+            //await _userManager.RemoveLoginsAsync(userToDelete);
 
-            _usersDbSet.Remove(user);
+            //_usersDbSet.Remove(user);
 
-            await _uow.SaveChangesAsync(userOrg.UserId);
+            //await _uow.SaveChangesAsync(userOrg.UserId);
         }
 
         public async Task<IEnumerable<string>> GetWallUserAppNotificationEnabledIdsAsync(string posterId, int wallId)
         {
-            var newUserAndExternalRoles = await _rolesDbSet
-                .Where(r => r.Name == Contracts.Constants.Roles.NewUser ||
-                            r.Name == Contracts.Constants.Roles.External)
-                .ToListAsync();
+            throw new NotImplementedException();
+            //var newUserAndExternalRoles = await _rolesDbSet
+            //    .Where(r => r.Name == Contracts.Constants.Roles.NewUser ||
+            //                r.Name == Contracts.Constants.Roles.External)
+            //    .ToListAsync();
 
-            var newUserRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.NewUser).Id;
-            var externalRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.External).Id;
+            //var newUserRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.NewUser).Id;
+            //var externalRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.External).Id;
 
-            var wall = await _wallDbSet.SingleAsync(w => w.Id == wallId);
+            //var wall = await _wallDbSet.SingleAsync(w => w.Id == wallId);
 
-            var userAppNotificationEnabledIds = await _usersDbSet
-                .Include(u => u.WallUsers)
-                .Include(u => u.Roles)
-                .Where(user => user.WallUsers.Any(x => x.WallId == wall.Id && x.AppNotificationsEnabled) &&
-                               user.Roles.All(r => r.RoleId != newUserRoleId) &&
-                               user.Id != posterId)
-                .Where(ExternalRoleFilter(wall, externalRoleId))
-                .Select(u => u.Id)
-                .Distinct()
-                .ToListAsync();
+            //var userAppNotificationEnabledIds = await _usersDbSet
+            //    .Include(u => u.WallUsers)
+            //    .Include(u => u.Roles)
+            //    .Where(user => user.WallUsers.Any(x => x.WallId == wall.Id && x.AppNotificationsEnabled) &&
+            //                   user.Roles.All(r => r.RoleId != newUserRoleId) &&
+            //                   user.Id != posterId)
+            //    .Where(ExternalRoleFilter(wall, externalRoleId))
+            //    .Select(u => u.Id)
+            //    .Distinct()
+            //    .ToListAsync();
 
-            return userAppNotificationEnabledIds;
+            //return userAppNotificationEnabledIds;
         }
 
         public async Task<IEnumerable<UserAutoCompleteDto>> GetUsersForAutocompleteAsync(string s, bool includeSelf, UserAndOrganizationDto userOrg)
@@ -204,43 +202,45 @@ namespace Shrooms.Domain.Services.UserService
 
         public async Task<IList<string>> GetWallUsersEmailsAsync(string senderEmail, WallModel wall)
         {
-            var newUserAndExternalRoles = await _rolesDbSet
-                .Where(r => r.Name == Contracts.Constants.Roles.NewUser ||
-                            r.Name == Contracts.Constants.Roles.External)
-                .ToListAsync();
+            throw new NotImplementedException();
+            //var newUserAndExternalRoles = await _rolesDbSet
+            //    .Where(r => r.Name == Contracts.Constants.Roles.NewUser ||
+            //                r.Name == Contracts.Constants.Roles.External)
+            //    .ToListAsync();
 
-            var newUserRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.NewUser).Id;
-            var externalRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.External).Id;
+            //var newUserRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.NewUser).Id;
+            //var externalRoleId = newUserAndExternalRoles.First(r => r.Name == Contracts.Constants.Roles.External).Id;
 
-            var emails = await _usersDbSet
-                .Include(u => u.WallUsers)
-                .Include(u => u.Roles)
-                .Where(user => user.WallUsers.Any(x => x.WallId == wall.Id && x.EmailNotificationsEnabled) &&
-                               user.Roles.All(r => r.RoleId != newUserRoleId) &&
-                               user.Email != senderEmail)
-                .Where(ExternalRoleFilter(wall, externalRoleId))
-                .Select(u => u.Email)
-                .Distinct()
-                .ToListAsync();
+            //var emails = await _usersDbSet
+            //    .Include(u => u.WallUsers)
+            //    .Include(u => u.Roles)
+            //    .Where(user => user.WallUsers.Any(x => x.WallId == wall.Id && x.EmailNotificationsEnabled) &&
+            //                   user.Roles.All(r => r.RoleId != newUserRoleId) &&
+            //                   user.Email != senderEmail)
+            //    .Where(ExternalRoleFilter(wall, externalRoleId))
+            //    .Select(u => u.Email)
+            //    .Distinct()
+            //    .ToListAsync();
 
-            return emails;
+            //return emails;
         }
 
         public async Task<IList<string>> GetUserEmailsWithPermissionAsync(string permissionName, int orgId)
         {
-            var rolesWithPermission = await _rolesDbSet
-                .Include(x => x.Permissions)
-                .Where(r => r.OrganizationId == orgId)
-                .Where(r => r.Permissions.Any(x => x.Name == permissionName))
-                .Select(role => role.Id)
-                .ToListAsync();
+            throw new NotImplementedException();
+            //var rolesWithPermission = await _rolesDbSet
+            //    .Include(x => x.Permissions)
+            //    .Where(r => r.OrganizationId == orgId)
+            //    .Where(r => r.Permissions.Any(x => x.Name == permissionName))
+            //    .Select(role => role.Id)
+            //    .ToListAsync();
 
-            var userEmails = await _usersDbSet
-                .Where(e => e.Roles.Any(x => rolesWithPermission.Contains(x.RoleId)))
-                .Select(x => x.Email)
-                .ToListAsync();
+            //var userEmails = await _usersDbSet
+            //    .Where(e => e.Roles.Any(x => rolesWithPermission.Contains(x.RoleId)))
+            //    .Select(x => x.Email)
+            //    .ToListAsync();
 
-            return userEmails;
+            //return userEmails;
         }
 
         public async Task<UserNotificationsSettingsDto> GetWallNotificationSettingsAsync(UserAndOrganizationDto userOrg)
@@ -337,28 +337,30 @@ namespace Shrooms.Domain.Services.UserService
             await _uow.SaveChangesAsync(userOrg.UserId);
         }
 
-        public async Task<IList<IdentityUserLogin>> GetUserLoginsAsync(string id)
+        public async Task<IList<IdentityUserLogin<string>>> GetUserLoginsAsync(string id)
         {
-            return (await _userManager.FindByIdAsync(id)).Logins.ToList();
+            throw new NotImplementedException();
+            //return (await _userManager.FindByIdAsync(id)).Logins.ToList();
         }
 
         public async Task RemoveLoginAsync(string id, UserLoginInfo loginInfo)
         {
-            await _userManager.RemoveLoginAsync(id, loginInfo);
+            throw new NotImplementedException();
+            //await _userManager.RemoveLoginAsync(id, loginInfo);
 
-            var user = await _usersDbSet.FirstAsync(u => u.Id == id);
+            //var user = await _usersDbSet.FirstAsync(u => u.Id == id);
 
-            if (loginInfo.LoginProvider == "Google")
-            {
-                user.GoogleEmail = null;
-            }
+            //if (loginInfo.LoginProvider == "Google")
+            //{
+            //    user.GoogleEmail = null;
+            //}
 
-            if (loginInfo.LoginProvider == "Facebook")
-            {
-                user.FacebookEmail = null;
-            }
+            //if (loginInfo.LoginProvider == "Facebook")
+            //{
+            //    user.FacebookEmail = null;
+            //}
 
-            await _uow.SaveChangesAsync(id);
+            //await _uow.SaveChangesAsync(id);
         }
 
         public async Task<ApplicationUser> GetApplicationUserAsync(string id)
@@ -418,14 +420,15 @@ namespace Shrooms.Domain.Services.UserService
 
         private static Expression<Func<ApplicationUser, bool>> ExternalRoleFilter(WallModel wall, string externalRoleId)
         {
-            if (wall.Type != WallType.Events)
-            {
-                return user => user.Roles.All(r => r.RoleId != externalRoleId);
-            }
-            else
-            {
-                return user => true;
-            }
+            throw new NotImplementedException();
+            //if (wall.Type != WallType.Events)
+            //{
+            //    return user => user.Roles.All(r => r.RoleId != externalRoleId);
+            //}
+            //else
+            //{
+            //    return user => true;
+            //}
         }
 
         private static void ClearUserKudos(ApplicationUser user)

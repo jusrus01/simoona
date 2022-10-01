@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.RefreshTokens;
@@ -12,7 +12,7 @@ namespace Shrooms.Domain.Services.RefreshTokens
 {
     public class RefreshTokenService : IRefreshTokenService
     {
-        private readonly IDbSet<RefreshToken> _refreshTokensDbSet;
+        private readonly DbSet<RefreshToken> _refreshTokensDbSet;
         private readonly IUnitOfWork2 _uow;
 
         public RefreshTokenService(IUnitOfWork2 uow)
