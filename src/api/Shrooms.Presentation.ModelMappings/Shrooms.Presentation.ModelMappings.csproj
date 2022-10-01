@@ -138,13 +138,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj">
-      <Project>{e690ceb8-f266-441f-8a80-5a3440b3445a}</Project>
-      <Name>Shrooms.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Shrooms.Contracts.DataTransferObjects\Shrooms.Contracts.DataTransferObjects.csproj">
       <Project>{6611930d-880e-455c-8681-e0e2a33cf5a9}</Project>
       <Name>Shrooms.Contracts.DataTransferObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj">
+      <Project>{e690ceb8-f266-441f-8a80-5a3440b3445a}</Project>
+      <Name>Shrooms.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shrooms.DataLayer.EntityModels\Shrooms.DataLayer.EntityModels.csproj">
       <Project>{8ad6f857-708c-4b5e-98bc-b3206e7dd918}</Project>
