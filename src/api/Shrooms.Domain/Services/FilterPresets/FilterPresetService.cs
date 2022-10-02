@@ -132,24 +132,28 @@ namespace Shrooms.Domain.Services.FilterPresets
 
         private IQueryable<FilterDto> GetFiltersQueryByFilterType(FilterType filterType)
         {
-            return filterType switch
+            switch (filterType)
             {
-                FilterType.Offices => _officeDbSet.Select(filter => new FilterDto
-                {
-                    Id = filter.Id,
-                    Name = filter.Name
-                }),
-                FilterType.Kudos => _kudosTypeDbSet.Select(filter => new FilterDto
-                {
-                    Id = filter.Id,
-                    Name = filter.Name
-                }),
-                FilterType.Events => _eventTypeDbSet.Select(filter => new FilterDto
-                {
-                    Id = filter.Id,
-                    Name = filter.Name
-                }),
-                _ => throw new NotImplementedException()
+                case FilterType.Offices:
+                    return _officeDbSet.Select(filter => new FilterDto
+                    {
+                        Id = filter.Id,
+                        Name = filter.Name
+                    });
+                case FilterType.Kudos:
+                    return _kudosTypeDbSet.Select(filter => new FilterDto
+                    {
+                        Id = filter.Id,
+                        Name = filter.Name
+                    });
+                case FilterType.Events:
+                    return _eventTypeDbSet.Select(filter => new FilterDto
+                    {
+                        Id = filter.Id,
+                        Name = filter.Name
+                    });
+                default:
+                    throw new NotImplementedException();
             };
         }
 

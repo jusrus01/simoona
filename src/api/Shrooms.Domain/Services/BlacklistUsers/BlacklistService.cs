@@ -109,7 +109,7 @@ namespace Shrooms.Domain.Services.BlacklistUsers
                 return false;
             }
 
-            var blacklistUser = blacklistUsers.FirstOrDefault(blacklistUser => blacklistUser.Status == BlacklistStatus.Active);
+            var blacklistUser = blacklistUsers.FirstOrDefault(user => user.Status == BlacklistStatus.Active);
 
             if (blacklistUser == null)
             {

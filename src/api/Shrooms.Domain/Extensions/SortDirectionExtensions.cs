@@ -8,12 +8,15 @@ namespace Shrooms.Domain.Extensions
     {
         public static string GetString(this SortDirection sortDirection)
         {
-            return sortDirection switch
+            switch (sortDirection)
             {
-                SortDirection.Ascending => SortDirectionConstants.Ascending,
-                SortDirection.Descending => SortDirectionConstants.Descending,
-                _ => throw new ArgumentException($"Sort direction {sortDirection} is invalid"),
-            };
+                case SortDirection.Ascending:
+                    return SortDirectionConstants.Ascending;
+                case SortDirection.Descending:
+                    return SortDirectionConstants.Descending;
+                default:
+                    throw new ArgumentException($"Sort direction {sortDirection} is invalid");
+            }
         }
     }
 }

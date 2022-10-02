@@ -63,16 +63,17 @@ namespace Shrooms.Domain.Services.Permissions
 
         public async Task<IEnumerable<PermissionGroupDto>> GetGroupNamesAsync(int organizationId)
         {
-            var allPermissions = await GetPermissionsAsync(organizationId);
+            throw new NotImplementedException();
+            //var allPermissions = await GetPermissionsAsync(organizationId);
 
-            return allPermissions
-                .Select(x => new PermissionGroupDto
-                {
-                    Name = x.Name.Split(DataLayerConstants.PermissionSplitter).First().ToLower()
-                })
-                .DistinctBy(x => x.Name)
-                .OrderBy(x => x.Name)
-                .ToList();
+            //return allPermissions
+            //    .Select(x => new PermissionGroupDto
+            //    {
+            //        Name = x.Name.Split(DataLayerConstants.PermissionSplitter).First().ToLower()
+            //    })
+            //    .DistinctBy(x => x.Name)
+            //    .OrderBy(x => x.Name)
+            //    .ToList();
         }
 
         public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId, int organizationId)

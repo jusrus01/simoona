@@ -194,12 +194,15 @@ namespace Shrooms.Infrastructure.ExcelGenerator
 
         private ExcelBorderStyle GetBorderStyle(ExcelBorderStylePicker excelBorder)
         {
-            return excelBorder switch
+            switch (excelBorder)
             {
-                ExcelBorderStylePicker.None => ExcelBorderStyle.None,
-                ExcelBorderStylePicker.Thin => ExcelBorderStyle.Thin,
-                _ => ExcelBorderStyle.None,
-            };
+                case ExcelBorderStylePicker.Thin:
+                    return ExcelBorderStyle.Thin;
+
+                case ExcelBorderStylePicker.None:
+                default:
+                    return ExcelBorderStyle.None;
+            }
         }
 
         private ExcelRange GetColumnRange(IExcelColumnInternal internalColumn)

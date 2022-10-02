@@ -725,26 +725,16 @@
     <Content Include="Service References\Application Insights\ConnectedService.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj">
-      <Project>{E690CEB8-F266-441F-8A80-5A3440B3445A}</Project>
-      <Name>Shrooms.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Shrooms.Resources\Shrooms.Resources.csproj">
-      <Project>{c6fc692b-dfad-4ed5-86d5-8000dbd06b02}</Project>
-      <Name>Shrooms.Resources</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Shrooms.Domain.ServiceValidators\Shrooms.Domain.ServiceValidators.csproj">
-      <Project>{3d4343c8-1cf9-4aab-b458-c2ac52e4a47a}</Project>
-      <Name>Shrooms.Domain.ServiceValidators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Shrooms.Domain\Shrooms.Domain.csproj">
-      <Project>{f75814b0-ade3-4e55-b44d-2ee966c41344}</Project>
-      <Name>Shrooms.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Shrooms.DataLayer\Shrooms.DataLayer.csproj">
-      <Project>{affe7b8b-3294-4dd3-990d-7da5e256c987}</Project>
-      <Name>Shrooms.DataLayer</Name>
-    </ProjectReference>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EmailTemplates\Wall\NewMention.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Shrooms.Authentification\Shrooms.Authentification.csproj">
       <Project>{da661aa0-3313-4c2d-81a9-c1a2b74f7317}</Project>
       <Name>Shrooms.Authentification</Name>
@@ -753,13 +743,29 @@
       <Project>{6611930d-880e-455c-8681-e0e2a33cf5a9}</Project>
       <Name>Shrooms.Contracts.DataTransferObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Shrooms.Domain.Exceptions\Shrooms.Domain.Exceptions.csproj">
-      <Project>{8b48f02f-79e6-45cf-8de3-bf9085d4c3a2}</Project>
-      <Name>Shrooms.Domain.Exceptions</Name>
+    <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj">
+      <Project>{e690ceb8-f266-441f-8a80-5a3440b3445a}</Project>
+      <Name>Shrooms.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shrooms.DataLayer.EntityModels\Shrooms.DataLayer.EntityModels.csproj">
       <Project>{8ad6f857-708c-4b5e-98bc-b3206e7dd918}</Project>
       <Name>Shrooms.DataLayer.EntityModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shrooms.DataLayer\Shrooms.DataLayer.csproj">
+      <Project>{affe7b8b-3294-4dd3-990d-7da5e256c987}</Project>
+      <Name>Shrooms.DataLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shrooms.Domain.Exceptions\Shrooms.Domain.Exceptions.csproj">
+      <Project>{8b48f02f-79e6-45cf-8de3-bf9085d4c3a2}</Project>
+      <Name>Shrooms.Domain.Exceptions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shrooms.Domain.ServiceValidators\Shrooms.Domain.ServiceValidators.csproj">
+      <Project>{3d4343c8-1cf9-4aab-b458-c2ac52e4a47a}</Project>
+      <Name>Shrooms.Domain.ServiceValidators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shrooms.Domain\Shrooms.Domain.csproj">
+      <Project>{f75814b0-ade3-4e55-b44d-2ee966c41344}</Project>
+      <Name>Shrooms.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shrooms.Infrastructure\Shrooms.Infrastructure.csproj">
       <Project>{d9c5606d-3855-44a0-bdb3-98d963d63fcf}</Project>
@@ -777,16 +783,10 @@
       <Project>{1f63d29f-e593-47f0-a304-54d62cc1ad2b}</Project>
       <Name>Shrooms.Presentation.WebViewModels</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
-    <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="EmailTemplates\Wall\NewMention.cshtml" />
+    <ProjectReference Include="..\Shrooms.Resources\Shrooms.Resources.csproj">
+      <Project>{c6fc692b-dfad-4ed5-86d5-8000dbd06b02}</Project>
+      <Name>Shrooms.Resources</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
