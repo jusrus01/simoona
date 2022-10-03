@@ -60,7 +60,7 @@
 //            config.DependencyResolver = new AutofacWebApiDependencyResolver(container);
 
 //            GlobalHost.DependencyResolver = new Autofac.Integration.SignalR.AutofacDependencyResolver(container);
-            
+
 //            ConfigureEmailTemplates();
 
 //            StartBackgroundWorker(app);

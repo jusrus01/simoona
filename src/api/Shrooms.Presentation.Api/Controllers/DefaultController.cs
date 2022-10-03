@@ -1,19 +1,18 @@
-﻿//using System.Net;
-//using System.Net.Http;
-//using System.Web.Http;
-//using Microsoft.AspNetCore.Authorization;
-//using Shrooms.Presentation.Api.Filters;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shrooms.Presentation.Api.Filters;
 
-//namespace Shrooms.Presentation.Api.Controllers
-//{
-//    [AllowAnonymous]
-//    [SkipOrganizationValidationFilter]
-//    public class DefaultController : ApiController
-//    {
-//        [HttpGet]
-//        public HttpResponseMessage Index()
-//        {
-//            return Request.CreateResponse(HttpStatusCode.OK, "API is up and running");
-//        }
-//    }
-//}
+namespace Shrooms.Presentation.Api.Controllers
+{
+    [AllowAnonymous]
+    [SkipOrganizationValidationFilter]
+    [Route("api/Default")]
+    public class DefaultController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return Ok("API is up and running");
+        }
+    }
+}
