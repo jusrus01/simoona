@@ -6,7 +6,7 @@ namespace Shrooms.Presentation.Api.Controllers
 {
     [AllowAnonymous]
     [SkipOrganizationValidationFilter]
-    [Route("api/Default")]
+    [Route("Default")]
     public class DefaultController : ControllerBase
     {
         [HttpGet]
