@@ -4,7 +4,124 @@
 		<RootNamespace>Shrooms.Presentation.Api</RootNamespace>
 		<AssemblyName>Shrooms.Presentation.Api</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Remove="EmailTemplates\AdministrationUsers\NotificationAboutNewUser.cshtml" />
+	  <Content Remove="EmailTemplates\AdministrationUsers\UserConfirmation.cshtml" />
+	  <Content Remove="EmailTemplates\AdministrationUsers\UserResetPassword.cshtml" />
+	  <Content Remove="EmailTemplates\AdministrationUsers\UserVerifyEmail.cshtml" />
+	  <Content Remove="EmailTemplates\BirthdaysNotification.cshtml" />
+	  <Content Remove="EmailTemplates\Books\BookRemind.cshtml" />
+	  <Content Remove="EmailTemplates\Books\BookReport.cshtml" />
+	  <Content Remove="EmailTemplates\Books\BookTaken.cshtml" />
+	  <Content Remove="EmailTemplates\Committees\CommitteesSuggestion.cshtml" />
+	  <Content Remove="EmailTemplates\Events\CoacheeJoinedEvent.cshtml" />
+	  <Content Remove="EmailTemplates\Events\CoacheeLeftEvent.cshtml" />
+	  <Content Remove="EmailTemplates\Events\CoacheeToCoachEventJoin.cshtml" />
+	  <Content Remove="EmailTemplates\Events\ParticipantExpelled.cshtml" />
+	  <Content Remove="EmailTemplates\Events\RemindToJoin.cshtml" />
+	  <Content Remove="EmailTemplates\HeaderFooter.cshtml" />
+	  <Content Remove="EmailTemplates\Kudos\KudosDecreased.cshtml" />
+	  <Content Remove="EmailTemplates\Kudos\KudosReceived.cshtml" />
+	  <Content Remove="EmailTemplates\Kudos\KudosRejected.cshtml" />
+	  <Content Remove="EmailTemplates\Kudos\KudosSent.cshtml" />
+	  <Content Remove="EmailTemplates\Lotteries\StartedLottery.cshtml" />
+	  <Content Remove="EmailTemplates\LoyaltyKudos\LoyaltyKudosDecreased.cshtml" />
+	  <Content Remove="EmailTemplates\LoyaltyKudos\LoyaltyKudosReceived.cshtml" />
+	  <Content Remove="EmailTemplates\ServiceRequests\NewServiceRequest.cshtml" />
+	  <Content Remove="EmailTemplates\ServiceRequests\ServiceRequestComment.cshtml" />
+	  <Content Remove="EmailTemplates\ServiceRequests\UpdateServiceRequest.cshtml" />
+	  <Content Remove="EmailTemplates\Wall\NewComment.cshtml" />
+	  <Content Remove="EmailTemplates\Wall\NewMention.cshtml" />
+	  <Content Remove="EmailTemplates\Wall\NewPost.cshtml" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="EmailTemplates\AdministrationUsers\NotificationAboutNewUser.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\AdministrationUsers\UserConfirmation.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\AdministrationUsers\UserResetPassword.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\AdministrationUsers\UserVerifyEmail.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\BirthdaysNotification.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Books\BookRemind.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Books\BookReport.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Books\BookTaken.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Committees\CommitteesSuggestion.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Events\CoacheeJoinedEvent.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Events\CoacheeLeftEvent.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Events\CoacheeToCoachEventJoin.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Events\ParticipantExpelled.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Events\RemindToJoin.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\HeaderFooter.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Kudos\KudosDecreased.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Kudos\KudosReceived.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Kudos\KudosRejected.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Kudos\KudosSent.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Lotteries\StartedLottery.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\LoyaltyKudos\LoyaltyKudosDecreased.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\LoyaltyKudos\LoyaltyKudosReceived.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\ServiceRequests\NewServiceRequest.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\ServiceRequests\ServiceRequestComment.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\ServiceRequests\UpdateServiceRequest.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Wall\NewComment.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Wall\NewMention.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="EmailTemplates\Wall\NewPost.cshtml">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.9" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
