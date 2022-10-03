@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using Hangfire.Annotations;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -37,8 +38,9 @@ namespace Shrooms.Presentation.Api.GeneralCode
 
                 if (connectionString != null)
                 {
-                    var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
-                    _backgroundJobsDbName = builder.InitialCatalog;
+                    throw new NotImplementedException();
+                    //var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+                    //_backgroundJobsDbName = builder.InitialCatalog;
                 }
 
                 return _backgroundJobsDbName;

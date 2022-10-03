@@ -3,23 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Web.Http;
+//using System.Web.Http;
 using Autofac;
-using Autofac.Integration.SignalR;
-using Autofac.Integration.WebApi;
+//using Autofac.Integration.SignalR;
+//using Autofac.Integration.WebApi;
 using AutoMapper;
-using Autofac.Extensions.DependencyInjection;
+//using Autofac.Extensions.DependencyInjection;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin.Security.DataProtection;
+//using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json;
-using Owin;
+//using Owin;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.DAL;
+//using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Email.Posting;
 using Shrooms.Domain.Services.Organizations;
@@ -133,58 +135,58 @@ namespace Shrooms.IoC
             builder.Populate(serviceCollection);
         }
 
-        private static void RegisterExtensions(ContainerBuilder builder, ILogger logger)
-        {
-            var extensionsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Extensions");
+        //private static void RegisterExtensions(ContainerBuilder builder, ILogger logger)
+        //{
+        //    var extensionsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Extensions");
 
-            if (!Directory.Exists(extensionsPath))
-            {
-                logger.Error(new DirectoryNotFoundException("Extension directory does not exist"));
+        //    if (!Directory.Exists(extensionsPath))
+        //    {
+        //        logger.Error(new DirectoryNotFoundException("Extension directory does not exist"));
 
-                return;
-            }
+        //        return;
+        //    }
 
-            var files = Directory.GetFiles(extensionsPath, "*.dll", SearchOption.AllDirectories);
+        //    var files = Directory.GetFiles(extensionsPath, "*.dll", SearchOption.AllDirectories);
 
-            foreach (var dll in files)
-            {
-                try
-                {
-                    var assembly = Assembly.LoadFrom(dll);
+        //    foreach (var dll in files)
+        //    {
+        //        try
+        //        {
+        //            var assembly = Assembly.LoadFrom(dll);
 
-                    builder.RegisterAssemblyTypes(assembly);
-                    builder.RegisterAssemblyTypes(assembly).AssignableTo(typeof(Profile)).As<Profile>();
-                    builder.RegisterAssemblyModules(assembly);
-                    builder.RegisterApiControllers(assembly);
-                }
-                catch (FileLoadException loadException)
-                {
-                    logger.Error(loadException);
-                }
-                catch (BadImageFormatException formatException)
-                {
-                    logger.Error(formatException);
-                }
-                catch (ArgumentNullException nullException)
-                {
-                    logger.Error(nullException);
-                }
-            }
+        //            builder.RegisterAssemblyTypes(assembly);
+        //            builder.RegisterAssemblyTypes(assembly).AssignableTo(typeof(Profile)).As<Profile>();
+        //            builder.RegisterAssemblyModules(assembly);
+        //            builder.RegisterApiControllers(assembly);
+        //        }
+        //        catch (FileLoadException loadException)
+        //        {
+        //            logger.Error(loadException);
+        //        }
+        //        catch (BadImageFormatException formatException)
+        //        {
+        //            logger.Error(formatException);
+        //        }
+        //        catch (ArgumentNullException nullException)
+        //        {
+        //            logger.Error(nullException);
+        //        }
+        //    }
 
-            // Needed for Hangfire to process jobs from extension assemblies
-            AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
-            {
-                var assemblyName = new AssemblyName(args.Name);
-                var existing = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(c => c.FullName == assemblyName.FullName);
+        //    // Needed for Hangfire to process jobs from extension assemblies
+        //    AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+        //    {
+        //        var assemblyName = new AssemblyName(args.Name);
+        //        var existing = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(c => c.FullName == assemblyName.FullName);
 
-                if (existing != null)
-                {
-                    return existing;
-                }
+        //        if (existing != null)
+        //        {
+        //            return existing;
+        //        }
 
-                return null;
-            };
-        }
+        //        return null;
+        //    };
+        //}
 
         private static void RegisterMapper(ContainerBuilder builder)
         {

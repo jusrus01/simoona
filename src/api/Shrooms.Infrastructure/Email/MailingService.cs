@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Net.Configuration;
+﻿using System;
+//using System.Net.Configuration;
 using System.Net.Mail;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Configuration;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Shrooms.Contracts.DataTransferObjects;
@@ -22,50 +20,52 @@ namespace Shrooms.Infrastructure.Email
 
         public static bool HasSmtpServerConfigured(string appPath)
         {
-            var config = WebConfigurationManager.OpenWebConfiguration(appPath);
-            var settings = (MailSettingsSectionGroup)config.GetSectionGroup("system.net/mailSettings");
-            if (settings?.Smtp == null)
-            {
-                return false;
-            }
+            throw new NotImplementedException();
+            //var config = WebConfigurationManager.OpenWebConfiguration(appPath);
+            //var settings = (MailSettingsSectionGroup)config.GetSectionGroup("system.net/mailSettings");
+            //if (settings?.Smtp == null)
+            //{
+            //    return false;
+            //}
 
-            if (settings.Smtp.SpecifiedPickupDirectory != null && string.IsNullOrEmpty(settings.Smtp.SpecifiedPickupDirectory.PickupDirectoryLocation) == false)
-            {
-                return true;
-            }
+            //if (settings.Smtp.SpecifiedPickupDirectory != null && string.IsNullOrEmpty(settings.Smtp.SpecifiedPickupDirectory.PickupDirectoryLocation) == false)
+            //{
+            //    return true;
+            //}
 
-            if (settings.Smtp.Network != null && string.IsNullOrEmpty(settings.Smtp.Network.Host) == false)
-            {
-                return true;
-            }
+            //if (settings.Smtp.Network != null && string.IsNullOrEmpty(settings.Smtp.Network.Host) == false)
+            //{
+            //    return true;
+            //}
 
-            return false;
+            //return false;
         }
         
         public async Task SendEmailAsync(EmailDto email, bool skipDomainChange = false)
         {
-            if (!HasSmtpServerConfigured(HttpRuntime.AppDomainAppVirtualPath))
-            {
-                return;
-            }
+            throw new NotImplementedException();
+            //if (!HasSmtpServerConfigured(HttpRuntime.AppDomainAppVirtualPath))
+            //{
+            //    return;
+            //}
 
-            if (!email.Receivers.Any())
-            {
-                return;
-            }
+            //if (!email.Receivers.Any())
+            //{
+            //    return;
+            //}
 
-            using (var client = new SmtpClient())
-            {
-                try
-                {
-                    var message = BuildMessage(email, skipDomainChange);
-                    await client.SendMailAsync(message);
-                }
-                catch (SmtpException ex)
-                {
-                    LogSendFailure(ex);
-                }
-            }
+            //using (var client = new SmtpClient())
+            //{
+            //    try
+            //    {
+            //        var message = BuildMessage(email, skipDomainChange);
+            //        await client.SendMailAsync(message);
+            //    }
+            //    catch (SmtpException ex)
+            //    {
+            //        LogSendFailure(ex);
+            //    }
+            //}
         }
 
         private string ChangeEmailDomain(string senderEmail, string senderFullName)
