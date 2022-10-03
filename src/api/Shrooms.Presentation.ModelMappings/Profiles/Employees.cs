@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Shrooms.Contracts.DataTransferObjects.Employees;
 using Shrooms.Presentation.WebViewModels.Models.Employees;
-using System;
 
 namespace Shrooms.Presentation.ModelMappings.Profiles
 {
     public class Employees : Profile
     {
-        protected override void Configure()
+        public Employees()
         {
             CreateViewModelToDtoMappings();
             CreateDtoToViewModelMappings();

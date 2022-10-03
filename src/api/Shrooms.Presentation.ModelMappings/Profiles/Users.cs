@@ -9,7 +9,7 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
 {
     public class Users : Profile
     {
-        protected override void Configure()
+        public Users()
         {
             CreateDtoToViewModelMappings();
             CreateViewModelToDtoMappings();

@@ -9,7 +9,6 @@ using Shrooms.Contracts.ViewModels.User;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
 using Shrooms.DataLayer.EntityModels.Models.Projects;
-using Shrooms.Presentation.ModelMappings.Resolvers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.Certificate;
 using Shrooms.Presentation.WebViewModels.Models.ChangeProfile;
@@ -26,7 +25,7 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
 {
     public class Other : Profile
     {
-        protected override void Configure()
+        public Other()
         {
             CreateViewModelMappings();
             CreateApplicationUserModelMappings();
@@ -62,7 +61,7 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
         private void CreateAdministrationMappings()
         {
             CreateMap<ApplicationUser, AdministrationUserDto>()
-                .ForMember(dest => dest.HasRoom, opt => opt.ResolveUsing(new AdministrationUserRoomResolver()))
+                .ForMember(dest => dest.HasRoom, opt => opt.MapFrom(u => u.RoomId != null && u.RoomId > 0))
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(u => u.JobPosition.Title));
 
             CreateMap<Project, AdministrationProjectDto>();

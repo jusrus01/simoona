@@ -6,11 +6,11 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
 {
     public class Roles : Profile
     {
-        protected override void Configure()
+        public Roles()
         {
             CreateDtoToViewModelMappings();
         }
-
+        
         private void CreateDtoToViewModelMappings()
         {
             CreateMap<RoleDto, RoleViewModel>();

@@ -1,20 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 		<RootNamespace>Shrooms.Presentation.ModelMappings</RootNamespace>
 		<AssemblyName>Shrooms.Presentation.ModelMappings</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="10.1.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
-		<PackageReference Include="X.PagedList" Version="8.1.0" />
+	  <PackageReference Include="AutoMapper" Version="12.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Shrooms.Contracts.DataTransferObjects\Shrooms.Contracts.DataTransferObjects.csproj" />
-	  <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
 	  <ProjectReference Include="..\Shrooms.DataLayer.EntityModels\Shrooms.DataLayer.EntityModels.csproj" />
+	  <ProjectReference Include="..\Shrooms.Presentation.Api\Shrooms.Presentation.Api.csproj" />
 	  <ProjectReference Include="..\Shrooms.Presentation.WebViewModels\Shrooms.Presentation.WebViewModels.csproj" />
 	</ItemGroup>
 </Project>
