@@ -1,17 +1,39 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Shrooms.Presentation.Api.Configurations;
+﻿//using Autofac;
+//using Autofac.Extensions.DependencyInjection;
+//using Microsoft.AspNetCore.Builder;
+//using Shrooms.Presentation.Api;
 
+//var builder = WebApplication.CreateBuilder(args);
+//var startup = new Startup(builder.Configuration);
 
-var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
-builder.Services.AddControllers();
+//builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+//builder.Host.ConfigureContainer<ContainerBuilder>(startup.ConfigureContainer);
+//builder.Host.ConfigureServices(startup.ConfigureServices);
 
-var app = builder.Build();
+//var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//startup.Configure(app, builder.Environment);
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
-app.UseAuthorization();
-app.MapControllerRoutes();
+namespace Shrooms.Presentation.Api
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-app.Run();
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>Shrooms.Presentation.Api</RootNamespace>
 		<AssemblyName>Shrooms.Presentation.Api</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -123,12 +123,14 @@
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="6.0.9" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
 	  <ProjectReference Include="..\Shrooms.Domain\Shrooms.Domain.csproj" />
+	  <ProjectReference Include="..\Shrooms.IoC\Shrooms.IoC.csproj" />
 	  <ProjectReference Include="..\Shrooms.Presentation.WebViewModels\Shrooms.Presentation.WebViewModels.csproj" />
 	</ItemGroup>
 </Project>

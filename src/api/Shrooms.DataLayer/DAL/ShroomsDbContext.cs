@@ -59,7 +59,7 @@ namespace Shrooms.DataLayer.DAL
         {
             _httpContextAccessor = httpContextAccessor;
 
-            ChangeTracker.LazyLoadingEnabled = false;
+            //ChangeTracker.LazyLoadingEnabled = false;
         }
 
 

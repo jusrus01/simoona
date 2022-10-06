@@ -1,54 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-//using System.Web.Http;
-using Autofac;
-//using Autofac.Integration.SignalR;
-//using Autofac.Integration.WebApi;
+﻿using Autofac;
 using AutoMapper;
-//using Autofac.Extensions.DependencyInjection;
-using Hangfire;
 using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-//using Microsoft.Owin.Security.DataProtection;
-using Newtonsoft.Json;
-//using Owin;
-using Shrooms.Contracts.DAL;
-using Shrooms.Contracts.Infrastructure;
-using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.DAL;
-//using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Email.Posting;
-using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Permissions;
-using Shrooms.Domain.Services.Projects;
-using Shrooms.Domain.Services.SyncTokens;
-using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
-using Shrooms.Infrastructure.Email;
-using Shrooms.Infrastructure.Email.Cache;
+using Autofac.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using System;
 using Shrooms.Infrastructure.FireAndForget;
-using Shrooms.Infrastructure.Interceptors;
-using Shrooms.Infrastructure.Logger;
+using Shrooms.Contracts.DAL;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Autofac.Core.Resolving.Pipeline;
 using Shrooms.IoC.Modules;
 
 namespace Shrooms.IoC
 {
-    public static class IocBootstrapper
+    // Executes once after a request is made (and configs execute based on lifetime...)
+    public class IocBootstrapperModule : Autofac.Module
     {
+        private readonly IConfiguration _configuration;
+
+        public IocBootstrapperModule(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        protected override void Load(ContainerBuilder builder)
+        {
+            builder.RegisterModule(new ContextModule(_configuration));
+            builder.RegisterModule(new MapperModule());
+        }
+
         //public static IContainer Bootstrap(IAppBuilder app, Func<string> getConnectionStringName, HttpConfiguration config)
         //{
         //    var builder = new ContainerBuilder();
         //    var shroomsApi = Assembly.Load("Shrooms.Presentation.Api");
         //    var dataLayer = Assembly.Load("Shrooms.DataLayer");
         //    var modelMappings = Assembly.Load("Shrooms.Presentation.ModelMappings");
-            
+
         //    RegisterIdentityDbContext(builder, getConnectionStringName);
-            
+
         //    var settings = new JsonSerializerSettings();
         //    settings.ContractResolver = new SignalRContractResolver();
         //    var serializer = JsonSerializer.Create(settings);
@@ -57,7 +51,7 @@ namespace Shrooms.IoC
 
         //    builder.RegisterAssemblyTypes(shroomsApi).Where(t => typeof(IBackgroundWorker).IsAssignableFrom(t)).InstancePerDependency().AsSelf();
         //    builder.RegisterType<AsyncRunner>().As<IAsyncRunner>().SingleInstance();
-            
+
         //    // Email templates
         //    builder.RegisterType<MailTemplateCache>().As<IMailTemplateCache>().SingleInstance();
         //    builder.RegisterType<EmailTemplateConfiguration>().As<IEmailTemplateConfiguration>().SingleInstance();
@@ -113,28 +107,6 @@ namespace Shrooms.IoC
         //    return container;
         //}
 
-        //private static void RegisterIdentityDbContext(ContainerBuilder builder, Func<string> getConnectionStringName)
-        //{
-        //    const string connectionStringTemp = @"Data Source=LT-LIT-SC-0879\SQLEXPRESS;Integrated Security=True;Connect Timeout=60; MultipleActiveResultSets=True;Database=SimoonaDbClone"; // TODO: take from Web.config
-
-        //    var serviceCollection = new ServiceCollection();
-
-        //    var connectionString = System.Web.HttpContext.Current == null ?
-        //            connectionStringTemp :
-        //            getConnectionStringName();
-
-        //    serviceCollection.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
-
-        //    serviceCollection.AddDbContext<IDbContext, ShroomsDbContext>(options =>
-        //        options.UseSqlServer(connectionString, serverOptions => 
-        //            serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null)));
-
-        //    serviceCollection.AddIdentity<ApplicationUser, ApplicationRole>()
-        //        .AddEntityFrameworkStores<ShroomsDbContext>(); // If this fails, maybe IDbContext should be there instead
-
-        //    builder.Populate(serviceCollection);
-        //}
-
         //private static void RegisterExtensions(ContainerBuilder builder, ILogger logger)
         //{
         //    var extensionsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Extensions");
@@ -186,23 +158,6 @@ namespace Shrooms.IoC
 
         //        return null;
         //    };
-        //}
-
-        //private static void RegisterMapper(ContainerBuilder builder)
-        //{
-        //    builder.Register(c => new MapperConfiguration(cfg =>
-        //        {
-        //            foreach (var profile in c.Resolve<IEnumerable<Profile>>())
-        //            {
-        //                cfg.AddProfile(profile);
-        //            }
-        //        }))
-        //        .AsSelf().SingleInstance();
-
-        //    builder.Register(c => c.Resolve<MapperConfiguration>()
-        //            .CreateMapper(c.Resolve))
-        //        .As<IMapper>()
-        //        .SingleInstance();
         //}
     }
 }

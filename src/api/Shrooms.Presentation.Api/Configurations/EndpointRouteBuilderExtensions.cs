@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Shrooms.Presentation.Api.Configurations
 {
-    public static class ConfigurationExtensions
+    public static class EndpointRouteBuilderExtensions
     {
         public static void MapControllerRoutes(this IEndpointRouteBuilder endpoints)
         {
@@ -23,7 +23,7 @@ namespace Shrooms.Presentation.Api.Configurations
 //                routeTemplate: "{controller}/{action}/{id}",
 //                defaults: new { controller = "Default", action = "Index", id = RouteParameter.Optional });
             endpoints.MapControllerRoute(
-                name: "default",
+                name: "DefaultApi",
                 pattern: "{controller}/{action}/{id?}", // TODO: Configure IIS so we would get api/
                 defaults: new { controller = "Default", action = "Index" });
 
