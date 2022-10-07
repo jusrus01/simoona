@@ -5,10 +5,12 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Presentation.Api.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Shrooms.Contracts.Constants;
 
 namespace Shrooms.Presentation.Api.Controllers
 {
     [AllowAnonymous]
+    //[Authorize(Policy = PolicyConstants.BasicPolicy)]
     [SkipOrganizationValidationFilter]
     [Route("Default")]
     public class DefaultController : ControllerBase

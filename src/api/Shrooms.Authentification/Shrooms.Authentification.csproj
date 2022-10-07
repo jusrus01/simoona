@@ -5,4 +5,13 @@
 		<AssemblyName>Shrooms.Authentication</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Metadata" Version="6.0.9" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Shrooms.Contracts\Shrooms.Contracts.csproj" />
+	  <ProjectReference Include="..\Shrooms.Domain\Shrooms.Domain.csproj" />
+	  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 </Project>

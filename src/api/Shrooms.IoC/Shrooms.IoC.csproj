@@ -13,6 +13,7 @@
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\Shrooms.Authentification\Shrooms.Authentification.csproj" />
 	  <ProjectReference Include="..\Shrooms.DataLayer\Shrooms.DataLayer.csproj" />
 	  <ProjectReference Include="..\Shrooms.Domain\Shrooms.Domain.csproj" />
 	</ItemGroup>

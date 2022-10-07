@@ -2,13 +2,21 @@
 using System.Configuration;
 using System.IO;
 using System.Web;
+using Microsoft.Extensions.Configuration;
 using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Infrastructure.Configuration
 {
     public class ApplicationSettings : IApplicationSettings
     {
-        public string StorageConnectionString => ConfigurationManager.ConnectionStrings["StorageConnectionString"].ConnectionString;
+        private readonly IConfiguration _configuration;
+
+        public ApplicationSettings(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public string StorageConnectionString => _configuration.GetConnectionString("StorageConnectionString");
 
         public bool IsEmailEnabled => bool.Parse(ConfigurationManager.AppSettings["EmailEnabled"]);
 
@@ -24,9 +32,9 @@ namespace Shrooms.Infrastructure.Configuration
 
         public string ClientUrl => string.Format(ConfigurationManager.AppSettings["ClientUrl"]);
 
-        public string BasicUsername => ConfigurationManager.AppSettings["BasicUsername"];
+        public string BasicUsername => _configuration.GetSection("BasicUsername").Get<string>();
 
-        public string BasicPassword => ConfigurationManager.AppSettings["BasicPassword"];
+        public string BasicPassword => _configuration.GetSection("BasicPassword").Get<string>();
 
         public string CorsOriginsSetting => ConfigurationManager.AppSettings["CorsOriginsSettingKey"];
 

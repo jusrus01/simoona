@@ -1,36 +1,31 @@
 ﻿using Autofac;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Shrooms.DataLayer.DAL;
-using Shrooms.DataLayer.EntityModels.Models;
-using Autofac.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using System;
-using Shrooms.Infrastructure.FireAndForget;
-using Shrooms.Contracts.DAL;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Autofac.Core.Resolving.Pipeline;
+using Shrooms.Authentification.Handlers;
+using Shrooms.Contracts.Infrastructure;
+using Shrooms.Domain.Services.Organizations;
+using Shrooms.Domain.Services.Permissions;
+using Shrooms.Domain.Services.Roles;
+using Shrooms.Infrastructure.Configuration;
+using Shrooms.Infrastructure.CustomCache;
+using Shrooms.Infrastructure.Interceptors;
 using Shrooms.IoC.Modules;
+using System.Collections.Generic;
 
 namespace Shrooms.IoC
 {
     // Executes once after a request is made (and configs execute based on lifetime...)
-    public class IocBootstrapperModule : Autofac.Module
+    public class IocBootstrapperModule : Module
     {
-        private readonly IConfiguration _configuration;
-
-        public IocBootstrapperModule(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterModule(new ContextModule(_configuration));
+            builder.Register(_ => new TelemetryLoggingInterceptor());
+
+            builder.RegisterModule(new InfrastructureModule());
+            builder.RegisterModule(new ContextModule());
+            builder.RegisterModule(new RoleModule());
+            builder.RegisterModule(new ServicesModule());
+            builder.RegisterModule(new AuthenticationModule());
+            builder.RegisterModule(new EmailModule());
             builder.RegisterModule(new MapperModule());
         }
 

@@ -11,13 +11,6 @@ namespace Shrooms.IoC.Modules
 {
     public class ContextModule : Module
     {
-        private readonly IConfiguration _configuration;
-
-        public ContextModule(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<HttpContextAccessor>()
@@ -58,29 +51,28 @@ namespace Shrooms.IoC.Modules
                 // Middleware sets TenantContainer with appropriate organization name
                 var tenantContainer = contextBuilder.Resolve<ITenantNameContainer>();
 
-                var tenantName = tenantContainer.TenantName == null ?
-                    "" :
-                    _configuration.GetConnectionString(tenantContainer.TenantName);
+                if (tenantContainer.TenantName == null)
+                {
+                    throw new Exception("Organization name was not provided for this request");
+                }
 
-                var connectionString = _configuration.GetConnectionString(tenantName) ?? string.Empty;
+                var configuration = contextBuilder.Resolve<IConfiguration>();
+                var connectionString = configuration.GetConnectionString(tenantContainer.TenantName);
+
+                if (connectionString == null)
+                {
+                    throw new Exception("Invalid organization");
+                }
 
                 var serviceProvider = contextBuilder.Resolve<IServiceProvider>();
-                var configuration = contextBuilder.Resolve<IConfiguration>();
 
-                try
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder<ShroomsDbContext>()
-                                       .UseApplicationServiceProvider(serviceProvider)
-                                       .UseSqlServer(
-                                           connectionString,
-                                           serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));
+                var optionsBuilder = new DbContextOptionsBuilder<ShroomsDbContext>()
+                                   .UseApplicationServiceProvider(serviceProvider)
+                                   .UseSqlServer(
+                                       connectionString,
+                                       serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));
 
-                    return optionsBuilder.Options;
-                }
-                catch (ArgumentException e)
-                {
-                    throw new Exception($"Error {e.Message} should not happen. Make sure that request contains correct Organization header.");
-                }
+                return optionsBuilder.Options;
             });
 
             builder.Register(context => context.Resolve<DbContextOptions<ShroomsDbContext>>())

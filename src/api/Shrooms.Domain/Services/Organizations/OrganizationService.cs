@@ -109,6 +109,13 @@ namespace Shrooms.Domain.Services.Organizations
                 .FirstAsync();
         }
 
+        public async Task<bool> HasOrganizationAsync(string organizationName)
+        {
+            return await _organizationsDbSet.AnyAsync(organization => 
+                organization.ShortName == organizationName || 
+                organization.Name == organizationName);
+        }
+
         public async Task<UserDto> GetManagingDirectorAsync(int organizationId)
         {
             var managingDirector = await _usersDbSet

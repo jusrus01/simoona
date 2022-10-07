@@ -48,14 +48,19 @@
 //    }
 //}
 using Autofac;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shrooms.Authentification.Handlers;
+using Shrooms.Contracts.Constants;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.IoC;
 using Shrooms.Presentation.Api.Configurations;
+using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
 
 namespace Shrooms.Presentation.Api
 {
@@ -70,11 +75,22 @@ namespace Shrooms.Presentation.Api
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new IocBootstrapperModule(Configuration));
+            builder.RegisterModule(new IocBootstrapperModule());
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Telemetry.Configure(Configuration);
+            SerializationIgnoreConfigs.Configure();
+
+            services.AddAuthentication()
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null);
+            
+            services.AddAuthorization(options =>
+            {
+                options.AddBasicPolicy();
+            });
+
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ShroomsDbContext>();
 
@@ -85,6 +101,7 @@ namespace Shrooms.Presentation.Api
         {
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
