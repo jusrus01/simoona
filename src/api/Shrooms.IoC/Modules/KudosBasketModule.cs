@@ -9,8 +9,8 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<KudosBasketValidator>().As<IKudosBasketValidator>().InstancePerRequest();
-            builder.RegisterType<KudosBasketService>().As<IKudosBasketService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<KudosBasketValidator>().As<IKudosBasketValidator>().InstancePerLifetimeScope();
+            builder.RegisterType<KudosBasketService>().As<IKudosBasketService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }
     }
 }

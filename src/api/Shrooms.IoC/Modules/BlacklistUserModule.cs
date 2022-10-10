@@ -10,11 +10,11 @@ namespace Shrooms.IoC.Modules
         {
             builder.RegisterType<BlacklistService>()
                 .As<IBlacklistService>()
-                .InstancePerRequest();
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<BlacklistValidator>()
                 .As<IBlacklistValidator>()
-                .InstancePerRequest();
+                .InstancePerLifetimeScope();
         }
     }
 }

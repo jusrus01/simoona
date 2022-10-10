@@ -10,7 +10,7 @@ namespace Shrooms.IoC.Modules
         {
             builder.RegisterType<EmployeeListingService>()
                 .As<IEmployeeListingService>()
-                .InstancePerRequest()
+                .InstancePerLifetimeScope()
                 .EnableInterfaceTelemetryInterceptor();
         }
     }

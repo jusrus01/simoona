@@ -49,6 +49,7 @@
 //}
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -83,16 +84,24 @@ namespace Shrooms.Presentation.Api
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
 
-            services.AddAuthentication()
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null);
-            
-            services.AddAuthorization(options =>
-            {
-                options.AddBasicPolicy();
-            });
-
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ShroomsDbContext>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null)
+            .AddJwtBearer();
+
+            // .AspNet.Cookie? automatically?
+            // https://learn.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-6.0 
+            services.AddAuthorization(options =>
+            {
+                options.AddBearerAsDefault();
+                options.AddBasicPolicy();
+            });
 
             services.AddControllers();
         }

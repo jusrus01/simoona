@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Infrastructure;
@@ -7,17 +8,33 @@ using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Roles;
 using Shrooms.Infrastructure.Configuration;
 using Shrooms.Infrastructure.CustomCache;
+using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.IoC.Modules;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Shrooms.IoC
 {
     // Executes once after a request is made (and configs execute based on lifetime...)
-    public class IocBootstrapperModule : Module
+    public class IocBootstrapperModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
+            var shroomsApi = Assembly.Load("Shrooms.Presentation.Api");
+            var dataLayer = Assembly.Load("Shrooms.DataLayer");
+
+            var modelMappings = Assembly.Load("Shrooms.Presentation.ModelMappings");
+
+            builder.RegisterAssemblyTypes(dataLayer);
+            builder.RegisterAssemblyTypes(modelMappings).AssignableTo(typeof(Profile)).As<Profile>();
+            builder.RegisterAssemblyTypes(shroomsApi).Where(t => typeof(IBackgroundWorker).IsAssignableFrom(t)).InstancePerDependency().AsSelf();
+            
+            builder.RegisterType<AsyncRunner>().As<IAsyncRunner>().SingleInstance();
+
             builder.Register(_ => new TelemetryLoggingInterceptor());
 
             builder.RegisterModule(new InfrastructureModule());
@@ -27,6 +44,19 @@ namespace Shrooms.IoC
             builder.RegisterModule(new AuthenticationModule());
             builder.RegisterModule(new EmailModule());
             builder.RegisterModule(new MapperModule());
+
+            builder.RegisterModule(new WallModule());
+            builder.RegisterModule(new KudosModule());
+            builder.RegisterModule(new KudosBasketModule());
+            builder.RegisterModule(new WebHookCallbacksModule());
+            builder.RegisterModule(new RefreshTokenModule());
+            builder.RegisterModule(new ExternalLinksModule());
+            builder.RegisterModule(new SupportModule());
+            builder.RegisterModule(new AdministrationUsers());
+            builder.RegisterModule(new JobModule());
+            builder.RegisterModule(new FilterPresetModule());
+            builder.RegisterModule(new BlacklistUserModule());
+            builder.RegisterModule(new EmployeeModule());
         }
 
         //public static IContainer Bootstrap(IAppBuilder app, Func<string> getConnectionStringName, HttpConfiguration config)

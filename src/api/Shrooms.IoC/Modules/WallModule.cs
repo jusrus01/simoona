@@ -12,13 +12,13 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PostService>().As<IPostService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
-            builder.RegisterType<CommentService>().As<ICommentService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<PostService>().As<IPostService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<CommentService>().As<ICommentService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
 
-            builder.RegisterType<WallService>().As<IWallService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
-            builder.RegisterType<WallValidator>().As<IWallValidator>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<WallService>().As<IWallService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<WallValidator>().As<IWallValidator>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
 
-            builder.RegisterType<BirthdayService>().As<IBirthdayService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<BirthdayService>().As<IBirthdayService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }
     }
 }

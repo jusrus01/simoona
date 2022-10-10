@@ -11,11 +11,11 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<BirthdaysNotificationWebHookService>().As<IBirthdaysNotificationWebHookService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
-            builder.RegisterType<UsersAnonymizationWebHookService>().As<IUsersAnonymizationWebHookService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
-            builder.RegisterType<BlacklistUserStatusChangeWebHookService>().As<IBlacklistUserStatusChangeWebHookService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<BirthdaysNotificationWebHookService>().As<IBirthdaysNotificationWebHookService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<UsersAnonymizationWebHookService>().As<IUsersAnonymizationWebHookService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<BlacklistUserStatusChangeWebHookService>().As<IBlacklistUserStatusChangeWebHookService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
 
-            builder.RegisterType<WebHookCallbackServices>().As<IWebHookCallbackServices>().InstancePerRequest().PropertiesAutowired().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<WebHookCallbackServices>().As<IWebHookCallbackServices>().InstancePerLifetimeScope().PropertiesAutowired().EnableInterfaceTelemetryInterceptor();
         }
     }
 }

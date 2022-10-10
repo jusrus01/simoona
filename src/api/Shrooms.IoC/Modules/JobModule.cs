@@ -8,7 +8,7 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<JobService>().As<IJobService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<JobService>().As<IJobService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }
     }
 }

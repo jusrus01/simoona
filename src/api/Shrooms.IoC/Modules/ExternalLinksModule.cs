@@ -8,7 +8,7 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<ExternalLinkService>().As<IExternalLinkService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<ExternalLinkService>().As<IExternalLinkService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }
     }
 }

@@ -11,12 +11,12 @@ namespace Shrooms.IoC.Modules
         {
             builder.RegisterType<FilterPresetService>()
                 .As<IFilterPresetService>()
-                .InstancePerRequest()
+                .InstancePerLifetimeScope()
                 .EnableInterfaceTelemetryInterceptor();
 
             builder.RegisterType<FilterPresetValidator>()
                 .As<IFilterPresetValidator>()
-                .InstancePerRequest();
+                .InstancePerLifetimeScope();
         }
     }
 }

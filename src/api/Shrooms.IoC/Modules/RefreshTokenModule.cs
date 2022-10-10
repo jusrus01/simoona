@@ -8,7 +8,7 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<RefreshTokenService>().As<IRefreshTokenService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
+            builder.RegisterType<RefreshTokenService>().As<IRefreshTokenService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }
     }
 }
