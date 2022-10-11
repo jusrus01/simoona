@@ -50,11 +50,11 @@
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Constants;
 using Shrooms.DataLayer.DAL;
@@ -62,6 +62,8 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.IoC;
 using Shrooms.Presentation.Api.Configurations;
 using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
+using System;
+using System.Text;
 
 namespace Shrooms.Presentation.Api
 {
@@ -93,7 +95,22 @@ namespace Shrooms.Presentation.Api
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null)
-            .AddJwtBearer();
+            .AddJwtBearer(options => // TODO: set normal settings
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = false,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = false,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidIssuer = Configuration["Kestrel:Endpoints:Urls:Url"],
+                    ValidAudience = Configuration["ClientUrl"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+            });
 
             // .AspNet.Cookie? automatically?
             // https://learn.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-6.0 

@@ -6,6 +6,7 @@ using Shrooms.Contracts.Infrastructure;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Roles;
+using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.Configuration;
 using Shrooms.Infrastructure.CustomCache;
 using Shrooms.Infrastructure.FireAndForget;
@@ -57,6 +58,9 @@ namespace Shrooms.IoC
             builder.RegisterModule(new FilterPresetModule());
             builder.RegisterModule(new BlacklistUserModule());
             builder.RegisterModule(new EmployeeModule());
+
+            // TODO: move
+            builder.RegisterType<TokenService>().As<ITokenService>().InstancePerLifetimeScope();
         }
 
         //public static IContainer Bootstrap(IAppBuilder app, Func<string> getConnectionStringName, HttpConfiguration config)
