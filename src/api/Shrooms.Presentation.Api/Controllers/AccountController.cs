@@ -665,6 +665,7 @@ using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -675,24 +676,29 @@ namespace Shrooms.Presentation.Api
     [Route("Account")]
     public class AccountController : ShroomsControllerBase
     {
+        private const int StateStrengthInBits = 256;
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPermissionService _permissionService;
+        private readonly AuthenticationService _authenticationService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
-            IPermissionService permissionService)
+            IPermissionService permissionService,
+            IAuthenticationService authenticationService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
             _permissionService = permissionService;
+            _authenticationService = (AuthenticationService)authenticationService;
         }
 
         [Authorize]
@@ -745,40 +751,41 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
-            //var descriptions = Authentication.GetExternalAuthenticationTypes();
-            var logins = new List<ExternalLoginViewModel>();
+            var externalLogins = new List<ExternalLoginViewModel>();
 
-            //var organizationProviders = (await _organizationService.GetOrganizationByNameAsync(RequestedOrganization)).AuthenticationProviders;
+            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName); // TODO: Figure out ITenantNameContainer usage
+            // TODO: Register scheme only if key exists
+            foreach (var authenticationScheme in availableAuthenticationSchemes)
+            {
+                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
+                {
+                    continue;
+                }
 
-            //foreach (var description in descriptions)
-            //{
-            //    if (!ContainsProvider(organizationProviders, description.Caption))
-            //    {
-            //        continue;
-            //    }
-            //    var state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
+                var state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
 
-            //    var login = new ExternalLoginViewModel
-            //    {
-            //        Name = description.Caption,
-            //        Url = CreateUrl(description, returnUrl, state, isLinkable, false),
-            //        State = state
-            //    };
+                var login = new ExternalLoginViewModel
+                {
+                    Name = authenticationScheme.Name,
+                    Url = CreateUrl(returnUrl, state, isLinkable, false),
+                    State = state
+                };
 
-            //    logins.Add(login);
+                externalLogins.Add(login);
 
-            //    state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
-            //    login = new ExternalLoginViewModel
-            //    {
-            //        Name = $"{description.Caption}Registration",
-            //        Url = CreateUrl(description, returnUrl, state, isLinkable, true),
-            //        State = state
-            //    };
+                state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
+                login = new ExternalLoginViewModel
+                {
+                    Name = $"{authenticationScheme.Name}Registration",
+                    Url = CreateUrl( returnUrl, state, isLinkable, true),
+                    State = state
+                };
 
-            //    logins.Add(login);
-            //}
+                externalLogins.Add(login);
+            }
 
-            return Ok(logins);
+            return Ok(externalLogins);
         }
 
         // Responsible only for providing cookie, so we could access images... (not sure how google log in will work for that)
@@ -874,10 +881,39 @@ namespace Shrooms.Presentation.Api
             return userInfo;
         }
 
-
         private static bool ContainsProvider(string providerList, string providerName)
         {
             return providerList.ToLower().Contains(providerName.ToLower());
+        }
+
+        private string CreateUrl(string returnUrl, string state, bool isLinkable, bool isRegistration)
+        {
+            string scheme = Url.ActionContext.HttpContext.Request.Scheme;
+
+            //return Url.Action(actionName, controllerName, routeValues, scheme);
+
+            var test = Url.RouteUrl("Account", "ExternalLogin");
+
+
+            //var absoluteUri = string.Concat(
+            //    HttpContext.Request.PathBase.ToUriComponent(),
+            //    HttpContext.Request.Path.ToUriComponent(),
+            //    HttpContext.Request.QueryString.ToUriComponent());
+
+            //var url = Url.RouteFromController("ExternalLogin",
+            //            ControllerContext.ControllerDescriptor.ControllerName,
+            //            new
+            //            {
+            //                provider = description.AuthenticationType,
+            //                organization = RequestedOrganization,
+            //                response_type = "token",
+            //                client_id = Startup.JsAppClientId,
+            //                redirect_uri = new Uri(Request.RequestUri, $"{returnUrl}?authType={description.AuthenticationType}").AbsoluteUri,
+            //                state = state,
+            //                userId = isLinkable ? GetUserAndOrganization().UserId : null,
+            //                isRegistration = isRegistration ? "true" : null
+            //            });
+            return "";
         }
     }
 }
