@@ -18,17 +18,17 @@ namespace Shrooms.Presentation.Api.Controllers
         //    return StatusCode(HttpStatusCode.UnsupportedMediaType);
         //}
 
-        public IActionResult BadRequestWithError(ValidationException ex)
+        protected IActionResult BadRequestWithError(ValidationException ex)
         {
             return BadRequest(new { ErrorCode = ex.ErrorCode, ErrorMessage = ex.ErrorMessage });
         }
 
-        public UserAndOrganizationDto GetUserAndOrganization()
+        protected UserAndOrganizationDto GetUserAndOrganization()
         {
             return User.Identity.GetUserAndOrganization();
         }
 
-        public UserAndOrganizationHubDto GetUserAndOrganizationHub()
+        protected UserAndOrganizationHubDto GetUserAndOrganizationHub()
         {
             return new UserAndOrganizationHubDto
             {
@@ -38,33 +38,33 @@ namespace Shrooms.Presentation.Api.Controllers
             };
         }
 
-        public int GetOrganizationId()
+        protected int GetOrganizationId()
         {
             return User.Identity.GetOrganizationId();
         }
 
-        public string GetOrganizationName()
+        protected string GetOrganizationName()
         {
             return User.Identity.GetOrganizationName();
         }
 
-        public void SetOrganizationAndUser(UserAndOrganizationDto obj)
+        protected void SetOrganizationAndUser(UserAndOrganizationDto obj)
         {
             obj.OrganizationId = User.Identity.GetOrganizationId();
             obj.UserId = GetUserId();
         }
 
-        public string GetUserFullName()
+        protected string GetUserFullName()
         {
             return User.FindFirstValue(ClaimTypes.GivenName);
         }
 
-        public string GetUserId()
+        protected string GetUserId()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        public string GetUserEmail()
+        protected string GetUserEmail()
         {
             return User.FindFirstValue(ClaimTypes.Email);
         }

@@ -43,7 +43,6 @@ namespace Shrooms.Authentification.ExternalLoginInfrastructure
                 return null;
             }
 
-            // Could be wrong
             return new ExternalLoginData
             {
                 LoginProvider = providerKeyClaim.Issuer,

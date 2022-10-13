@@ -5,6 +5,6 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public interface ITokenService
     {
-        Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto);
+        Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto, string tenantName);
     }
 }

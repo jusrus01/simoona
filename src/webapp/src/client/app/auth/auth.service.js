@@ -204,13 +204,15 @@
         }
 
         function requestToken(params) {
-            const data = "grant_type=password" +
-                "&username=" + params.username +
-                "&password=" + params.password +
-                "&client_id=" + appConfig.clientId;
+            // Changed to json
+            const data = {
+                grantType: "password",
+                username: params.username,
+                password: params.password,
+                clientId: appConfig.clientId
+            };
 
             return $resource(tokenUrl, {}, {
-
                 post: {
                     withCredentials: true,
                     method: 'POST'

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Shrooms.Resources.Models.Account;
 
 namespace Shrooms.Presentation.WebViewModels.Models

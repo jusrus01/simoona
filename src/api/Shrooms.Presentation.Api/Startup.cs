@@ -83,11 +83,24 @@ namespace Shrooms.Presentation.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // TODO: change this
+            services.AddCors(options => 
+                options.AddDefaultPolicy(builder => 
+                    builder.AllowCredentials()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .SetIsOriginAllowed(s => true)));
+
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ShroomsDbContext>();
+
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.Cookie.Name = ".AspNet.Cookies22";
+            //});
 
             services.AddAuthentication(options =>
             {
@@ -95,28 +108,35 @@ namespace Shrooms.Presentation.Api
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null)
-            .AddJwtBearer(options => // TODO: set normal settings
+            .AddCookie(options =>
             {
-                options.RequireHttpsMetadata = false;
+                options.Cookie.Name = ".AspNet.Cookies";
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
                 options.SaveToken = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = false,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
                     ValidIssuer = Configuration["Kestrel:Endpoints:Urls:Url"],
-                    ValidAudience = Configuration["ClientUrl"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    ValidAudience = Configuration["Kestrel:Endpoints:Urls:Url"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:Key"]))
                 };
+            })
+            .AddGoogle(options =>
+            {
+                options.ClientId = Configuration["Authentication:Google:ClientId"];
+                options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
             });
 
-            // .AspNet.Cookie? automatically?
-            // https://learn.microsoft.com/en-us/aspnet/core/security/samesite?view=aspnetcore-6.0 
             services.AddAuthorization(options =>
             {
-                options.AddBearerAsDefault();
+                options.AddBearerOrGoogleAsDefault();
                 options.AddBasicPolicy();
             });
 
@@ -129,6 +149,7 @@ namespace Shrooms.Presentation.Api
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {

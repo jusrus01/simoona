@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Shrooms.Contracts.Constants;
 
@@ -6,7 +7,7 @@ namespace Shrooms.Presentation.Api.Configurations
 {
     public static class AuthorizationOptionsExtensions
     {
-        public static void AddBearerAsDefault(this AuthorizationOptions options)
+        public static void AddBearerOrGoogleAsDefault(this AuthorizationOptions options)
         {
             var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
                 JwtBearerDefaults.AuthenticationScheme,
@@ -14,7 +15,11 @@ namespace Shrooms.Presentation.Api.Configurations
 
             defaultAuthorizationPolicyBuilder = defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
-            options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+            options.DefaultPolicy = defaultAuthorizationPolicyBuilder
+                .AddAuthenticationSchemes(
+                    JwtBearerDefaults.AuthenticationScheme,
+                    GoogleDefaults.AuthenticationScheme)
+                .Build();
         }
 
         public static void AddBasicPolicy(this AuthorizationOptions options)

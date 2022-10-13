@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Permissions;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,73 +19,101 @@ namespace Shrooms.Domain.Services.Tokens
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
+        private readonly IPermissionService _permissionService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TokenService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public TokenService(
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
+            IPermissionService permissionService)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _permissionService = permissionService;
         }
 
-        public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
+        public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto, string tenantName)
         {
-            // TODO: recreate
             var user = await _userManager.FindByNameAsync(requestDto.Username);
 
             if (user == null)
             {
-                throw new Exception();
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
             }
 
             var isValidPassword = await _userManager.CheckPasswordAsync(user, requestDto.Password);
 
             if (!isValidPassword)
             {
-                throw new Exception();
+                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
             }
 
-            var bearerToken = await CreateBearerTokenAsync(user);
-
-            return new TokenResponseDto
-            {
-                AccessToken = bearerToken,
-                UserIndentifier = user.Id
-            };
+            return await CreateTokenAsync(user, tenantName);
         }
 
-        private async Task<string> CreateBearerTokenAsync(ApplicationUser user)
+        private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user, string tenantName)
         {
-            // TODO: recreate
             var userClaims = await _userManager.GetClaimsAsync(user);
-            var roles = await _userManager.GetRolesAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
 
-            var roleClaims = new List<Claim>();
+            var permissions = await _permissionService.GetUserPermissionsAsync(user.Id);
 
-            for (int i = 0; i < roles.Count; i++)
-            {
-                roleClaims.Add(item: new Claim("roles", roles[i]));
-            }
+            var roleClaims = MapToClaims(ClaimTypes.Role, userRoles);
+            var permissionClaims = MapToClaims("permission", permissions.ToList());
 
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim("OrganizationName", tenantName),
                 new Claim("uid", user.Id)
             }
             .Union(userClaims)
-            .Union(roleClaims);
+            .Union(roleClaims)
+            .Union(permissionClaims);
 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:Jwt:Key"]));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-            var jwtSecurityToken = new JwtSecurityToken(issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+            if (!int.TryParse(_configuration["Authentication:Jwt:DurationInDays"], out var duration))
+            {
+                throw new ValidationException(ErrorCodes.InvalidType, "Duration has to be an int");
+            }
+
+            var expirationDate = DateTime.UtcNow.AddDays(duration);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: _configuration["Kestrel:Endpoints:Urls:Url"], // TODO: Export ?
+                audience: _configuration["Kestrel:Endpoints:Urls:Url"],
                 claims: claims,
-                expires: System.DateTime.UtcNow.AddMinutes(60),
+                expires: expirationDate,
                 signingCredentials: signingCredentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            return new TokenResponseDto
+            {
+                Expires = expirationDate,
+                Issued = DateTime.UtcNow,
+                ClientId = _configuration["ClientId"],
+                ExpiresIn = duration * 86400, // Seconds
+                TokenType = "bearer",
+                UserIndentifier = user.Id,
+                Persistent = "",
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
+            };
+        }
+
+        private List<Claim> MapToClaims(string type, IList<string> claimNames)
+        {
+            var claims = new List<Claim>();
+
+            foreach (var name in claimNames)
+            {
+                claims.Add(new Claim(type, name));
+            }
+
+            return claims;
         }
     }
 }

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MoreLinq;
-using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Permissions;
@@ -17,11 +16,17 @@ namespace Shrooms.Domain.Services.Permissions
     public class PermissionService : IPermissionService
     {
         private readonly DbSet<Permission> _permissionsDbSet;
+        private readonly DbSet<IdentityUserRole<string>> _userRolesDbSet;
+        private readonly DbSet<RolePermission> _rolePermissionsDbSet;
+
         private readonly ICustomCache<string, IList<string>> _permissionsCache;
 
         public PermissionService(IUnitOfWork2 unitOfWork, ICustomCache<string, IList<string>> permissionsCache)
         {
             _permissionsDbSet = unitOfWork.GetDbSet<Permission>();
+            _userRolesDbSet = unitOfWork.GetDbSet<IdentityUserRole<string>>();
+            _rolePermissionsDbSet = unitOfWork.GetDbSet<RolePermission>();
+
             _permissionsCache = permissionsCache;
         }
 
@@ -76,19 +81,25 @@ namespace Shrooms.Domain.Services.Permissions
             //    .ToList();
         }
 
-        public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId, int organizationId)
+        public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId)
         {
-            throw new NotImplementedException();
-            //if (_permissionsCache.TryGetValue(userId, out var permissions))
-            //{
-            //    return permissions;
-            //}
+            if (_permissionsCache.TryGetValue(userId, out var permissions))
+            {
+                return permissions;
+            }
 
-            //Expression<Func<Permission, bool>> userFilter = p => p.Roles.Any(r => r.Users.Any(u => u.UserId == userId));
+            var userRoles = await _userRolesDbSet.Where(userRole => userRole.UserId == userId)
+                .Select(userRole => userRole.RoleId)
+                .ToListAsync();
 
-            //permissions = (await GetPermissionsAsync(organizationId, userFilter)).Select(x => x.Name).ToList();
+            permissions = await _rolePermissionsDbSet.Where(rolePermission => userRoles.Contains(rolePermission.RoleId))
+                .Select(rolePermission => rolePermission.Permission.Name)
+                .ToListAsync();
 
-            //return permissions;
+            // This part seems excessive, all of it with caching
+            _permissionsCache.TryAdd(userId, permissions);
+
+            return permissions;
         }
 
         public async Task<IEnumerable<PermissionDto>> GetRolePermissionsAsync(string roleId, int organizationId)

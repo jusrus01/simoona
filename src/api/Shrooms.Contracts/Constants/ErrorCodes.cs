@@ -8,6 +8,7 @@
         public const int ContentDoesNotExist = 602;
         public const int ConcurrencyError = 603;
         public const int InvalidOrganization = 604;
+        public const int InvalidCredentials = 605;
 
         // Books, 1**
         public const string BookNotFoundByExternalProviderCode = "100";

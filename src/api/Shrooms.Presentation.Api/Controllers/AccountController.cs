@@ -586,7 +586,7 @@
 
 //            //return Ok();
 //        }
-        
+
 //        private async Task<IHttpActionResult> LoginAsync(ApplicationUser user, ExternalLoginData externalLogin, string clientId, bool hasLogin)
 //        {
 //            if (hasLogin)
@@ -649,3 +649,235 @@
 //        }
 //    }
 //}
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Shrooms.Authentification.ExternalLoginInfrastructure;
+using Shrooms.Contracts.Constants;
+using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Organizations;
+using Shrooms.Domain.Services.Permissions;
+using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Presentation.Api.Controllers;
+using Shrooms.Presentation.WebViewModels.Models;
+using Shrooms.Presentation.WebViewModels.Models.AccountModels;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+
+namespace Shrooms.Presentation.Api
+{
+    [Route("Account")]
+    public class AccountController : ShroomsControllerBase
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IOrganizationService _organizationService;
+        private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IPermissionService _permissionService;
+
+        public AccountController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IOrganizationService organizationService,
+            ITenantNameContainer tenantNameContainer,
+            IPermissionService permissionService)
+        {
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _organizationService = organizationService;
+            _tenantNameContainer = tenantNameContainer;
+            _permissionService = permissionService;
+        }
+
+        [Authorize]
+        [HttpGet("UserInfo")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+
+            if (externalLogin == null && User.Identity.IsAuthenticated)
+            {
+                var loggedUser = await GetLoggedInUserInfoAsync();
+                return Ok(loggedUser);
+            }
+            else
+            {
+                var externalUserInfo = new ExternalUserInfoViewModel
+                {
+                    Email = GetUserEmail(),
+                    HasRegistered = externalLogin == null,
+                    LoginProvider = externalLogin?.LoginProvider
+                };
+                return Ok(externalUserInfo);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("InternalLogins")]
+        public async Task<IActionResult> GetInternalLogins()
+        {
+            var logins = new List<ExternalLoginViewModel>();
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var organizationProviders = organization.AuthenticationProviders;
+
+            if (!ContainsProvider(organizationProviders, AuthenticationConstants.InternalLoginProvider))
+            {
+                return Ok(logins);
+            }
+
+            var internalLogin = new ExternalLoginViewModel
+            {
+                Name = AuthenticationConstants.InternalLoginProvider
+            };
+
+            logins.Add(internalLogin);
+
+            return Ok(logins);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("ExternalLogins")]
+        public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
+        {
+            //var descriptions = Authentication.GetExternalAuthenticationTypes();
+            var logins = new List<ExternalLoginViewModel>();
+
+            //var organizationProviders = (await _organizationService.GetOrganizationByNameAsync(RequestedOrganization)).AuthenticationProviders;
+
+            //foreach (var description in descriptions)
+            //{
+            //    if (!ContainsProvider(organizationProviders, description.Caption))
+            //    {
+            //        continue;
+            //    }
+            //    var state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
+
+            //    var login = new ExternalLoginViewModel
+            //    {
+            //        Name = description.Caption,
+            //        Url = CreateUrl(description, returnUrl, state, isLinkable, false),
+            //        State = state
+            //    };
+
+            //    logins.Add(login);
+
+            //    state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
+            //    login = new ExternalLoginViewModel
+            //    {
+            //        Name = $"{description.Caption}Registration",
+            //        Url = CreateUrl(description, returnUrl, state, isLinkable, true),
+            //        State = state
+            //    };
+
+            //    logins.Add(login);
+            //}
+
+            return Ok(logins);
+        }
+
+        // Responsible only for providing cookie, so we could access images... (not sure how google log in will work for that)
+        [Authorize] // Make sure that token is received before this call?
+        [HttpPost("SignIn")] // Idenity returns so .AspNetCore. cookie instead of .AspNet.Cookies
+        public async Task<IActionResult> SignIn([FromBody] LoginViewModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.UserName); // Username = email
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            //await _signInManager.SignOutAsync();
+            //await _signInManager.PasswordSignInAsync(user, model.Password, true, false);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim("FullName", user.FullName),
+                new Claim(ClaimTypes.Role, "Administrator"),
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignOutAsync();
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            
+            if (result.Succeeded)
+            {
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                //await _signInManager.PasswordSignInAsync(user, model.Password, true, false);
+                return Ok();
+            }
+            return Forbid();
+
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest();
+            //}
+
+            //var user = await _userManager.FindAsync(model.UserName, model.Password);
+
+            //if (user == null)
+            //{
+            //    return BadRequest();
+            //}
+
+            //Authentication.SignOut(ShroomsDefaultAuthenticationTypes.ExternalCookie);
+
+            //var oAuthIdentity = await _userManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
+            //var cookieIdentity = await _userManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
+
+            //var properties = await CreateInitialRefreshToken(model.ClientId, user, oAuthIdentity);
+
+            //SetCookieExpirationDateToAccessTokenLifeTime(properties);
+
+            //Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
+
+            //await _userManager.AddLoginAsync(user.Id, new UserLoginInfo(AuthenticationConstants.InternalLoginProvider, user.Id));
+
+            //return Ok();
+        }
+
+        private async Task<LoggedInUserInfoViewModel> GetLoggedInUserInfoAsync()
+        {
+            var userId = GetUserId();
+            var organizationId = GetOrganizationId();
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
+
+            var userInfo = new LoggedInUserInfoViewModel
+            {
+                HasRegistered = true,
+                Roles = await _userManager.GetRolesAsync(user),
+                UserName = User.Identity.Name,
+                UserId = userId,
+                OrganizationName = GetOrganizationName(),
+                OrganizationId = GetOrganizationId(),
+                FullName = GetUserFullName(),
+                Permissions = permissions,
+                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
+                CultureCode = user.CultureCode,
+                TimeZone = user.TimeZone,
+                PictureId = user.PictureId
+            };
+
+            return userInfo;
+        }
+
+
+        private static bool ContainsProvider(string providerList, string providerName)
+        {
+            return providerList.ToLower().Contains(providerName.ToLower());
+        }
+    }
+}

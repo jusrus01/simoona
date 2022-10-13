@@ -6,6 +6,7 @@ using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.DAL;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
+using System.Linq;
 
 namespace Shrooms.IoC.Modules
 {
@@ -23,28 +24,14 @@ namespace Shrooms.IoC.Modules
             builder.Register(context =>
             {
                 var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
-                var tenantName = httpContextAccessor.HttpContext.Request.Headers["Organization"];
+                var tenantName = ExtractTenantName(httpContextAccessor.HttpContext);
+                
+                var x = httpContextAccessor.HttpContext.Request.Headers["Organization"];
 
                 return new TenantNameContainer(tenantName);
             })
             .As<ITenantNameContainer>()
             .InstancePerLifetimeScope();
-
-            //builder.RegisterType<TenantNameContainer>()
-            //    .As<ITenantNameContainer>()
-            //    .ConfigurePipeline(p =>
-            //    {
-            //        p.Use(PipelinePhase.RegistrationPipelineStart, (context, next) =>
-            //        {
-            //            var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
-
-            //            // TODO: refactor
-            //            var tenantNameFromHeader = httpContextAccessor.HttpContext.Request.Headers["Organization"];
-            //            context.Instance = new TenantNameContainer(tenantNameFromHeader);
-
-            //            next(context);
-            //        });
-            //    });
 
             builder.Register(contextBuilder =>
             {
@@ -90,6 +77,37 @@ namespace Shrooms.IoC.Modules
             builder.RegisterType<UnitOfWork2>()
                 .As<IUnitOfWork2>()
                 .InstancePerLifetimeScope();
+        }
+
+        // TODO: Refactor
+        private string ExtractTenantName(HttpContext httpContext)
+        {
+            var tenantKey = default(string);
+            var requestPath = httpContext.Request.Path.ToString();
+
+            if (requestPath.StartsWith("/storage"))
+            {
+                return httpContext.Request.Path.ToString().Split('/')[2];
+            }
+
+            if (httpContext.User != null &&
+                httpContext.User.Identity.IsAuthenticated &&
+                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
+            {
+                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
+            }
+
+            if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
+            {
+                return organizationFromHeader;
+            }
+
+            if (httpContext.Request.Query.TryGetValue("organization", out var organizationFromUri))
+            {
+                return organizationFromUri;
+            }
+
+            return tenantKey;
         }
     }
 }
