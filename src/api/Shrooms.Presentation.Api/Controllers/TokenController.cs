@@ -23,7 +23,8 @@ namespace Shrooms.Presentation.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> GetToken([FromBody] TokenRequestViewModel requestViewModel) // Unable to map underscores
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<IActionResult> GetToken([FromForm] TokenRequestViewModel requestViewModel) // Unable to map underscores
         {
             if (!ModelState.IsValid)
             {

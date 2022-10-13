@@ -8,22 +8,22 @@ namespace Shrooms.Presentation.WebViewModels.Models.Tokens
     {
         [Required]
         [BindProperty(Name = "grant_type")]
-        [JsonProperty("grant_type")]
         [FromForm(Name = "grant_type")]
         public string GrantType { get; set; }
 
         [Required]
+        [FromForm(Name = "username")]
         [BindProperty(Name = "username")]
         public string Username { get; set; }
 
         [Required]
         [BindProperty(Name = "password")]
+        [FromForm(Name = "password")]
         public string Password { get; set; }
 
         [Required]
         [BindProperty(Name = "client_id")]
         [FromForm(Name = "client_id")]
-        [JsonProperty("client_id")]
         public string ClientId { get; set; }
     }
 }

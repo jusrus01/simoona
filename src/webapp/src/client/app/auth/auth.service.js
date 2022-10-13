@@ -204,18 +204,18 @@
         }
 
         function requestToken(params) {
-            // Changed to json
-            const data = {
-                grantType: "password",
-                username: params.username,
-                password: params.password,
-                clientId: appConfig.clientId
-            };
+            const data = "grant_type=password" +
+                "&username=" + params.username +
+                "&password=" + params.password +
+                "&client_id=" + appConfig.clientId;
 
             return $resource(tokenUrl, {}, {
                 post: {
                     withCredentials: true,
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
                 }
             }).post(data).$promise;
         }
