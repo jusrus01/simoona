@@ -656,6 +656,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Shrooms.Authentification.ExternalLoginInfrastructure;
 using Shrooms.Contracts.Constants;
 using Shrooms.DataLayer.EntityModels.Models;
@@ -684,6 +685,7 @@ namespace Shrooms.Presentation.Api
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPermissionService _permissionService;
         private readonly AuthenticationService _authenticationService;
+        private readonly IConfiguration _configuration;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -691,7 +693,8 @@ namespace Shrooms.Presentation.Api
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
-            IAuthenticationService authenticationService)
+            IAuthenticationService authenticationService,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -699,6 +702,7 @@ namespace Shrooms.Presentation.Api
             _tenantNameContainer = tenantNameContainer;
             _permissionService = permissionService;
             _authenticationService = (AuthenticationService)authenticationService;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -747,6 +751,49 @@ namespace Shrooms.Presentation.Api
             return Ok(logins);
         }
 
+        [HttpGet("Hello")]
+        public async Task<IActionResult> SignInGoogle()
+        {
+            //    ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
+            //    if (info == null)
+            //        return RedirectToAction(nameof(Login));
+
+            //    var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            //    string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
+            //    if (result.Succeeded)
+            //        return View(userInfo);
+            //    else
+            //    {
+            //        AppUser user = new AppUser
+            //        {
+            //            Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
+            //            UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
+            //        };
+
+            //        IdentityResult identResult = await userManager.CreateAsync(user);
+            //        if (identResult.Succeeded)
+            //        {
+            //            identResult = await userManager.AddLoginAsync(user, info);
+            //            if (identResult.Succeeded)
+            //            {
+            //                await signInManager.SignInAsync(user, false);
+            //                return View(userInfo);
+            //            }
+            //        }
+            //        return AccessDenied();
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("ExternalLogin")]
+        public async Task<IActionResult> GetExternalLogin(string provider, string? client_Id = null, string? userId = null, bool isRegistration = false, string? error = null)
+        {
+            var redirectUrl = Url.Action("Hello", "Account", "Organization=SimoonaClone");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+            return new ChallengeResult("Google", properties);
+        }
+
         [AllowAnonymous]
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
@@ -755,6 +802,7 @@ namespace Shrooms.Presentation.Api
 
             var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName); // TODO: Figure out ITenantNameContainer usage
+            
             // TODO: Register scheme only if key exists
             foreach (var authenticationScheme in availableAuthenticationSchemes)
             {
@@ -768,7 +816,7 @@ namespace Shrooms.Presentation.Api
                 var login = new ExternalLoginViewModel
                 {
                     Name = authenticationScheme.Name,
-                    Url = CreateUrl(returnUrl, state, isLinkable, false),
+                    Url = CreateUrl(authenticationScheme, returnUrl, state, isLinkable, false),
                     State = state
                 };
 
@@ -778,7 +826,7 @@ namespace Shrooms.Presentation.Api
                 login = new ExternalLoginViewModel
                 {
                     Name = $"{authenticationScheme.Name}Registration",
-                    Url = CreateUrl( returnUrl, state, isLinkable, true),
+                    Url = CreateUrl(authenticationScheme, returnUrl, state, isLinkable, true),
                     State = state
                 };
 
@@ -886,34 +934,25 @@ namespace Shrooms.Presentation.Api
             return providerList.ToLower().Contains(providerName.ToLower());
         }
 
-        private string CreateUrl(string returnUrl, string state, bool isLinkable, bool isRegistration)
+        private string CreateUrl(AuthenticationScheme authenticationScheme, string returnUrl, string state, bool isLinkable, bool isRegistration)
         {
-            string scheme = Url.ActionContext.HttpContext.Request.Scheme;
+            var controllerName = ControllerContext.ActionDescriptor.ControllerName;
 
-            //return Url.Action(actionName, controllerName, routeValues, scheme);
+            // TODO: Check if ExternalLogin exists? On start up?
+            // TODO: Refactor
 
-            var test = Url.RouteUrl("Account", "ExternalLogin");
-
-
-            //var absoluteUri = string.Concat(
-            //    HttpContext.Request.PathBase.ToUriComponent(),
-            //    HttpContext.Request.Path.ToUriComponent(),
-            //    HttpContext.Request.QueryString.ToUriComponent());
-
-            //var url = Url.RouteFromController("ExternalLogin",
-            //            ControllerContext.ControllerDescriptor.ControllerName,
-            //            new
-            //            {
-            //                provider = description.AuthenticationType,
-            //                organization = RequestedOrganization,
-            //                response_type = "token",
-            //                client_id = Startup.JsAppClientId,
-            //                redirect_uri = new Uri(Request.RequestUri, $"{returnUrl}?authType={description.AuthenticationType}").AbsoluteUri,
-            //                state = state,
-            //                userId = isLinkable ? GetUserAndOrganization().UserId : null,
-            //                isRegistration = isRegistration ? "true" : null
-            //            });
-            return "";
+            return string.Concat(
+                "/",
+                controllerName,
+                "/ExternalLogin?",
+                $"provider={authenticationScheme.Name}&",
+                $"organization={_tenantNameContainer.TenantName}&",
+                $"response_type=token&",
+                $"client_id={_configuration["ClientId"]}&",
+                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&",
+                $"state={state}",
+                isLinkable ? $"userId={GetUserAndOrganization().UserId}" : "",
+                isRegistration ? "isRegistration=true" : "");
         }
     }
 }

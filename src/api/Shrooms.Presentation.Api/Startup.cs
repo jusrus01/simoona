@@ -52,6 +52,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -94,6 +95,16 @@ namespace Shrooms.Presentation.Api
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
 
+            // Need to auth... with roles
+
+            // TODO: figure out google login
+            // and using it along side bearer
+
+
+            //decisions that need to be made:
+            //signing key something
+            //refresh token
+
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ShroomsDbContext>();
 
@@ -132,6 +143,9 @@ namespace Shrooms.Presentation.Api
             {
                 options.ClientId = Configuration["Authentication:Google:ClientId"];
                 options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+
+                // Trying something
+                options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
             });
 
             services.AddAuthorization(options =>
