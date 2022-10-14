@@ -652,6 +652,7 @@
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -662,6 +663,7 @@ using Shrooms.Contracts.Constants;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
+using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.WebViewModels.Models;
@@ -686,6 +688,7 @@ namespace Shrooms.Presentation.Api
         private readonly IPermissionService _permissionService;
         private readonly AuthenticationService _authenticationService;
         private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -694,7 +697,8 @@ namespace Shrooms.Presentation.Api
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
             IAuthenticationService authenticationService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -703,6 +707,7 @@ namespace Shrooms.Presentation.Api
             _permissionService = permissionService;
             _authenticationService = (AuthenticationService)authenticationService;
             _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [Authorize]
@@ -751,8 +756,8 @@ namespace Shrooms.Presentation.Api
             return Ok(logins);
         }
 
-        [HttpGet("Hello")]
-        public async Task<IActionResult> SignInGoogle()
+        [HttpGet("Google/Success")]
+        public async Task<IActionResult> OnGoogleSignInSuccess()
         {
             //    ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
             //    if (info == null)
@@ -789,7 +794,14 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogin")]
         public async Task<IActionResult> GetExternalLogin(string provider, string? client_Id = null, string? userId = null, bool isRegistration = false, string? error = null)
         {
-            var redirectUrl = Url.Action("Hello", "Account", "Organization=SimoonaClone");
+            var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+
+            if (externalLoginInfo != null)
+            {
+                return await CompleteExternalLoginAsync(externalLoginInfo);
+            }
+
+            var redirectUrl = Url.Action("ExternalLogin", "Account", new { organization = "SimoonaClone" });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
             return new ChallengeResult("Google", properties);
         }
@@ -848,9 +860,6 @@ namespace Shrooms.Presentation.Api
                 return BadRequest();
             }
 
-            //await _signInManager.SignOutAsync();
-            //await _signInManager.PasswordSignInAsync(user, model.Password, true, false);
-
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Email),
@@ -864,7 +873,7 @@ namespace Shrooms.Presentation.Api
             await HttpContext.SignOutAsync();
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            
+
             if (result.Succeeded)
             {
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
@@ -953,6 +962,20 @@ namespace Shrooms.Presentation.Api
                 $"state={state}",
                 isLinkable ? $"userId={GetUserAndOrganization().UserId}" : "",
                 isRegistration ? "isRegistration=true" : "");
+        }
+
+        private async Task<IActionResult> CompleteExternalLoginAsync(ExternalLoginInfo externalLoginInfo)
+        {
+            //var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
+
+            //if (result.Succeeded)
+            //{
+            //    var accessToken = await HttpContext.GetTokenAsync(GoogleDefaults.AuthenticationScheme, "access_token");
+            //    return Redirect($"http://localhost:3000/SimoonaClone/Login?authType=Google#access_token={accessToken}");
+            //}
+
+            var accessToken = await _tokenService.GetTokenForExternalAsync(externalLoginInfo);
+            return Redirect($"http://localhost:3000/SimoonaClone/Login?authType=Google#access_token={accessToken}");
         }
     }
 }

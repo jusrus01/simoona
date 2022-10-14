@@ -143,14 +143,16 @@ namespace Shrooms.Presentation.Api
             {
                 options.ClientId = Configuration["Authentication:Google:ClientId"];
                 options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-
+                
+                options.SaveTokens = false;
+                
                 // Trying something
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
             });
 
             services.AddAuthorization(options =>
             {
-                options.AddBearerOrGoogleAsDefault();
+                options.AddBearerAsDefault();
                 options.AddBasicPolicy();
             });
 

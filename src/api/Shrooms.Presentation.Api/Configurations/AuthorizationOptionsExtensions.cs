@@ -7,7 +7,7 @@ namespace Shrooms.Presentation.Api.Configurations
 {
     public static class AuthorizationOptionsExtensions
     {
-        public static void AddBearerOrGoogleAsDefault(this AuthorizationOptions options)
+        public static void AddBearerAsDefault(this AuthorizationOptions options)
         {
             var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(
                 JwtBearerDefaults.AuthenticationScheme,
@@ -16,9 +16,7 @@ namespace Shrooms.Presentation.Api.Configurations
             defaultAuthorizationPolicyBuilder = defaultAuthorizationPolicyBuilder.RequireAuthenticatedUser();
 
             options.DefaultPolicy = defaultAuthorizationPolicyBuilder
-                .AddAuthenticationSchemes(
-                    JwtBearerDefaults.AuthenticationScheme,
-                    GoogleDefaults.AuthenticationScheme)
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .Build();
         }
 

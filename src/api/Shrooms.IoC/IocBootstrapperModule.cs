@@ -31,8 +31,14 @@ namespace Shrooms.IoC
             var modelMappings = Assembly.Load("Shrooms.Presentation.ModelMappings");
 
             builder.RegisterAssemblyTypes(dataLayer);
-            builder.RegisterAssemblyTypes(modelMappings).AssignableTo(typeof(Profile)).As<Profile>();
-            builder.RegisterAssemblyTypes(shroomsApi).Where(t => typeof(IBackgroundWorker).IsAssignableFrom(t)).InstancePerDependency().AsSelf();
+            builder.RegisterAssemblyTypes(modelMappings)
+                .AssignableTo(typeof(Profile))
+                .As<Profile>();
+            builder.RegisterAssemblyTypes(shroomsApi)
+                .Where(t => typeof(IBackgroundWorker)
+                .IsAssignableFrom(t))
+                .InstancePerDependency()
+                .AsSelf();
             
             builder.RegisterType<AsyncRunner>().As<IAsyncRunner>().SingleInstance();
 
@@ -59,8 +65,9 @@ namespace Shrooms.IoC
             builder.RegisterModule(new BlacklistUserModule());
             builder.RegisterModule(new EmployeeModule());
 
-            // TODO: move
-            builder.RegisterType<TokenService>().As<ITokenService>().InstancePerLifetimeScope();
+            builder.RegisterType<TokenService>()
+                .As<ITokenService>()
+                .InstancePerLifetimeScope();
         }
 
         //public static IContainer Bootstrap(IAppBuilder app, Func<string> getConnectionStringName, HttpConfiguration config)

@@ -30,7 +30,7 @@ namespace Shrooms.Presentation.Api.Controllers
             {
                 return BadRequest();
             }
-
+// TODO: ask about google tokens and if they can be used that way
             try
             {
                 var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
@@ -48,6 +48,13 @@ namespace Shrooms.Presentation.Api.Controllers
         [Authorize]
         [HttpPost("Test")]
         public IActionResult Test()
+        {
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("TestPrivate")]
+        private IActionResult TestPrivate()
         {
             return Ok();
         }

@@ -6,6 +6,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Permissions;
+using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,15 +22,39 @@ namespace Shrooms.Domain.Services.Tokens
         private readonly IConfiguration _configuration;
         private readonly IPermissionService _permissionService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ITenantNameContainer _tenantNameContainer;
 
         public TokenService(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
-            IPermissionService permissionService)
+            IPermissionService permissionService,
+            ITenantNameContainer tenantNameContainer)
         {
             _userManager = userManager;
             _configuration = configuration;
             _permissionService = permissionService;
+            _signInManager = signInManager;
+            _tenantNameContainer = tenantNameContainer;
+        }
+
+        public async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
+        {
+            var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
+
+            if (!result.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
+            }
+
+            var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
+            var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+            var user = await _userManager.FindByEmailAsync(email);
+
+            await _userManager.AddLoginAsync(user, externalLoginInfo);
+
+            return (await CreateTokenAsync(user, _tenantNameContainer.TenantName)).AccessToken;
         }
 
         public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto, string tenantName)

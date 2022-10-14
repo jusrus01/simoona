@@ -18,15 +18,11 @@ namespace Shrooms.IoC.Modules
                 .As<IHttpContextAccessor>()
                 .InstancePerLifetimeScope();
 
-            // Registering TenantNameContainer with pipeline that sets correct tenant name
-            // based on current request
-            // TODO: refactor
+            // Registering TenantNameContainer that sets correct tenant name based on current request
             builder.Register(context =>
             {
                 var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
                 var tenantName = ExtractTenantName(httpContextAccessor.HttpContext);
-                
-                var x = httpContextAccessor.HttpContext.Request.Headers["Organization"];
 
                 return new TenantNameContainer(tenantName);
             })
@@ -35,7 +31,6 @@ namespace Shrooms.IoC.Modules
 
             builder.Register(contextBuilder =>
             {
-                // Middleware sets TenantContainer with appropriate organization name
                 var tenantContainer = contextBuilder.Resolve<ITenantNameContainer>();
 
                 if (tenantContainer.TenantName == null)
@@ -79,24 +74,8 @@ namespace Shrooms.IoC.Modules
                 .InstancePerLifetimeScope();
         }
 
-        // TODO: Refactor
-        private string ExtractTenantName(HttpContext httpContext)
+        private static string ExtractTenantName(HttpContext httpContext)
         {
-            var tenantKey = default(string);
-            var requestPath = httpContext.Request.Path.ToString();
-
-            if (requestPath.StartsWith("/storage"))
-            {
-                return httpContext.Request.Path.ToString().Split('/')[2];
-            }
-
-            if (httpContext.User != null &&
-                httpContext.User.Identity.IsAuthenticated &&
-                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
-            {
-                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
-            }
-
             if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
             {
                 return organizationFromHeader;
@@ -107,7 +86,19 @@ namespace Shrooms.IoC.Modules
                 return organizationFromUri;
             }
 
-            return tenantKey;
+            if (httpContext.User != null &&
+                httpContext.User.Identity.IsAuthenticated &&
+                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
+            {
+                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
+            }
+
+            if (httpContext.Request.Path.ToString().StartsWith("/storage"))
+            {
+                return httpContext.Request.Path.ToString().Split('/')[2];
+            }
+
+            return null;
         }
     }
 }
