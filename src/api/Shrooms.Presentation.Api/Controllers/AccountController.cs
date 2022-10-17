@@ -725,7 +725,7 @@ namespace Shrooms.Presentation.Api
             {
                 var externalUserInfo = new ExternalUserInfoViewModel
                 {
-                    Email = GetUserEmail(),
+                    Email = GetAuthenticatedUserEmail(),
                     HasRegistered = externalLogin == null,
                     LoginProvider = externalLogin?.LoginProvider
                 };
@@ -912,7 +912,7 @@ namespace Shrooms.Presentation.Api
 
         private async Task<LoggedInUserInfoViewModel> GetLoggedInUserInfoAsync()
         {
-            var userId = GetUserId();
+            var userId = GetAuthenticatedUserId();
             var organizationId = GetOrganizationId();
             var claimsIdentity = User.Identity as ClaimsIdentity;
 
@@ -925,9 +925,9 @@ namespace Shrooms.Presentation.Api
                 Roles = await _userManager.GetRolesAsync(user),
                 UserName = User.Identity.Name,
                 UserId = userId,
-                OrganizationName = GetOrganizationName(),
+                OrganizationName = _tenantNameContainer.TenantName,
                 OrganizationId = GetOrganizationId(),
-                FullName = GetUserFullName(),
+                FullName = GetAuthenticatedUserFullName(),
                 Permissions = permissions,
                 Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
                 CultureCode = user.CultureCode,

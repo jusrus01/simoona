@@ -84,6 +84,8 @@ namespace Shrooms.Presentation.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var applicationOptions = services.AddOptions(Configuration);
+
             // TODO: change this
             services.AddCors(options => 
                 options.AddDefaultPolicy(builder => 
@@ -102,7 +104,7 @@ namespace Shrooms.Presentation.Api
 
 
             //decisions that need to be made:
-            //signing key something
+            //signing key jwt
             //refresh token
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -112,7 +114,7 @@ namespace Shrooms.Presentation.Api
             //{
             //    options.Cookie.Name = ".AspNet.Cookies22";
             //});
-
+            
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -134,19 +136,16 @@ namespace Shrooms.Presentation.Api
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = Configuration["Kestrel:Endpoints:Urls:Url"],
-                    ValidAudience = Configuration["Kestrel:Endpoints:Urls:Url"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Authentication:Jwt:Key"]))
+                    ValidIssuer = applicationOptions.ClientUrl,
+                    ValidAudience = applicationOptions.ClientUrl,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(applicationOptions.Authentication.Jwt.Key))
                 };
             })
             .AddGoogle(options =>
             {
-                options.ClientId = Configuration["Authentication:Google:ClientId"];
-                options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-                
+                options.ClientId = applicationOptions.Authentication.Google.ClientId;
+                options.ClientSecret = applicationOptions.Authentication.Google.ClientSecret;
                 options.SaveTokens = false;
-                
-                // Trying something
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
             });
 

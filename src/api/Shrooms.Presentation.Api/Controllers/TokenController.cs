@@ -24,17 +24,17 @@ namespace Shrooms.Presentation.Api.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Consumes("application/x-www-form-urlencoded")]
-        public async Task<IActionResult> GetToken([FromForm] TokenRequestViewModel requestViewModel) // Unable to map underscores
+        public async Task<IActionResult> GetToken([FromForm] TokenRequestViewModel requestViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
-// TODO: ask about google tokens and if they can be used that way
+
             try
             {
                 var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
-                var reponseDto = await _tokenService.GetTokenAsync(requestDto, Request.Headers["Organization"]);
+                var reponseDto = await _tokenService.GetTokenAsync(requestDto);
                 var responseViewModel = _mapper.Map<TokenResponseViewModel>(reponseDto);
 
                 return Ok(responseViewModel);
@@ -47,14 +47,7 @@ namespace Shrooms.Presentation.Api.Controllers
         
         [Authorize]
         [HttpPost("Test")]
-        public IActionResult Test()
-        {
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPost("TestPrivate")]
-        private IActionResult TestPrivate()
+        public IActionResult TestAuthentication()
         {
             return Ok();
         }

@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
 using Shrooms.Contracts.DataTransferObjects.Models.Kudos;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
 
@@ -17,14 +18,18 @@ namespace Shrooms.Domain.Services.Email.Kudos
     {
         private readonly IMailTemplate _mailTemplate;
         private readonly IMailingService _mailingService;
-        private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
 
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly DbSet<Organization> _organizationsDbSet;
 
-        public KudosNotificationService(IUnitOfWork2 uow, IMailingService mailingService, IApplicationSettings appSettings, IMailTemplate mailTemplate)
+        public KudosNotificationService(
+            IUnitOfWork2 uow,
+            IMailingService mailingService,
+            IOptions<ApplicationOptions> applicationSettings,
+            IMailTemplate mailTemplate)
         {
-            _appSettings = appSettings;
+            _applicationOptions = applicationSettings.Value;
             _mailTemplate = mailTemplate;
             _mailingService = mailingService;
 
@@ -42,8 +47,8 @@ namespace Shrooms.Domain.Services.Email.Kudos
 
             var organizationName = (await GetOrganizationNameAsync(kudosLog.OrganizationId)).ShortName;
             var subject = Resources.Models.Kudos.Kudos.RejectedKudosEmailSubject;
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var kudosProfileUrl = _appSettings.KudosProfileUrl(organizationName, kudosLog.CreatedBy);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var kudosProfileUrl = _applicationOptions.KudosProfileUrl(organizationName, kudosLog.CreatedBy);
 
             var emailTemplateViewModel = new KudosRejectedEmailTemplateViewModel(userNotificationSettingsUrl,
                 kudosLog.Employee.FullName,
@@ -66,8 +71,8 @@ namespace Shrooms.Domain.Services.Email.Kudos
                 .Where(u => kudosDto.ReceivingUser.Id.Contains(u.Id))
                 .Select(u => u.Email);
 
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var kudosProfileUrl = _appSettings.KudosProfileUrl(organizationName, kudosDto.ReceivingUser.Id);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var kudosProfileUrl = _applicationOptions.KudosProfileUrl(organizationName, kudosDto.ReceivingUser.Id);
             var subject = Resources.Models.Kudos.Kudos.EmailSubject;
 
             var emailTemplateViewModel = new KudosSentEmailTemplateViewModel(
@@ -86,8 +91,8 @@ namespace Shrooms.Domain.Services.Email.Kudos
         {
             var organizationName = (await GetOrganizationNameAsync(kudosLog.OrganizationId)).ShortName;
             var sendingUserFullName = await GetUserFullNameAsync(kudosLog.CreatedBy);
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var kudosProfileUrl = _appSettings.KudosProfileUrl(organizationName, kudosLog.EmployeeId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var kudosProfileUrl = _applicationOptions.KudosProfileUrl(organizationName, kudosLog.EmployeeId);
             var subject = Resources.Models.Kudos.Kudos.EmailSubject;
 
             var emailTemplateViewModel = new KudosReceivedEmailTemplateViewModel(
@@ -107,8 +112,8 @@ namespace Shrooms.Domain.Services.Email.Kudos
         {
             var organizationName = (await GetOrganizationNameAsync(kudosLog.OrganizationId)).ShortName;
             var sendingUserFullName = await GetUserFullNameAsync(kudosLog.CreatedBy);
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var kudosProfileUrl = _appSettings.KudosProfileUrl(organizationName, kudosLog.EmployeeId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var kudosProfileUrl = _applicationOptions.KudosProfileUrl(organizationName, kudosLog.EmployeeId);
             var subject = Resources.Models.Kudos.Kudos.MinusKudosEmailSubject;
 
             var emailTemplateViewModel = new KudosDecreasedEmailTemplateViewModel(

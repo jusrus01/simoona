@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Presentation.Api.Helpers;
@@ -6,18 +7,9 @@ using System.Security.Claims;
 
 namespace Shrooms.Presentation.Api.Controllers
 {
+    // TODO: Refactor
     public class ShroomsControllerBase : ControllerBase
     {
-        //public StatusCodeResult Forbidden()
-        //{
-        //    return StatusCode(HttpStatusCode.Forbidden);
-        //}
-
-        //public StatusCodeResult UnsupportedMediaType()
-        //{
-        //    return StatusCode(HttpStatusCode.UnsupportedMediaType);
-        //}
-
         protected IActionResult BadRequestWithError(ValidationException ex)
         {
             return BadRequest(new { ErrorCode = ex.ErrorCode, ErrorMessage = ex.ErrorMessage });
@@ -33,7 +25,7 @@ namespace Shrooms.Presentation.Api.Controllers
             return new UserAndOrganizationHubDto
             {
                 OrganizationId = User.Identity.GetOrganizationId(),
-                UserId = GetUserId(),
+                UserId = GetAuthenticatedUserId(),
                 OrganizationName = User.Identity.GetOrganizationName()
             };
         }
@@ -43,30 +35,44 @@ namespace Shrooms.Presentation.Api.Controllers
             return User.Identity.GetOrganizationId();
         }
 
-        protected string GetOrganizationName()
-        {
-            return User.Identity.GetOrganizationName();
-        }
-
         protected void SetOrganizationAndUser(UserAndOrganizationDto obj)
         {
             obj.OrganizationId = User.Identity.GetOrganizationId();
-            obj.UserId = GetUserId();
+            obj.UserId = GetAuthenticatedUserId();
         }
 
-        protected string GetUserFullName()
+        protected string GetAuthenticatedUserFullName()
         {
-            return User.FindFirstValue(ClaimTypes.GivenName);
+            return GetAuthenticatedUserClaim(ClaimTypes.GivenName);
         }
 
-        protected string GetUserId()
+        protected string GetAuthenticatedUserId()
         {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return GetAuthenticatedUserClaim(ClaimTypes.NameIdentifier);
         }
 
-        protected string GetUserEmail()
+        protected string GetAuthenticatedUserEmail()
         {
-            return User.FindFirstValue(ClaimTypes.Email);
+            return GetAuthenticatedUserClaim(ClaimTypes.Email);
+        }
+
+        private string GetAuthenticatedUserClaim(string claimType)
+        {
+            if (HttpContext.User == null || 
+                HttpContext.User.Identity == null ||
+                !HttpContext.User.Identity.IsAuthenticated)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User is not authenticated");
+            }
+
+            var claim = User.FindFirstValue(claimType);
+
+            if (claim == null)
+            {
+                throw new ValidationException(ErrorCodes.InvalidClaim, $"Requested claim {claimType} does not exist");
+            }
+
+            return claim;
         }
     }
 }

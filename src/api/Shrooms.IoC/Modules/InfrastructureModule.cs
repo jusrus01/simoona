@@ -2,7 +2,6 @@
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.Domain.Services.DailyMailingService;
-using Shrooms.Infrastructure.Configuration;
 using Shrooms.Infrastructure.CustomCache;
 using Shrooms.Infrastructure.Email.Templates;
 using Shrooms.Infrastructure.ExcelGenerator;
@@ -26,9 +25,6 @@ namespace Shrooms.IoC.Modules
             //    .EnableInterfaceTelemetryInterceptor();
 
             builder.RegisterGeneric(typeof(CustomCache<,>)).As(typeof(ICustomCache<,>)).SingleInstance();
-            builder.RegisterType<ApplicationSettings>().As<IApplicationSettings>().InstancePerLifetimeScope();
-            //builder.RegisterType<ApplicationSettings>().As<IApplicationSettings>().InstancePerBackgroundJob();
-            builder.RegisterType<ApplicationSettings>().As<IApplicationSettings>().InstancePerLifetimeScope();
 
             builder.RegisterType<SystemClock>().As<ISystemClock>().SingleInstance();
             builder.RegisterType<ExcelBuilderFactory>().As<IExcelBuilderFactory>().InstancePerLifetimeScope();
@@ -36,18 +32,19 @@ namespace Shrooms.IoC.Modules
             builder.RegisterType<DailyMailingService>().As<IDailyMailingService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<HangFireScheduler>().As<IJobScheduler>().InstancePerLifetimeScope();
 
-            builder.Register<IStorage>(context =>
-            {
-                var settings = context.Resolve<IApplicationSettings>();
+            // TODO: Figure out
+            //builder.Register<IStorage>(context =>
+            //{
+            //    var settings = context.Resolve<IApplicationSettings>();
 
-                if (settings.StorageConnectionString != null)
-                {
-                    return new AzureStorage(settings);
-                }
+            //    if (settings.StorageConnectionString != null)
+            //    {
+            //        return new AzureStorage(settings);
+            //    }
 
-                return new FileSystemStorage();
-            })
-            .InstancePerLifetimeScope();
+            //    return new FileSystemStorage();
+            //})
+            //.InstancePerLifetimeScope();
         }
     }
 }

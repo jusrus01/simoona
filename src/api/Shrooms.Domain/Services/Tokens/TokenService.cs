@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
 using Shrooms.Contracts.Exceptions;
+using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.FireAndForget;
@@ -19,24 +22,26 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
+        private const int SecondsMultiplier = 86400;
+
         private readonly IPermissionService _permissionService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly ApplicationOptions _applicationOptions;
 
         public TokenService(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
             IPermissionService permissionService,
-            ITenantNameContainer tenantNameContainer)
+            ITenantNameContainer tenantNameContainer,
+            IOptions<ApplicationOptions> applicationOptions)
         {
             _userManager = userManager;
-            _configuration = configuration;
             _permissionService = permissionService;
             _signInManager = signInManager;
             _tenantNameContainer = tenantNameContainer;
+            _applicationOptions = applicationOptions.Value;
         }
 
         public async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
@@ -57,7 +62,7 @@ namespace Shrooms.Domain.Services.Tokens
             return (await CreateTokenAsync(user, _tenantNameContainer.TenantName)).AccessToken;
         }
 
-        public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto, string tenantName)
+        public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
         {
             var user = await _userManager.FindByNameAsync(requestDto.Username);
 
@@ -73,7 +78,7 @@ namespace Shrooms.Domain.Services.Tokens
                 throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
             }
 
-            return await CreateTokenAsync(user, tenantName);
+            return await CreateTokenAsync(user, _tenantNameContainer.TenantName);
         }
 
         private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user, string tenantName)
@@ -84,34 +89,30 @@ namespace Shrooms.Domain.Services.Tokens
             var permissions = await _permissionService.GetUserPermissionsAsync(user.Id);
 
             var roleClaims = MapToClaims(ClaimTypes.Role, userRoles);
-            var permissionClaims = MapToClaims("permission", permissions.ToList());
+            var permissionClaims = MapToClaims(WebApiConstants.ClaimPermissions, permissions.ToList());
 
+            // TODO: Add org id
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim("OrganizationName", tenantName),
-                new Claim("uid", user.Id)
+                new Claim(WebApiConstants.ClaimOrganizationName, tenantName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             }
             .Union(userClaims)
             .Union(roleClaims)
             .Union(permissionClaims);
 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:Jwt:Key"]));
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationOptions.Authentication.Jwt.Key));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-            if (!int.TryParse(_configuration["Authentication:Jwt:DurationInDays"], out var duration))
-            {
-                throw new ValidationException(ErrorCodes.InvalidType, "Duration has to be an int");
-            }
-
-            var expirationDate = DateTime.UtcNow.AddDays(duration);
+            var expirationDate = DateTime.UtcNow.AddDays(_applicationOptions.Authentication.Jwt.DurationInDays);
 
             var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _configuration["Kestrel:Endpoints:Urls:Url"], // TODO: Export ?
-                audience: _configuration["Kestrel:Endpoints:Urls:Url"],
+                issuer: _applicationOptions.ClientUrl,
+                audience: _applicationOptions.ClientUrl,
                 claims: claims,
                 expires: expirationDate,
                 signingCredentials: signingCredentials);
@@ -120,11 +121,11 @@ namespace Shrooms.Domain.Services.Tokens
             {
                 Expires = expirationDate,
                 Issued = DateTime.UtcNow,
-                ClientId = _configuration["ClientId"],
-                ExpiresIn = duration * 86400, // Seconds
-                TokenType = "bearer",
+                ClientId = _applicationOptions.ClientId,
+                ExpiresIn = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsMultiplier,
+                TokenType = "Bearer",
                 UserIndentifier = user.Id,
-                Persistent = "",
+                Persistent = "", // TODO: Figure this out
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
             };
         }

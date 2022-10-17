@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.Options;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
@@ -19,7 +20,7 @@ namespace Shrooms.Authentification.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private readonly IApplicationSettings _applicationSettings;
+        private readonly BasicOptions _basicOptions;
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
 
@@ -28,13 +29,13 @@ namespace Shrooms.Authentification.Handlers
             ILoggerFactory logger,
             UrlEncoder encoder,
             Microsoft.AspNetCore.Authentication.ISystemClock clock,
-            IApplicationSettings applicationSettings,
+            IOptions<BasicOptions> basicOptions,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer)
             :
             base(options, logger, encoder, clock)
         {
-            _applicationSettings = applicationSettings;
+            _basicOptions = basicOptions.Value;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
         }
@@ -117,7 +118,7 @@ namespace Shrooms.Authentification.Handlers
 
         private bool AreCredentialsValid(string username, string password)
         {
-            return username == _applicationSettings.BasicUsername && password == _applicationSettings.BasicPassword;
+            return username == _basicOptions.UserName && password == _basicOptions.Password;
         }
     }
 }

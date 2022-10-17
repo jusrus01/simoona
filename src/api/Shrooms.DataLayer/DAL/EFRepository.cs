@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models;
 using X.PagedList;
 
@@ -17,20 +16,18 @@ namespace Shrooms.DataLayer.DAL
         private const string ClaimOrganizationId = "OrganizationId";
 
         private readonly IDbContext _context;
-        private readonly IApplicationSettings _appSettings;
         protected readonly DbSet<TEntity> _dbSet;
 
         public int OrganizationId
         {
-            get => _appSettings.DefaultOrganizationId;
+            get => throw new NotImplementedException();
             set { }
         }
 
-        public EfRepository(IDbContext context, IApplicationSettings appSettings)
+        public EfRepository(IDbContext context)
         {
             _context = context;
             _dbSet = _context.Set<TEntity>();
-            _appSettings = appSettings;
         }
 
         public virtual IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, int maxResults = 0, string orderBy = null, string includeProperties = "",

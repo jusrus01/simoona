@@ -1,48 +1,50 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Collections.Concurrent;
 using System.IO;
 using System.Web;
-using Microsoft.Extensions.Configuration;
-using Shrooms.Contracts.Infrastructure;
 
-namespace Shrooms.Infrastructure.Configuration
+namespace Shrooms.Contracts.Options
 {
-    public class ApplicationSettings : IApplicationSettings
+    public class ApplicationOptions
     {
-        private readonly IConfiguration _configuration;
+        public string ClientId { get; set; }
 
-        public ApplicationSettings(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        public string ClientUrl { get; set; }
 
-        public string StorageConnectionString => _configuration.GetConnectionString("StorageConnectionString");
+        public bool EnableAITelemetry { get; set; }
 
-        public bool IsEmailEnabled => bool.Parse(ConfigurationManager.AppSettings["EmailEnabled"]);
+        public string AIInstrumentationKey { get; set; }
 
-        public int DefaultOrganizationId => int.Parse(ConfigurationManager.AppSettings["DefaultOrganizationId"]);
+        public ShroomsAuthenticationOptions Authentication { get; set; }
 
-        public int AccessTokenLifeTimeInHours => int.Parse(ConfigurationManager.AppSettings["AccessTokenLifeTimeInHours"]);
+        public string StorageConnectionString { get; set; }
 
-        public bool IsProductionBuild => bool.TryParse(ConfigurationManager.AppSettings["IsProductionBuild"], out var result) && result;
+        public ConcurrentDictionary<string, string> ConnectionStrings { get; set; }
 
-        public IEnumerable<string> OAuthRedirectUris => ConfigurationManager.AppSettings["OAuthRedirectUri"].Split(',');
+        //public bool IsEmailEnabled => bool.Parse(ConfigurationManager.AppSettings["EmailEnabled"]);
 
-        public string DemoAccountDefaultPictureId => ConfigurationManager.AppSettings["DemoAccountDefaultPictureID"];
+        //public int DefaultOrganizationId => int.Parse(ConfigurationManager.AppSettings["DefaultOrganizationId"]);
 
-        public string ClientUrl => string.Format(ConfigurationManager.AppSettings["ClientUrl"]);
+        //public int AccessTokenLifeTimeInHours => int.Parse(ConfigurationManager.AppSettings["AccessTokenLifeTimeInHours"]);
 
-        public string BasicUsername => _configuration.GetSection("BasicUsername").Get<string>();
+        //public bool IsProductionBuild => bool.TryParse(ConfigurationManager.AppSettings["IsProductionBuild"], out var result) && result;
 
-        public string BasicPassword => _configuration.GetSection("BasicPassword").Get<string>();
+        //public IEnumerable<string> OAuthRedirectUris => ConfigurationManager.AppSettings["OAuthRedirectUri"].Split(',');
 
-        public string CorsOriginsSetting => ConfigurationManager.AppSettings["CorsOriginsSettingKey"];
+        //public string DemoAccountDefaultPictureId => ConfigurationManager.AppSettings["DemoAccountDefaultPictureID"];
 
-        public string SupportEmail => ConfigurationManager.AppSettings["SupportEmail"];
+        //public string ClientUrl => string.Format(ConfigurationManager.AppSettings["ClientUrl"]);
 
-        public string VacationsBotAuthToken => ConfigurationManager.AppSettings["VacationsBotAuthToken"];
+        //public string BasicUsername => _configuration.GetSection("BasicUsername").Get<string>();
 
-        public string VacationsBotHistoryUrl => ConfigurationManager.AppSettings["VacationsBotHistoryUrl"];
+        //public string BasicPassword => _configuration.GetSection("BasicPassword").Get<string>();
+
+        //public string CorsOriginsSetting => ConfigurationManager.AppSettings["CorsOriginsSettingKey"];
+
+        public string SupportEmail { get; set; }
+
+        //public string VacationsBotAuthToken => ConfigurationManager.AppSettings["VacationsBotAuthToken"];
+
+        //public string VacationsBotHistoryUrl => ConfigurationManager.AppSettings["VacationsBotHistoryUrl"];
 
         public string ClientUrlWithOrg(string tenant) => GetClientPath(tenant);
 
@@ -73,8 +75,6 @@ namespace Shrooms.Infrastructure.Configuration
         public string VerifyEmailUrl(string organization, string userName, string token) => GetClientPath($"{organization}/Verify?UserName={HttpUtility.UrlEncode(userName)}&Token={HttpUtility.UrlEncode(token)}");
 
         public string FeedUrl(string tenant) => GetClientPath($"{tenant}/Wall/Feed");
-
-        public string ApiUrl => string.Format(ConfigurationManager.AppSettings["ApiUrl"]);
 
         private string GetClientPath(string relativePath) => Path.Combine(ClientUrl, relativePath);
     }

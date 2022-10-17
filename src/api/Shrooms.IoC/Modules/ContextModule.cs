@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DAL;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
@@ -38,10 +40,9 @@ namespace Shrooms.IoC.Modules
                     throw new Exception("Organization name was not provided for this request");
                 }
 
-                var configuration = contextBuilder.Resolve<IConfiguration>();
-                var connectionString = configuration.GetConnectionString(tenantContainer.TenantName);
+                var applicationOptions = contextBuilder.Resolve<IOptions<ApplicationOptions>>().Value;
 
-                if (connectionString == null)
+                if (!applicationOptions.ConnectionStrings.TryGetValue(tenantContainer.TenantName, out var connectionString))
                 {
                     throw new Exception("Invalid organization");
                 }
@@ -76,6 +77,13 @@ namespace Shrooms.IoC.Modules
 
         private static string ExtractTenantName(HttpContext httpContext)
         {
+            if (httpContext.User != null &&
+                httpContext.User.Identity.IsAuthenticated &&
+                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
+            {
+                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
+            }
+
             if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
             {
                 return organizationFromHeader;
@@ -84,13 +92,6 @@ namespace Shrooms.IoC.Modules
             if (httpContext.Request.Query.TryGetValue("organization", out var organizationFromUri))
             {
                 return organizationFromUri;
-            }
-
-            if (httpContext.User != null &&
-                httpContext.User.Identity.IsAuthenticated &&
-                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
-            {
-                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
             }
 
             if (httpContext.Request.Path.ToString().StartsWith("/storage"))

@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Support;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 
 namespace Shrooms.Domain.Services.Support
@@ -13,12 +15,12 @@ namespace Shrooms.Domain.Services.Support
     {
         private readonly DbSet<ApplicationUser> _applicationUsers;
         private readonly IMailingService _mailingService;
-        private readonly IApplicationSettings _applicationSettings;
+        private readonly ApplicationOptions _applicationOptions;
 
-        public SupportService(IUnitOfWork2 uow, IMailingService mailingService, IApplicationSettings applicationSettings)
+        public SupportService(IUnitOfWork2 uow, IMailingService mailingService, IOptions<ApplicationOptions> applicationOptions)
         {
             _mailingService = mailingService;
-            _applicationSettings = applicationSettings;
+            _applicationOptions = applicationOptions.Value;
             _applicationUsers = uow.GetDbSet<ApplicationUser>();
         }
 
@@ -26,7 +28,7 @@ namespace Shrooms.Domain.Services.Support
         {
             var currentApplicationUser = await _applicationUsers.SingleAsync(u => u.Id == userAndOrganization.UserId);
 
-            var email = new EmailDto(currentApplicationUser.FullName, currentApplicationUser.Email, _applicationSettings.SupportEmail, $"{support.Type}: {support.Subject}", support.Message);
+            var email = new EmailDto(currentApplicationUser.FullName, currentApplicationUser.Email, _applicationOptions.SupportEmail, $"{support.Type}: {support.Subject}", support.Message);
 
             await _mailingService.SendEmailAsync(email, true);
         }

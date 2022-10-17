@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.UserService;
 
@@ -16,20 +17,23 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
     {
         private readonly DbSet<Organization> _organizationDbSet;
         private readonly IMailingService _mailingService;
-        private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
         private readonly IMailTemplate _mailTemplate;
         private readonly IUserService _userService;
 
-        public AdministrationUsersNotificationService(IUnitOfWork2 uow,
+        public AdministrationUsersNotificationService(
+            IOptions<ApplicationOptions> applicationOptions,
+            IUnitOfWork2 uow,
             IMailingService mailingService,
-            IApplicationSettings appSettings,
             IMailTemplate mailTemplate,
             IUserService permissionService)
         {
+            _applicationOptions = applicationOptions.Value;
+
             _organizationDbSet = uow.GetDbSet<Organization>();
+
             _mailingService = mailingService;
             _mailTemplate = mailTemplate;
-            _appSettings = appSettings;
             _userService = permissionService;
         }
 
@@ -45,8 +49,8 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
                 return;
             }
 
-            var mainPageUrl = _appSettings.ClientUrl;
-            var userSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationNameAndContent.ShortName);
+            var mainPageUrl = _applicationOptions.ClientUrl;
+            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationNameAndContent.ShortName);
             var subject = string.Format(Resources.Common.NewUserConfirmedNotificationEmailSubject);
 
             var emailTemplateViewModel = new UserConfirmationEmailTemplateViewModel(userSettingsUrl, mainPageUrl, organizationNameAndContent.WelcomeEmail);
@@ -70,8 +74,8 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
                 .Select(organization => organization.ShortName)
                 .FirstOrDefaultAsync();
 
-            var newUserProfileUrl = _appSettings.UserProfileUrl(organizationName, newUser.Id);
-            var userSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
+            var newUserProfileUrl = _applicationOptions.UserProfileUrl(organizationName, newUser.Id);
+            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
             var subject = string.Format(Resources.Common.NewUserConfirmEmailSubject);
 
             var emailTemplateViewModel = new NotificationAboutNewUserEmailTemplateViewModel(userSettingsUrl, newUserProfileUrl, newUser.FullName);
@@ -84,8 +88,8 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
         public async Task SendUserResetPasswordEmailAsync(ApplicationUser user, string token, string organizationName)
         {
-            var userSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var resetUrl = _appSettings.ResetPasswordUrl(organizationName, user.UserName, token);
+            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var resetUrl = _applicationOptions.ResetPasswordUrl(organizationName, user.UserName, token);
 
             var resetPasswordTemplateViewModel = new ResetPasswordTemplateViewModel(user.FullName, userSettingsUrl, resetUrl);
             var subject = string.Format(Resources.Common.UserResetPasswordEmailSubject);
@@ -96,8 +100,8 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
         public async Task SendUserVerificationEmailAsync(ApplicationUser user, string token, string organizationName)
         {
-            var userSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationName);
-            var verifyUrl = _appSettings.VerifyEmailUrl(organizationName, user.UserName, token);
+            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
+            var verifyUrl = _applicationOptions.VerifyEmailUrl(organizationName, user.UserName, token);
 
             var verifyEmailTemplateViewModel = new VerifyEmailTemplateViewModel(user.FullName, userSettingsUrl, verifyUrl);
             var subject = string.Format(Resources.Common.UserVerifyEmailSubject);

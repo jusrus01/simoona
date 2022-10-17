@@ -9,7 +9,6 @@ using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
 using Shrooms.Contracts.DataTransferObjects.Models.Wall.Comments;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
@@ -22,6 +21,8 @@ using Shrooms.Resources.Emails;
 using Microsoft.EntityFrameworkCore;
 using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
+using Shrooms.Contracts.Options;
+using Microsoft.Extensions.Options;
 
 namespace Shrooms.Domain.Services.Email.Posting
 {
@@ -31,7 +32,7 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly ICommentService _commentService;
         private readonly IMailTemplate _mailTemplate;
         private readonly IMailingService _mailingService;
-        private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
         private readonly IOrganizationService _organizationService;
         private readonly IPostService _postService;
 
@@ -45,11 +46,11 @@ namespace Shrooms.Domain.Services.Email.Posting
             ICommentService commentService,
             IMailTemplate mailTemplate,
             IMailingService mailingService,
-            IApplicationSettings appSettings,
+            IOptions<ApplicationOptions> applicationOptions,
             IOrganizationService organizationService,
             IPostService postService)
         {
-            _appSettings = appSettings;
+            _applicationOptions = applicationOptions.Value;
             _userService = userService;
             _commentService = commentService;
             _mailTemplate = mailTemplate;
@@ -106,8 +107,8 @@ namespace Shrooms.Domain.Services.Email.Posting
         private async Task SendMentionedUserEmailsAsync(int commentId, int postId, string commentAuthorFullName, IEnumerable<ApplicationUser> mentionedUsers, string organizationShortName)
         {
             var comment = await _commentService.GetCommentBodyAsync(commentId);
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationShortName);
-            var postUrl = _appSettings.WallPostUrl(organizationShortName, postId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationShortName);
+            var postUrl = _applicationOptions.WallPostUrl(organizationShortName, postId);
 
             foreach (var mentionedUser in mentionedUsers)
             {
@@ -132,8 +133,8 @@ namespace Shrooms.Domain.Services.Email.Posting
             var comment = await LoadCommentAsync(commentDto.CommentId);
             var postLink = await GetPostLinkAsync(commentDto.WallType, commentDto.WallId, organization.ShortName, commentDto.PostId);
 
-            var authorPictureUrl = _appSettings.PictureUrl(organization.ShortName, commentAuthor.PictureId);
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organization.ShortName);
+            var authorPictureUrl = _applicationOptions.PictureUrl(organization.ShortName, commentAuthor.PictureId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organization.ShortName);
 
             var subject = string.Format(Templates.NewPostCommentEmailSubject, CutMessage(comment.Post.MessageBody), commentAuthor.FullName);
 
@@ -188,7 +189,7 @@ namespace Shrooms.Domain.Services.Email.Posting
                         .Select(x => x.Id)
                         .FirstAsync();
 
-                    return _appSettings.EventUrl(orgName, eventId.ToString());
+                    return _applicationOptions.EventUrl(orgName, eventId.ToString());
 
                 case WallType.Project:
                     var projectId = await _projectsDbSet
@@ -196,12 +197,12 @@ namespace Shrooms.Domain.Services.Email.Posting
                         .Select(x => x.Id)
                         .FirstAsync();
 
-                    return _appSettings.ProjectUrl(orgName, projectId.ToString());
+                    return _applicationOptions.ProjectUrl(orgName, projectId.ToString());
 
                 case WallType.Main:
                 case WallType.UserCreated:
                 default:
-                    return _appSettings.WallPostUrl(orgName, postId);
+                    return _applicationOptions.WallPostUrl(orgName, postId);
             }
         }
 

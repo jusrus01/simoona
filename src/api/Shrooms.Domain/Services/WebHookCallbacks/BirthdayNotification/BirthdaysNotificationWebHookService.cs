@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Roles;
 
@@ -21,13 +23,13 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
         private readonly IMailingService _mailingService;
         private readonly IRoleService _roleService;
         private readonly IMailTemplate _mailTemplate;
-        private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
 
         public BirthdaysNotificationWebHookService(IUnitOfWork2 uow,
             IMailingService mailingService,
             IRoleService roleService,
             IMailTemplate mailTemplate,
-            IApplicationSettings appSettings)
+            IOptions<ApplicationOptions> applicationOptions)
         {
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
             _organizationsDbSet = uow.GetDbSet<Organization>();
@@ -36,7 +38,7 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
             _mailingService = mailingService;
             _roleService = roleService;
             _mailTemplate = mailTemplate;
-            _appSettings = appSettings;
+            _applicationOptions = applicationOptions.Value;
         }
 
         public async Task SendNotificationsAsync(string organizationName)
@@ -62,7 +64,7 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
 
             var receivers = await _roleService.GetAdministrationRoleEmailsAsync(currentOrganization.Id);
             var model = new BirthdaysNotificationTemplateViewModel(GetFormattedEmployeesList(employees, organizationName, currentOrganization.ShortName),
-                _appSettings.UserNotificationSettingsUrl(organizationName));
+                _applicationOptions.UserNotificationSettingsUrl(organizationName));
             var content = _mailTemplate.Generate(model);
             var emailData = new EmailDto(receivers, Resources.Emails.Templates.BirthdaysNotificationEmailSubject, content);
 
@@ -78,8 +80,8 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
                 formattedEmployeeList.Add(new BirthdaysNotificationEmployeeViewModel
                 {
                     FullName = $"{employee.FirstName} {employee.LastName}",
-                    PictureUrl = _appSettings.PictureUrl(tenantPicturesContainer, employee.PictureId),
-                    ProfileUrl = _appSettings.UserProfileUrl(organizationName, employee.Id)
+                    PictureUrl = _applicationOptions.PictureUrl(tenantPicturesContainer, employee.PictureId),
+                    ProfileUrl = _applicationOptions.UserProfileUrl(organizationName, employee.Id)
                 });
             }
 

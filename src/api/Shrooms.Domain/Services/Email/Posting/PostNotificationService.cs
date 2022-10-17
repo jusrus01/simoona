@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -11,6 +12,7 @@ using Shrooms.Contracts.DataTransferObjects.Wall.Posts;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
 using Shrooms.DataLayer.EntityModels.Models.Projects;
@@ -29,7 +31,7 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly IPostService _postService;
         private readonly IMailTemplate _mailTemplate;
         private readonly IMailingService _mailingService;
-        private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
         private readonly IOrganizationService _organizationService;
 
         private readonly DbSet<MultiwallWall> _wallsDbSet;
@@ -42,10 +44,10 @@ namespace Shrooms.Domain.Services.Email.Posting
             IPostService postService,
             IMailTemplate mailTemplate,
             IMailingService mailingService,
-            IApplicationSettings appSettings,
+            IOptions<ApplicationOptions> applicationOptions,
             IOrganizationService organizationService)
         {
-            _appSettings = appSettings;
+            _applicationOptions = applicationOptions.Value;
             _userService = userService;
             _postService = postService;
             _mailTemplate = mailTemplate;
@@ -94,8 +96,8 @@ namespace Shrooms.Domain.Services.Email.Posting
         {
             var postBody = await _postService.GetPostBodyAsync(postId);
 
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organizationShortName);
-            var postUrl = _appSettings.WallPostUrl(organizationShortName, postId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationShortName);
+            var postUrl = _applicationOptions.WallPostUrl(organizationShortName, postId);
 
             foreach (var mentionedUser in mentionedUsers)
             {
@@ -121,8 +123,8 @@ namespace Shrooms.Domain.Services.Email.Posting
             MultiwallWall wall)
         {
             var postLink = await GetPostLinkAsync(post.WallType, post.WallId, organization.ShortName, post.Id);
-            var authorPictureUrl = _appSettings.PictureUrl(organization.ShortName, postCreator.PictureId);
-            var userNotificationSettingsUrl = _appSettings.UserNotificationSettingsUrl(organization.ShortName);
+            var authorPictureUrl = _applicationOptions.PictureUrl(organization.ShortName, postCreator.PictureId);
+            var userNotificationSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organization.ShortName);
             var subject = string.Format(Templates.NewWallPostEmailSubject, wall.Name, postCreator.FullName);
 
             var emailTemplateViewModel = new NewWallPostEmailTemplateViewModel(GetWallTitle(wall),
@@ -174,7 +176,7 @@ namespace Shrooms.Domain.Services.Email.Posting
                         .Where(x => x.WallId == wallId)
                         .Select(x => x.Id)
                         .FirstAsync();
-                    return _appSettings.EventUrl(orgName, eventId.ToString());
+                    return _applicationOptions.EventUrl(orgName, eventId.ToString());
 
                 case WallType.Project:
                     var projectId = await _projectsDbSet
@@ -182,10 +184,10 @@ namespace Shrooms.Domain.Services.Email.Posting
                         .Select(x => x.Id)
                         .FirstAsync();
 
-                    return _appSettings.ProjectUrl(orgName, projectId.ToString());
+                    return _applicationOptions.ProjectUrl(orgName, projectId.ToString());
 
                 default:
-                    return _appSettings.WallPostUrl(orgName, postId);
+                    return _applicationOptions.WallPostUrl(orgName, postId);
             }
         }
     }

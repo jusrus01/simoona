@@ -13,56 +13,61 @@ namespace Shrooms.Infrastructure.Storage.AzureBlob
     {
         private readonly BlobRequestOptions _blobRequestOptions;
 
-        private readonly IApplicationSettings _settings;
+        //private readonly IApplicationSettings _settings;
 
-        public AzureStorage(IApplicationSettings settings)
+        public AzureStorage()
         {
-            _settings = settings;
+            throw new NotImplementedException();
+            //_settings = settings;
 
-            _blobRequestOptions = new BlobRequestOptions
-            {
-                RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(AzureSettings.ExponentialRetryDeltaBackoff), AzureSettings.ExponentialRetryMaxAttempts),
-                MaximumExecutionTime = TimeSpan.FromSeconds(AzureSettings.MaximumExecutionTimeInSeconds)
-            };
+            //_blobRequestOptions = new BlobRequestOptions
+            //{
+            //    RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(AzureSettings.ExponentialRetryDeltaBackoff), AzureSettings.ExponentialRetryMaxAttempts),
+            //    MaximumExecutionTime = TimeSpan.FromSeconds(AzureSettings.MaximumExecutionTimeInSeconds)
+            //};
         }
 
         public async Task RemovePictureAsync(string blobKey, string tenantPicturesContainer)
         {
-            var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
+            throw new NotImplementedException();
+            //var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
 
-            if (await blockBlob.ExistsAsync())
-            {
-                await blockBlob.DeleteAsync(DeleteSnapshotsOption.None, null, _blobRequestOptions, null);
-            }
+            //if (await blockBlob.ExistsAsync())
+            //{
+            //    await blockBlob.DeleteAsync(DeleteSnapshotsOption.None, null, _blobRequestOptions, null);
+            //}
         }
 
         public async Task UploadPictureAsync(Image image, string blobKey, string mimeType, string tenantPicturesContainer)
         {
-            var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
-            blockBlob.Properties.ContentType = mimeType;
+            throw new NotImplementedException();
+            //var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
+            //blockBlob.Properties.ContentType = mimeType;
 
-            using (var stream = new MemoryStream())
-            {
-                image.Save(stream, image.RawFormat);
-                stream.Position = 0;
-                await blockBlob.UploadFromStreamAsync(stream, null, _blobRequestOptions, null);
-            }
+            //using (var stream = new MemoryStream())
+            //{
+            //    image.Save(stream, image.RawFormat);
+            //    stream.Position = 0;
+            //    await blockBlob.UploadFromStreamAsync(stream, null, _blobRequestOptions, null);
+            //}
         }
 
         public async Task UploadPictureAsync(Stream stream, string blobKey, string mimeType, string tenantPicturesContainer)
         {
-            var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
-            blockBlob.Properties.ContentType = mimeType;
-            await blockBlob.UploadFromStreamAsync(stream, null, _blobRequestOptions, null);
+            throw new NotImplementedException();
+            //var blockBlob = GetBlockBlob(blobKey, tenantPicturesContainer);
+            //blockBlob.Properties.ContentType = mimeType;
+            //await blockBlob.UploadFromStreamAsync(stream, null, _blobRequestOptions, null);
         }
 
         private CloudBlockBlob GetBlockBlob(string blobKey, string containerName)
         {
-            var storageAccount = CloudStorageAccount.Parse(_settings.StorageConnectionString);
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(containerName);
+            throw new NotImplementedException();
+            //var storageAccount = CloudStorageAccount.Parse(_settings.StorageConnectionString);
+            //var blobClient = storageAccount.CreateCloudBlobClient();
+            //var container = blobClient.GetContainerReference(containerName);
 
-            return container.GetBlockBlobReference(blobKey);
+            //return container.GetBlockBlobReference(blobKey);
         }
     }
 }
