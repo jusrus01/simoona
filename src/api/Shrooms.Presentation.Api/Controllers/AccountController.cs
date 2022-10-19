@@ -650,6 +650,7 @@
 //    }
 //}
 
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -660,7 +661,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Shrooms.Authentification.ExternalLoginInfrastructure;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Tokens;
@@ -676,11 +680,13 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api
 {
+    [Authorize]
     [Route("Account")]
     public class AccountController : ShroomsControllerBase
     {
         private const int StateStrengthInBits = 256;
 
+        private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IOrganizationService _organizationService;
@@ -689,17 +695,21 @@ namespace Shrooms.Presentation.Api
         private readonly AuthenticationService _authenticationService;
         private readonly IConfiguration _configuration;
         private readonly ITokenService _tokenService;
+        private readonly IAdministrationUsersService _administrationUsersService;
 
         public AccountController(
+            IMapper mapper,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
             IAuthenticationService authenticationService,
-            IConfiguration configuration,
+            IAdministrationUsersService administrationUsersService,
+            IConfiguration configuration, // TODO: Replace IConfiguration with options
             ITokenService tokenService)
         {
+            _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
             _organizationService = organizationService;
@@ -708,6 +718,30 @@ namespace Shrooms.Presentation.Api
             _authenticationService = (AuthenticationService)authenticationService;
             _configuration = configuration;
             _tokenService = tokenService;
+            _administrationUsersService = administrationUsersService;
+        }
+
+        [AllowAnonymous]
+        [Route("Register")]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterViewModel registerViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
+
+                await _administrationUsersService.RegisterInternalAsync(registerDto);
+
+                return Ok();
+            }
+            catch (ValidationException e)
+            {
+                return BadRequestWithError(e);
+            }
         }
 
         [Authorize]
@@ -756,39 +790,6 @@ namespace Shrooms.Presentation.Api
             return Ok(logins);
         }
 
-        [HttpGet("Google/Success")]
-        public async Task<IActionResult> OnGoogleSignInSuccess()
-        {
-            //    ExternalLoginInfo info = await signInManager.GetExternalLoginInfoAsync();
-            //    if (info == null)
-            //        return RedirectToAction(nameof(Login));
-
-            //    var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            //    string[] userInfo = { info.Principal.FindFirst(ClaimTypes.Name).Value, info.Principal.FindFirst(ClaimTypes.Email).Value };
-            //    if (result.Succeeded)
-            //        return View(userInfo);
-            //    else
-            //    {
-            //        AppUser user = new AppUser
-            //        {
-            //            Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
-            //            UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
-            //        };
-
-            //        IdentityResult identResult = await userManager.CreateAsync(user);
-            //        if (identResult.Succeeded)
-            //        {
-            //            identResult = await userManager.AddLoginAsync(user, info);
-            //            if (identResult.Succeeded)
-            //            {
-            //                await signInManager.SignInAsync(user, false);
-            //                return View(userInfo);
-            //            }
-            //        }
-            //        return AccessDenied();
-
-            return Ok();
-        }
 
         [AllowAnonymous]
         [HttpGet("ExternalLogin")]
@@ -853,6 +854,11 @@ namespace Shrooms.Presentation.Api
         [HttpPost("SignIn")] // Idenity returns so .AspNetCore. cookie instead of .AspNet.Cookies
         public async Task<IActionResult> SignIn([FromBody] LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = await _userManager.FindByNameAsync(model.UserName); // Username = email
 
             if (user == null)
@@ -917,7 +923,7 @@ namespace Shrooms.Presentation.Api
             var claimsIdentity = User.Identity as ClaimsIdentity;
 
             var user = await _userManager.FindByIdAsync(userId);
-            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
+            var permissions = await _permissionService.GetUserPermissionsAsyncDeprecated(userId);
 
             var userInfo = new LoggedInUserInfoViewModel
             {

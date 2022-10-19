@@ -1,20 +1,10 @@
 ﻿using Autofac;
 using AutoMapper;
-using Microsoft.Extensions.Configuration;
-using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Infrastructure;
-using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Permissions;
-using Shrooms.Domain.Services.Roles;
 using Shrooms.Domain.Services.Tokens;
-using Shrooms.Infrastructure.Configuration;
-using Shrooms.Infrastructure.CustomCache;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.IoC.Modules;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 

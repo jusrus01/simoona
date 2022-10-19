@@ -10,6 +10,7 @@
         public const int InvalidOrganization = 604;
         public const int InvalidCredentials = 605;
         public const int InvalidClaim = 606;
+        public const int Unspecified = 607;
 
         // Books, 1**
         public const string BookNotFoundByExternalProviderCode = "100";

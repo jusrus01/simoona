@@ -42,7 +42,7 @@
         public const string ClaimOrganizationId = "OrganizationId";
         public const string ClaimUserImpersonation = "UserImpersonation";
         public const string ClaimOriginalUsername = "OriginalUsername";
-        public const string ClaimPermissions = "Permissions";
+        public const string ClaimPermission = "Permission";
         #endregion
 
         #region ApplicationUser

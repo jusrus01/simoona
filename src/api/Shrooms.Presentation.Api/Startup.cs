@@ -136,8 +136,8 @@ namespace Shrooms.Presentation.Api
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
-                    ValidIssuer = applicationOptions.ClientUrl,
-                    ValidAudience = applicationOptions.ClientUrl,
+                    ValidIssuer = applicationOptions.ApiUrl,
+                    ValidAudience = applicationOptions.ApiUrl,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(applicationOptions.Authentication.Jwt.Key))
                 };
             })

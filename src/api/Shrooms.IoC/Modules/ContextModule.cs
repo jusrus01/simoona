@@ -26,7 +26,7 @@ namespace Shrooms.IoC.Modules
                 var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
                 var tenantName = ExtractTenantName(httpContextAccessor.HttpContext);
 
-                return new TenantNameContainer(tenantName);
+                return new TenantNameContainer(tenantName);//TODO: fix lowercase name appearance
             })
             .As<ITenantNameContainer>()
             .InstancePerLifetimeScope();
@@ -81,7 +81,7 @@ namespace Shrooms.IoC.Modules
                 httpContext.User.Identity.IsAuthenticated &&
                 httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
             {
-                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
+                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value;
             }
 
             if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))

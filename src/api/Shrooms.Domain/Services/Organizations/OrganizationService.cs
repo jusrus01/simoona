@@ -81,7 +81,10 @@ namespace Shrooms.Domain.Services.Organizations
 
         public async Task<Organization> GetUserOrganizationAsync(ApplicationUser user)
         {
-            return (await _usersDbSet.FindAsync(user.Id))?.Organization;
+            var foundUser = await _usersDbSet.Include(user => user.Organization)
+                .SingleOrDefaultAsync(u => u.Id == user.Id);
+
+            return foundUser.Organization;
         }
 
         public async Task<bool> IsOrganizationHostValidAsync(string email, string requestedOrganizationName)

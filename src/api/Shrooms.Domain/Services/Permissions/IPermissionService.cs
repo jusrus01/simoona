@@ -8,10 +8,17 @@ namespace Shrooms.Domain.Services.Permissions
     public interface IPermissionService
     {
         Task<bool> UserHasPermissionAsync(UserAndOrganizationDto userAndOrg, string permissionName);
+
         Task<IEnumerable<PermissionGroupDto>> GetGroupNamesAsync(int organizationId);
-        Task<IEnumerable<string>> GetUserPermissionsAsync(string userId);
+
+        Task<IEnumerable<string>> GetUserPermissionsAsyncDeprecated(string userId);
+
         Task<IEnumerable<PermissionDto>> GetRolePermissionsAsync(string roleId, int organizationId);
+
         void RemoveCache(string userId);
+
         bool UserHasPermission(UserAndOrganizationDto userAndOrg, string permissionName);
+
+        Task<IEnumerable<string>> GetUserPermissionsAsync(string userId);
     }
 }

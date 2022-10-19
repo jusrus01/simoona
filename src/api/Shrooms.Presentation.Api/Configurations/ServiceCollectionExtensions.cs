@@ -8,13 +8,15 @@ namespace Shrooms.Presentation.Api.Configurations
     {
         public static ApplicationOptions AddOptions(this IServiceCollection services, IConfiguration configuration)
         {
+            var applicationOptions = configuration.Get<ApplicationOptions>();
+
+            applicationOptions.ApiUrl = configuration["Kestrel:Endpoints:Urls:Url"];
+
             services.Configure<ApplicationOptions>(configuration);
             services.Configure<ApplicationOptions>(options =>
             {
-                options.ClientUrl = configuration["Kestrel:Endpoints:Urls:Url"];
+                options.ApiUrl = applicationOptions.ApiUrl;
             });
-
-            var applicationOptions = configuration.Get<ApplicationOptions>();
 
             services.Configure<BasicOptions>(options => options = applicationOptions.Authentication.Basic);
             services.Configure<GoogleOptions>(options => options = applicationOptions.Authentication.Google);

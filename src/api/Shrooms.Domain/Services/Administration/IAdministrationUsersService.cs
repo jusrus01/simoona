@@ -5,12 +5,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.DataLayer.EntityModels.Models;
 
 namespace Shrooms.Domain.Services.Administration
 {
     public interface IAdministrationUsersService
     {
+        Task RegisterInternalAsync(RegisterDto registerDto);
+
         Task<bool> UserEmailExistsAsync(string email);
 
         Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId);
@@ -25,7 +28,7 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filter, string includeProperties);
 
-        Task<bool> UserIsSoftDeletedAsync(string email);
+        Task<bool> IsUserSoftDeletedAsync(string email);
 
         Task RestoreUserAsync(string email);
 

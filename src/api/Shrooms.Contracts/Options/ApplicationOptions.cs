@@ -6,6 +6,8 @@ namespace Shrooms.Contracts.Options
 {
     public class ApplicationOptions
     {
+        public string ApiUrl { get; set; }
+        
         public string ClientId { get; set; }
 
         public string ClientUrl { get; set; }

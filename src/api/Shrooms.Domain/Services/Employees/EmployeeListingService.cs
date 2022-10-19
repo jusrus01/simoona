@@ -38,7 +38,7 @@ namespace Shrooms.Domain.Services.Employees
 
         public async Task<IPagedList<EmployeeDto>> GetPagedEmployeesAsync(EmployeeListingArgsDto employeeArgsDto, UserAndOrganizationDto userOrg)
         {
-            var permissions = await _permissionService.GetUserPermissionsAsync(userOrg.UserId);
+            var permissions = await _permissionService.GetUserPermissionsAsyncDeprecated(userOrg.UserId);
 
             var hasApplicationUserPermission = permissions.Contains(AdministrationPermissions.ApplicationUser);
             var hasBlacklistPermission = permissions.Contains(BasicPermissions.Blacklist);

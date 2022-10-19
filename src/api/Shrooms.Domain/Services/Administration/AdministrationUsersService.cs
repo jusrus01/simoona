@@ -17,7 +17,9 @@ using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Enums;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.DataLayer.EntityModels.Models;
@@ -29,6 +31,7 @@ using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
 using Shrooms.Infrastructure.ExcelGenerator;
+using Shrooms.Infrastructure.FireAndForget;
 using UserResources = Shrooms.Resources.Models.ApplicationUser.ApplicationUser;
 
 namespace Shrooms.Domain.Services.Administration
@@ -36,6 +39,9 @@ namespace Shrooms.Domain.Services.Administration
     public class AdministrationUsersService : IAdministrationUsersService
     {
         private const string UsersExcelWorksheetName = "Users";
+
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITenantNameContainer _tenantNameContainer;
 
         private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly IRepository<ApplicationRole> _rolesRepository;
@@ -62,7 +68,9 @@ namespace Shrooms.Domain.Services.Administration
             IDbContext context,
             IAdministrationNotificationService notificationService,
             IKudosService kudosService,
-            IExcelBuilderFactory excelBuilderFactory)
+            IExcelBuilderFactory excelBuilderFactory,
+            ITenantNameContainer tenantNameContainer,
+            UserManager<ApplicationUser> userManager)
         {
             _uow = uow;
             _mapper = mapper;
@@ -79,6 +87,9 @@ namespace Shrooms.Domain.Services.Administration
             _notificationService = notificationService;
             _kudosService = kudosService;
             _excelBuilderFactory = excelBuilderFactory;
+
+            _userManager = userManager;
+            _tenantNameContainer = tenantNameContainer;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -114,7 +125,7 @@ namespace Shrooms.Domain.Services.Administration
             return content;
         }
 
-        public async Task<bool> UserIsSoftDeletedAsync(string email)
+        public async Task<bool> IsUserSoftDeletedAsync(string email)
         {
             throw new NotImplementedException();
             //if (_context is not ShroomsDbContext shroomsContext)
@@ -285,9 +296,7 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task<bool> UserEmailExistsAsync(string email)
         {
-            throw new NotSupportedException();
-            //var user = await _userManager.FindByEmailAsync(email);
-            //return user != null;
+            return await _userManager.FindByEmailAsync(email) != null;
         }
 
         public async Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filterModel, string includeProperties)
@@ -480,11 +489,10 @@ namespace Shrooms.Domain.Services.Administration
             user.IsTutorialComplete = tutorialStatus;
         }
 
-        private async Task AddNewUserRolesAsync(string id)
+        private async Task AddNewUserRolesAsync(ApplicationUser user)
         {
-            throw new NotImplementedException();
-            //await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.NewUser);
-            //await _userManager.AddToRoleAsync(id, Contracts.Constants.Roles.FirstLogin);
+            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.NewUser);
+            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.FirstLogin);
         }
 
         private async Task SetNewUsersValuesAsync(IList<AdministrationUserDto> administrationUserDto, IEnumerable<ApplicationUser> applicationUsers)
@@ -580,6 +588,82 @@ namespace Shrooms.Domain.Services.Administration
 
                 _wallUsersDbSet.Add(wallMember);
             }
+        }
+
+        public async Task RegisterInternalAsync(RegisterDto registerDto)
+        {
+            if (!await UserEmailExistsAsync(registerDto.Email))
+            {
+                await HandleNormalRegistrationAsync(registerDto);
+                return;
+            }
+
+            if (await IsUserSoftDeletedAsync(registerDto.Email))
+            {
+                await HandleSoftDeletedUserRegistrationAsync(registerDto);
+                return;
+            }
+
+            await HandleExistingUserRegistrationAsync(registerDto);
+        }
+
+        private async Task HandleNormalRegistrationAsync(RegisterDto registerDto)
+        {
+            await CreateNewInternalUserAsync(registerDto);
+        }
+
+        private async Task HandleSoftDeletedUserRegistrationAsync(RegisterDto registerDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task HandleExistingUserRegistrationAsync(RegisterDto registerDto)
+        {
+            var user = await _userManager.FindByEmailAsync(registerDto.Email); // In order for this to work correctly always, we should have unique constraint on emails...
+                                                                               // OR I create a custom handler...
+            
+            if (user.EmailConfirmed) // TODO: Check for ExternalLogin, need to figure out when it is added when using local authentication
+            {
+                throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is already registered");
+            }
+
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, registerDto.Password);
+
+            // TODO: Send verification email
+        }
+
+        private async Task CreateNewInternalUserAsync(RegisterDto registerDto)
+        {
+            var tenantName = _tenantNameContainer.TenantName;
+            var defaultUserOrganizationSettings = await _organizationDbSet.Where(o => o.ShortName == tenantName)
+                .Select(u => new { u.CultureCode, u.TimeZone })
+                .FirstAsync();
+
+            var organization = await _organizationService.GetOrganizationByNameAsync(tenantName);
+
+            var newUser = new ApplicationUser
+            {
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                UserName = registerDto.UserName,
+                Email = registerDto.Email,
+                EmploymentDate = DateTime.UtcNow,
+                CultureCode = defaultUserOrganizationSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture,
+                TimeZone = defaultUserOrganizationSettings.TimeZone,
+                NotificationsSettings = null,
+                OrganizationId = organization.Id,
+            };
+
+            var createuserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
+
+            if (!createuserResult.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
+            }
+
+            await AddNewUserRolesAsync(newUser);
+            // TODO: Send email verification
         }
     }
 }

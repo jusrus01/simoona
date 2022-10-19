@@ -62,6 +62,8 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
             CreateMap<WallNotificationsViewModel, WallNotificationsDto>();
 
             CreateMap<UserNotificationsSettingsViewModel, UserNotificationsSettingsDto>();
+
+            CreateMap<RegisterViewModel, RegisterDto>();
         }
     }
 }

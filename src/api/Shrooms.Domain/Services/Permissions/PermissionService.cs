@@ -81,7 +81,7 @@ namespace Shrooms.Domain.Services.Permissions
             //    .ToList();
         }
 
-        public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId)
+        public async Task<IEnumerable<string>> GetUserPermissionsAsyncDeprecated(string userId)
         {
             if (_permissionsCache.TryGetValue(userId, out var permissions))
             {
@@ -133,6 +133,18 @@ namespace Shrooms.Domain.Services.Permissions
         public void RemoveCache(string userId)
         {
             _permissionsCache.TryRemoveEntry(userId);
+        }
+
+        public async Task<IEnumerable<string>> GetUserPermissionsAsync(string userId)
+        {
+            var userRoleIds = await _userRolesDbSet.Where(role => role.UserId == userId)
+               .Select(role => role.RoleId)
+               .ToListAsync();
+
+            return await _rolePermissionsDbSet.Where(rolePermission => userRoleIds.Contains(rolePermission.RoleId))
+               .Select(rolePermission => rolePermission.Permission.Name)
+               .Distinct()
+               .ToListAsync();
         }
     }
 }

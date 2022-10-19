@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
@@ -22,26 +21,32 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public class TokenService : ITokenService
     {
-        private const int SecondsMultiplier = 86400;
+        private const int SecondsInADay = 86400;
 
-        private readonly IPermissionService _permissionService;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ITenantNameContainer _tenantNameContainer;
         private readonly ApplicationOptions _applicationOptions;
 
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
+        private readonly IPermissionService _permissionService;
+        private readonly IOrganizationService _organizationService;
+        private readonly ITenantNameContainer _tenantNameContainer;
+
         public TokenService(
+            IOptions<ApplicationOptions> applicationOptions,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IPermissionService permissionService,
-            ITenantNameContainer tenantNameContainer,
-            IOptions<ApplicationOptions> applicationOptions)
+            IOrganizationService organizationService,
+            ITenantNameContainer tenantNameContainer)
         {
+            _applicationOptions = applicationOptions.Value;
+
             _userManager = userManager;
             _permissionService = permissionService;
             _signInManager = signInManager;
+            _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
-            _applicationOptions = applicationOptions.Value;
         }
 
         public async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
@@ -59,7 +64,7 @@ namespace Shrooms.Domain.Services.Tokens
 
             await _userManager.AddLoginAsync(user, externalLoginInfo);
 
-            return (await CreateTokenAsync(user, _tenantNameContainer.TenantName)).AccessToken;
+            return (await CreateTokenAsync(user)).AccessToken;
         }
 
         public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
@@ -78,10 +83,10 @@ namespace Shrooms.Domain.Services.Tokens
                 throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
             }
 
-            return await CreateTokenAsync(user, _tenantNameContainer.TenantName);
+            return await CreateTokenAsync(user);
         }
 
-        private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user, string tenantName)
+        private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -89,17 +94,26 @@ namespace Shrooms.Domain.Services.Tokens
             var permissions = await _permissionService.GetUserPermissionsAsync(user.Id);
 
             var roleClaims = MapToClaims(ClaimTypes.Role, userRoles);
-            var permissionClaims = MapToClaims(WebApiConstants.ClaimPermissions, permissions.ToList());
+            var permissionClaims = MapToClaims(WebApiConstants.ClaimPermission, permissions.ToList());
 
-            // TODO: Add org id
+            var organization = await _organizationService.GetUserOrganizationAsync(user);
+
+            // TODO: Figure out ShortName and Name usage in organizations
+                // Name is never used...
+            if (_tenantNameContainer.TenantName != organization.ShortName)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(WebApiConstants.ClaimOrganizationName, tenantName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(WebApiConstants.ClaimOrganizationName, organization.Name),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(WebApiConstants.ClaimOrganizationId, organization.Id.ToString())
             }
             .Union(userClaims)
             .Union(roleClaims)
@@ -111,8 +125,8 @@ namespace Shrooms.Domain.Services.Tokens
             var expirationDate = DateTime.UtcNow.AddDays(_applicationOptions.Authentication.Jwt.DurationInDays);
 
             var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _applicationOptions.ClientUrl,
-                audience: _applicationOptions.ClientUrl,
+                issuer: _applicationOptions.ApiUrl,
+                audience: _applicationOptions.ApiUrl,
                 claims: claims,
                 expires: expirationDate,
                 signingCredentials: signingCredentials);
@@ -122,15 +136,15 @@ namespace Shrooms.Domain.Services.Tokens
                 Expires = expirationDate,
                 Issued = DateTime.UtcNow,
                 ClientId = _applicationOptions.ClientId,
-                ExpiresIn = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsMultiplier,
+                ExpiresIn = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsInADay,
                 TokenType = "Bearer",
                 UserIndentifier = user.Id,
-                Persistent = "", // TODO: Figure this out
+                Persistent = "",
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
             };
         }
 
-        private List<Claim> MapToClaims(string type, IList<string> claimNames)
+        private static List<Claim> MapToClaims(string type, IList<string> claimNames)
         {
             var claims = new List<Claim>();
 

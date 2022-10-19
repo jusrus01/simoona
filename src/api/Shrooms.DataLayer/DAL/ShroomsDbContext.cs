@@ -26,7 +26,7 @@ using Shrooms.DataLayer.EntityModels.Models.Notifications;
 using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.DataLayer.EntityModels.Models.ServiceRequests;
 
-namespace Shrooms.DataLayer.DAL
+namespace Shrooms.DataLayer.DAL//TODO: Handle soft deleting and configuration
 {
     public class ShroomsDbContextDesignFactory : IDesignTimeDbContextFactory<ShroomsDbContext>
     {
