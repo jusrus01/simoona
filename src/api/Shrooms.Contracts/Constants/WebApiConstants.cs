@@ -2,6 +2,8 @@
 {
     public static class WebApiConstants
     {
+        public const string ConfigurationApiUrlKey = "ApiUrl";
+
         public const int DefaultPageSize = 10;
         public const int OneHour = 3600;
         public const int OneDay = 3600 * 24;

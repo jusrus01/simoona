@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Options;
 
 namespace Shrooms.Presentation.Api.Configurations
@@ -10,7 +11,7 @@ namespace Shrooms.Presentation.Api.Configurations
         {
             var applicationOptions = configuration.Get<ApplicationOptions>();
 
-            applicationOptions.ApiUrl = configuration["Kestrel:Endpoints:Urls:Url"];
+            applicationOptions.ApiUrl = configuration[WebApiConstants.ConfigurationApiUrlKey];
 
             services.Configure<ApplicationOptions>(configuration);
             services.Configure<ApplicationOptions>(options =>

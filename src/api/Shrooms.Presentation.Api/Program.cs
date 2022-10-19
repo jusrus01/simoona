@@ -16,6 +16,9 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Shrooms.Contracts.Constants;
+using System;
+using System.Configuration;
 
 namespace Shrooms.Presentation.Api
 {
@@ -28,11 +31,20 @@ namespace Shrooms.Presentation.Api
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
+            var apiHostingUrl = ConfigurationManager.AppSettings[WebApiConstants.ConfigurationApiUrlKey];
+
+            if (apiHostingUrl == null)
+            {
+                throw new Exception("Hosting url is not specified in web.config");
+            }
+
             return Host.CreateDefaultBuilder(args)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseSetting(WebApiConstants.ConfigurationApiUrlKey, apiHostingUrl);
+                    webBuilder.UseUrls(apiHostingUrl);
                 });
         }
     }
