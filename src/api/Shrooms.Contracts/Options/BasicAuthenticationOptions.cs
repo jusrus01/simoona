@@ -1,6 +1,6 @@
 ﻿namespace Shrooms.Contracts.Options
 {
-    public class BasicOptions
+    public class BasicAuthenticationOptions
     {
         public string UserName { get; set; }
 

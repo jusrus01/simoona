@@ -2,10 +2,10 @@
 {
     public class ShroomsAuthenticationOptions
     {
-        public JwtOptions Jwt { get; set; }
+        public JwtAuthenticationOptions Jwt { get; set; }
 
-        public GoogleOptions Google { get; set; }
+        public GoogleAuthenticationOptions Google { get; set; }
 
-        public BasicOptions Basic { get; set; }
+        public BasicAuthenticationOptions Basic { get; set; }
     }
 }

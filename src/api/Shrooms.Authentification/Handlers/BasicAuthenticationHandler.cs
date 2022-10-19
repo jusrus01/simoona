@@ -20,7 +20,7 @@ namespace Shrooms.Authentification.Handlers
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private readonly BasicOptions _basicOptions;
+        private readonly BasicAuthenticationOptions _basicOptions;
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
 
@@ -29,7 +29,7 @@ namespace Shrooms.Authentification.Handlers
             ILoggerFactory logger,
             UrlEncoder encoder,
             Microsoft.AspNetCore.Authentication.ISystemClock clock,
-            IOptions<BasicOptions> basicOptions,
+            IOptions<BasicAuthenticationOptions> basicOptions,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer)
             :

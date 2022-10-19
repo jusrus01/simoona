@@ -19,9 +19,9 @@ namespace Shrooms.Presentation.Api.Configurations
                 options.ApiUrl = applicationOptions.ApiUrl;
             });
 
-            services.Configure<BasicOptions>(options => options = applicationOptions.Authentication.Basic);
-            services.Configure<GoogleOptions>(options => options = applicationOptions.Authentication.Google);
-            services.Configure<JwtOptions>(options => options = applicationOptions.Authentication.Jwt);
+            services.Configure<BasicAuthenticationOptions>(options => options = applicationOptions.Authentication.Basic);
+            services.Configure<GoogleAuthenticationOptions>(options => options = applicationOptions.Authentication.Google);
+            services.Configure<JwtAuthenticationOptions>(options => options = applicationOptions.Authentication.Jwt);
             services.Configure<ShroomsAuthenticationOptions>(options => options = applicationOptions.Authentication);
 
             return applicationOptions;

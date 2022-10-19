@@ -1,6 +1,6 @@
 ﻿namespace Shrooms.Contracts.Options
 {
-    public class GoogleOptions
+    public class GoogleAuthenticationOptions
     {
         public string ClientId { get; set; }
 
