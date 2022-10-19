@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Options;
+using System;
+using System.Collections.Concurrent;
 
 namespace Shrooms.Presentation.Api.Configurations
 {
@@ -17,6 +19,9 @@ namespace Shrooms.Presentation.Api.Configurations
             services.Configure<ApplicationOptions>(options =>
             {
                 options.ApiUrl = applicationOptions.ApiUrl;
+
+                // Creating case-insensitive dictionary
+                options.ConnectionStrings = new ConcurrentDictionary<string, string>(options.ConnectionStrings, StringComparer.InvariantCultureIgnoreCase);
             });
 
             services.Configure<BasicAuthenticationOptions>(options => options = applicationOptions.Authentication.Basic);

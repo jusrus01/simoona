@@ -98,9 +98,7 @@ namespace Shrooms.Domain.Services.Tokens
 
             var organization = await _organizationService.GetUserOrganizationAsync(user);
 
-            // TODO: Figure out ShortName and Name usage in organizations
-                // Name is never used...
-            if (_tenantNameContainer.TenantName != organization.ShortName)
+            if (_tenantNameContainer.TenantName.ToLowerInvariant() != organization.ShortName.ToLowerInvariant())
             {
                 throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
             }

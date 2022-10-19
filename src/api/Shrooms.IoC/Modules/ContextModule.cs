@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
@@ -26,7 +27,7 @@ namespace Shrooms.IoC.Modules
                 var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
                 var tenantName = ExtractTenantName(httpContextAccessor.HttpContext);
 
-                return new TenantNameContainer(tenantName);//TODO: fix lowercase name appearance
+                return new TenantNameContainer(tenantName);
             })
             .As<ITenantNameContainer>()
             .InstancePerLifetimeScope();
@@ -75,15 +76,17 @@ namespace Shrooms.IoC.Modules
                 .InstancePerLifetimeScope();
         }
 
+        // TODO: Refactor
         private static string ExtractTenantName(HttpContext httpContext)
         {
             if (httpContext.User != null &&
                 httpContext.User.Identity.IsAuthenticated &&
-                httpContext.User.Claims.Any(x => x.Type == "OrganizationName"))
+                httpContext.User.Claims.Any(x => x.Type == WebApiConstants.ClaimOrganizationName))
             {
-                return httpContext.User.Claims.First(x => x.Type == "OrganizationName").Value;
+                return httpContext.User.Claims.First(x => x.Type == WebApiConstants.ClaimOrganizationName).Value;
             }
 
+            // TODO: Change this to case-insensitive
             if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
             {
                 return organizationFromHeader;
