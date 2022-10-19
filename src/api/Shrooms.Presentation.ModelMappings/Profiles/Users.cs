@@ -55,6 +55,8 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
             CreateMap<UserAutoCompleteDto, ApplicationUserAutoCompleteViewModel>();
 
             CreateMap<LoggedInUserInfoDto, LoggedInUserInfoViewModel>();
+
+            CreateMap<ExternalLoginDto, ExternalLoginViewModel>();
         }
 
         private void CreateViewModelToDtoMappings()

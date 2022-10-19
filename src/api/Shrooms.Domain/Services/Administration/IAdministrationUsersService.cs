@@ -48,5 +48,7 @@ namespace Shrooms.Domain.Services.Administration
         Task SendUserVerificationEmailAsync(ApplicationUser user, string organizationName);
 
         Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
+
+        Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync();
     }
 }

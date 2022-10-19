@@ -3,9 +3,11 @@ using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Users;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Exceptions.Exceptions.Organization;
 using Shrooms.Domain.Services.Roles;
@@ -37,8 +39,8 @@ namespace Shrooms.Domain.Services.Organizations
 #pragma warning disable S1449 //EF does does not understand Equals(invariant) or ToLowerInvariant()
         public async Task<Organization> GetOrganizationByNameAsync(string organizationName)
         {
-            return await _organizationsDbSet
-                .SingleAsync(organization => organization.ShortName.ToLower() == organizationName.ToLower());
+            return await _organizationsDbSet.SingleAsync(organization => 
+                organization.ShortName.ToLower() == organizationName.ToLower());
         }
 
         public string GetOrganizationHostName(string organizationName)

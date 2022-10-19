@@ -123,25 +123,18 @@ namespace Shrooms.Presentation.Api
         [HttpGet("InternalLogins")]
         public async Task<IActionResult> GetInternalLogins()
         {
-            var logins = new List<ExternalLoginViewModel>();
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            var organizationProviders = organization.AuthenticationProviders;
-
-            if (!ContainsProvider(organizationProviders, AuthenticationConstants.InternalLoginProvider))
+            try
             {
-                return Ok(logins);
+                var loginDtos = await _administrationUsersService.GetInternalLoginsAsync();
+                var loginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(loginDtos);
+
+                return Ok(loginViewModels);
             }
-
-            var internalLogin = new ExternalLoginViewModel
+            catch (ValidationException e)
             {
-                Name = AuthenticationConstants.InternalLoginProvider
-            };
-
-            logins.Add(internalLogin);
-
-            return Ok(logins);
+                return BadRequestWithError(e);
+            }
         }
-
 
         [AllowAnonymous]
         [HttpGet("ExternalLogin")]

@@ -574,6 +574,66 @@ namespace Shrooms.Domain.Services.Administration
             }
         }
 
+        public async Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync()
+        {
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var providers = organization.AuthenticationProviders;
+
+            if (!providers.ToLower().Contains(AuthenticationConstants.InternalLoginProvider.ToLower()))
+            {
+                return Enumerable.Empty<ExternalLoginDto>();
+            }
+
+            return new List<ExternalLoginDto>
+            {
+                new ExternalLoginDto
+                {
+                    Name = AuthenticationConstants.InternalLoginProvider,
+                }
+            };
+        }
+
+        public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
+        {
+            if (identity is not ClaimsIdentity claimsIdentity)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
+            }
+
+            if (!claimsIdentity.IsAuthenticated)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
+            }
+
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
+
+            return new LoggedInUserInfoDto
+            {
+                HasRegistered = true,
+                Roles = roles,
+                UserName = identity.Name,
+                UserId = userId,
+                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
+                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
+                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
+                Permissions = permissions,
+                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
+                CultureCode = user.CultureCode,
+                TimeZone = user.TimeZone,
+                PictureId = user.PictureId
+            };
+        }
+
         // TODO: Update registration logic when organization logic is fixed
         public async Task RegisterInternalAsync(RegisterDto registerDto)
         {
@@ -659,47 +719,6 @@ namespace Shrooms.Domain.Services.Administration
             var logins = await _userManager.GetLoginsAsync(user);
 
             return logins.Any();
-        }
-
-        public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
-        {
-            if (identity is not ClaimsIdentity claimsIdentity)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
-            }
-
-            if (!claimsIdentity.IsAuthenticated)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
-            }
-
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = await _userManager.FindByIdAsync(userId);
-            
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
-
-            return new LoggedInUserInfoDto
-            {
-                HasRegistered = true,
-                Roles = roles,
-                UserName = identity.Name,
-                UserId = userId,
-                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
-                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
-                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
-                Permissions = permissions,
-                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
-                CultureCode = user.CultureCode,
-                TimeZone = user.TimeZone,
-                PictureId = user.PictureId
-            };
         }
     }
 }
