@@ -10,6 +10,7 @@ using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
 using Shrooms.Domain.Services.Organizations;
+using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.ExcelGenerator;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
@@ -18,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -28,7 +30,9 @@ namespace Shrooms.Domain.Services.Administration
         private const string UsersExcelWorksheetName = "Users";
 
         private readonly UserManager<ApplicationUser> _userManager;
+
         private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IPermissionService _permissionService;
 
         //private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly DbSet<ApplicationUser> _usersDbSet;
@@ -54,6 +58,7 @@ namespace Shrooms.Domain.Services.Administration
             //IKudosService kudosService,
             //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
+            IPermissionService permissionService,
             UserManager<ApplicationUser> userManager)
         {
             _uow = uow;
@@ -68,6 +73,7 @@ namespace Shrooms.Domain.Services.Administration
 
             _userManager = userManager;
             _tenantNameContainer = tenantNameContainer;
+            _permissionService = permissionService;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -616,6 +622,7 @@ namespace Shrooms.Domain.Services.Administration
         private async Task CreateNewInternalUserAsync(RegisterDto registerDto)
         {
             var tenantName = _tenantNameContainer.TenantName;
+
             var defaultUserOrganizationSettings = await _organizationDbSet.Where(o => o.ShortName == tenantName)
                 .Select(u => new { u.CultureCode, u.TimeZone })
                 .FirstAsync();
@@ -652,6 +659,47 @@ namespace Shrooms.Domain.Services.Administration
             var logins = await _userManager.GetLoginsAsync(user);
 
             return logins.Any();
+        }
+
+        public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
+        {
+            if (identity is not ClaimsIdentity claimsIdentity)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
+            }
+
+            if (!claimsIdentity.IsAuthenticated)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
+            }
+
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
+
+            return new LoggedInUserInfoDto
+            {
+                HasRegistered = true,
+                Roles = roles,
+                UserName = identity.Name,
+                UserId = userId,
+                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
+                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
+                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
+                Permissions = permissions,
+                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
+                CultureCode = user.CultureCode,
+                TimeZone = user.TimeZone,
+                PictureId = user.PictureId
+            };
         }
     }
 }

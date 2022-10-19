@@ -11,7 +11,7 @@ using Shrooms.Domain.Exceptions.Exceptions.Organization;
 using Shrooms.Domain.Services.Roles;
 using Shrooms.Infrastructure.FireAndForget;
 
-// Note: Name is not used, only ShortName
+// Note: Name is used in claims, ShortName is used elsewhere
 namespace Shrooms.Domain.Services.Organizations
 {
     public class OrganizationService : IOrganizationService

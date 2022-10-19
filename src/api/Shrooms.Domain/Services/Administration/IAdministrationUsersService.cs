@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
@@ -45,5 +46,7 @@ namespace Shrooms.Domain.Services.Administration
         Task SendUserPasswordResetEmailAsync(ApplicationUser user, string organizationName);
 
         Task SendUserVerificationEmailAsync(ApplicationUser user, string organizationName);
+
+        Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
     }
 }
