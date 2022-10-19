@@ -1,38 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.DataLayer.EntityModels.Models.Kudos;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
-using Shrooms.Domain.Services.Email.AdministrationUsers;
-using Shrooms.Domain.Services.Kudos;
 using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Picture;
-using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
 using Shrooms.Infrastructure.ExcelGenerator;
 using Shrooms.Infrastructure.FireAndForget;
-using UserResources = Shrooms.Resources.Models.ApplicationUser.ApplicationUser;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -43,50 +30,41 @@ namespace Shrooms.Domain.Services.Administration
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITenantNameContainer _tenantNameContainer;
 
-        private readonly IRepository<ApplicationUser> _applicationUserRepository;
-        private readonly IRepository<ApplicationRole> _rolesRepository;
+        //private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly DbSet<Organization> _organizationDbSet;
-        private readonly DbSet<DataLayer.EntityModels.Models.Multiwalls.Wall> _wallsDbSet;
         private readonly DbSet<WallMember> _wallUsersDbSet;
-        private readonly IUserAdministrationValidator _userAdministrationValidator;
         private readonly IOrganizationService _organizationService;
-        private readonly IPictureService _pictureService;
-        private readonly IDbContext _context;
-        private readonly IMapper _mapper;
-        private readonly IAdministrationNotificationService _notificationService;
-        private readonly IKudosService _kudosService;
+        //private readonly IPictureService _pictureService;
+        //private readonly IMapper _mapper;
+        //private readonly IAdministrationNotificationService _notificationService;
+        //private readonly IKudosService _kudosService;
         private readonly IUnitOfWork2 _uow;
-        private readonly IExcelBuilderFactory _excelBuilderFactory;
+        //private readonly IExcelBuilderFactory _excelBuilderFactory;
 
-        public AdministrationUsersService(IMapper mapper,
-            IUnitOfWork unitOfWork,
+        public AdministrationUsersService(
+            IDbContext dbContext,
+            //IUnitOfWork unitOfWork,
             IUnitOfWork2 uow,
-            IUserAdministrationValidator userAdministrationValidator,
+            //IUserAdministrationValidator userAdministrationValidator,
             IOrganizationService organizationService,
-            IPictureService pictureService,
-            IDbContext context,
-            IAdministrationNotificationService notificationService,
-            IKudosService kudosService,
-            IExcelBuilderFactory excelBuilderFactory,
+            //IPictureService pictureService,
+            //IDbContext context,
+            //IAdministrationNotificationService notificationService,
+            //IKudosService kudosService,
+            //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
             UserManager<ApplicationUser> userManager)
         {
             _uow = uow;
-            _mapper = mapper;
-            _applicationUserRepository = unitOfWork.GetRepository<ApplicationUser>();
-            _rolesRepository = unitOfWork.GetRepository<ApplicationRole>();
+            //_mapper = mapper;
+            //_applicationUserRepository = unitOfWork.GetRepository<ApplicationUser>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
             _organizationDbSet = uow.GetDbSet<Organization>();
-            _wallsDbSet = uow.GetDbSet<DataLayer.EntityModels.Models.Multiwalls.Wall>();
             _wallUsersDbSet = uow.GetDbSet<WallMember>();
-            _userAdministrationValidator = userAdministrationValidator;
             _organizationService = organizationService;
-            _pictureService = pictureService;
-            _context = context;
-            _notificationService = notificationService;
-            _kudosService = kudosService;
-            _excelBuilderFactory = excelBuilderFactory;
+            //_notificationService = notificationService;
+            //_kudosService = kudosService;
 
             _userManager = userManager;
             _tenantNameContainer = tenantNameContainer;
@@ -94,51 +72,45 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
         {
-            var users = await _usersDbSet
-                .Include(user => user.WorkingHours)
-                .Include(user => user.JobPosition)
-                .Where(user => user.OrganizationId == organizationId)
-                .ToListAsync();
+            throw new NotImplementedException();
+            //var users = await _usersDbSet
+            //    .Include(user => user.WorkingHours)
+            //    .Include(user => user.JobPosition)
+            //    .Where(user => user.OrganizationId == organizationId)
+            //    .ToListAsync();
 
-            var excelBuilder = _excelBuilderFactory.GetBuilder();
+            //var excelBuilder = _excelBuilderFactory.GetBuilder();
 
-            excelBuilder
-                .AddWorksheet(UsersExcelWorksheetName)
-                .AddHeader(
-                    UserResources.FirstName,
-                    UserResources.LastName,
-                    UserResources.Birthday,
-                    UserResources.JobTitle,
-                    UserResources.PhoneNumber,
-                    UserResources.WorkingHours,
-                    UserResources.HasPicture)
-                .AddRows(users.AsQueryable(), MapUserToExcelRow());
+            //excelBuilder
+            //    .AddWorksheet(UsersExcelWorksheetName)
+            //    .AddHeader(
+            //        UserResources.FirstName,
+            //        UserResources.LastName,
+            //        UserResources.Birthday,
+            //        UserResources.JobTitle,
+            //        UserResources.PhoneNumber,
+            //        UserResources.WorkingHours,
+            //        UserResources.HasPicture)
+            //    .AddRows(users.AsQueryable(), MapUserToExcelRow());
 
-            var content = new ByteArrayContent(excelBuilder.Build());
+            //var content = new ByteArrayContent(excelBuilder.Build());
 
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
-            {
-                FileName = $"{fileName}.xlsx"
-            };
+            //content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            //content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            //{
+            //    FileName = $"{fileName}.xlsx"
+            //};
 
-            return content;
+            //return content;
         }
 
+        // TODO: Change logic when ShroomsDbContext is configured correctly
         public async Task<bool> IsUserSoftDeletedAsync(string email)
         {
-            throw new NotImplementedException();
-            //if (_context is not ShroomsDbContext shroomsContext)
-            //{
-            //    throw new ArgumentNullException(nameof(shroomsContext));
-            //}
+            var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1") // Temporary
+                .SingleOrDefaultAsync();
 
-            //var user = await shroomsContext
-            //    .Users
-            //    .SqlQuery("SELECT * FROM [dbo].[AspNetUsers] WHERE Email = @email", new SqlParameter("@email", email))
-            //    .SingleOrDefaultAsync();
-
-            //return user != null;
+            return softDeleteUser != null;
         }
 
         public async Task RestoreUserAsync(string email)
@@ -160,18 +132,21 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task AddProviderImageAsync(string userId, ClaimsIdentity externalIdentity)
         {
-            var user = await _usersDbSet.FirstAsync(u => u.Id == userId);
-            if (user.PictureId == null && externalIdentity.FindFirst("picture") != null)
-            {
-                byte[] data = data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
-                user.PictureId = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", Guid.NewGuid() + ".jpg", user.OrganizationId);
-                await _uow.SaveChangesAsync(userId);
-            }
+            throw new NotImplementedException();
+
+            //var user = await _usersDbSet.FirstAsync(u => u.Id == userId);
+            //if (user.PictureId == null && externalIdentity.FindFirst("picture") != null)
+            //{
+            //    byte[] data = data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
+            //    user.PictureId = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", Guid.NewGuid() + ".jpg", user.OrganizationId);
+            //    await _uow.SaveChangesAsync(userId);
+            //}
         }
 
         public async Task NotifyAboutNewUserAsync(ApplicationUser user, int orgId)
         {
-            await _notificationService.NotifyAboutNewUserAsync(user, orgId);
+            throw new NotImplementedException();
+            //await _notificationService.NotifyAboutNewUserAsync(user, orgId);
         }
 
         public async Task SendUserPasswordResetEmailAsync(ApplicationUser user, string organizationName)
@@ -296,32 +271,35 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task<bool> UserEmailExistsAsync(string email)
         {
+            // Possible unexpected behavior when a user is registered in multiple organizations
+            // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
             return await _userManager.FindByEmailAsync(email) != null;
         }
 
         public async Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filterModel, string includeProperties)
         {
-            includeProperties = $"{includeProperties}{(includeProperties != string.Empty ? "," : string.Empty)}Roles,Skills,JobPosition,Projects";
+            throw new NotImplementedException();
+            //includeProperties = $"{includeProperties}{(includeProperties != string.Empty ? "," : string.Empty)}Roles,Skills,JobPosition,Projects";
 
-            var applicationUsers = await _applicationUserRepository
-                .Get(GenerateQuery(search), orderBy: sortQuery.Contains(Contracts.Constants.Roles.NewUser) ? string.Empty : sortQuery, includeProperties: includeProperties)
-                .ToListAsync();
+            //var applicationUsers = await _applicationUserRepository
+            //    .Get(GenerateQuery(search), orderBy: sortQuery.Contains(Contracts.Constants.Roles.NewUser) ? string.Empty : sortQuery, includeProperties: includeProperties)
+            //    .ToListAsync();
 
-            var administrationUsers = _mapper.Map<IList<ApplicationUser>, IList<AdministrationUserDto>>(applicationUsers);
+            //var administrationUsers = _mapper.Map<IList<ApplicationUser>, IList<AdministrationUserDto>>(applicationUsers);
 
-            await SetNewUsersValuesAsync(administrationUsers, applicationUsers);
+            //await SetNewUsersValuesAsync(administrationUsers, applicationUsers);
 
-            if (filterModel != null)
-            {
-                administrationUsers = FilterResults(filterModel, administrationUsers);
-            }
+            //if (filterModel != null)
+            //{
+            //    administrationUsers = FilterResults(filterModel, administrationUsers);
+            //}
 
-            if (sortQuery.StartsWith(Contracts.Constants.Roles.NewUser))
-            {
-                administrationUsers = (sortQuery.EndsWith("asc") ? administrationUsers.OrderBy(u => u.IsNewUser) : administrationUsers.OrderByDescending(u => u.IsNewUser)).ToList();
-            }
+            //if (sortQuery.StartsWith(Contracts.Constants.Roles.NewUser))
+            //{
+            //    administrationUsers = (sortQuery.EndsWith("asc") ? administrationUsers.OrderBy(u => u.IsNewUser) : administrationUsers.OrderByDescending(u => u.IsNewUser)).ToList();
+            //}
 
-            return administrationUsers;
+            //return administrationUsers;
         }
 
         public async Task SetUserTutorialStatusToCompleteAsync(string userId)
@@ -399,29 +377,29 @@ namespace Shrooms.Domain.Services.Administration
 
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)
         {
-            var welcomeKudosDto = await _kudosService.GetWelcomeKudosAsync();
+            //var welcomeKudosDto = await _kudosService.GetWelcomeKudosAsync();
 
-            if (welcomeKudosDto.WelcomeKudosAmount <= 0)
-            {
-                return;
-            }
+            //if (welcomeKudosDto.WelcomeKudosAmount <= 0)
+            //{
+            //    return;
+            //}
 
-            var welcomeKudos = new KudosLog
-            {
-                EmployeeId = applicationUser.Id,
-                OrganizationId = applicationUser.OrganizationId,
-                Comments = welcomeKudosDto.WelcomeKudosComment,
-                Points = welcomeKudosDto.WelcomeKudosAmount,
-                Created = DateTime.UtcNow,
-                Modified = DateTime.UtcNow,
-                Status = KudosStatus.Pending,
-                MultiplyBy = 1,
-                KudosSystemType = KudosTypeEnum.Welcome,
-                KudosTypeValue = Convert.ToDecimal(KudosTypeEnum.Welcome),
-                KudosTypeName = KudosTypeEnum.Welcome.ToString()
-            };
+            //var welcomeKudos = new KudosLog
+            //{
+            //    EmployeeId = applicationUser.Id,
+            //    OrganizationId = applicationUser.OrganizationId,
+            //    Comments = welcomeKudosDto.WelcomeKudosComment,
+            //    Points = welcomeKudosDto.WelcomeKudosAmount,
+            //    Created = DateTime.UtcNow,
+            //    Modified = DateTime.UtcNow,
+            //    Status = KudosStatus.Pending,
+            //    MultiplyBy = 1,
+            //    KudosSystemType = KudosTypeEnum.Welcome,
+            //    KudosTypeValue = Convert.ToDecimal(KudosTypeEnum.Welcome),
+            //    KudosTypeName = KudosTypeEnum.Welcome.ToString()
+            //};
 
-            _uow.GetDbSet<KudosLog>().Add(welcomeKudos);
+            //_uow.GetDbSet<KudosLog>().Add(welcomeKudos);
         }
 
         private static Expression<Func<ApplicationUser, bool>> GenerateQuery(string s)
@@ -590,6 +568,7 @@ namespace Shrooms.Domain.Services.Administration
             }
         }
 
+        // TODO: Update registration logic when organization logic is fixed
         public async Task RegisterInternalAsync(RegisterDto registerDto)
         {
             if (!await UserEmailExistsAsync(registerDto.Email))
@@ -619,10 +598,11 @@ namespace Shrooms.Domain.Services.Administration
 
         private async Task HandleExistingUserRegistrationAsync(RegisterDto registerDto)
         {
-            var user = await _userManager.FindByEmailAsync(registerDto.Email); // In order for this to work correctly always, we should have unique constraint on emails...
-                                                                               // OR I create a custom handler...
-            
-            if (user.EmailConfirmed) // TODO: Check for ExternalLogin, need to figure out when it is added when using local authentication
+            // Possible unexpected behavior when a user tries to register for another organization with the same email address
+            // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
+            var user = await _userManager.FindByEmailAsync(registerDto.Email);
+
+            if (user.EmailConfirmed || await IsUserRegisteredByExternalProviderAsync(user))
             {
                 throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is already registered");
             }
@@ -655,15 +635,23 @@ namespace Shrooms.Domain.Services.Administration
                 OrganizationId = organization.Id,
             };
 
-            var createuserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
+            var createdUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
 
-            if (!createuserResult.Succeeded)
+            if (!createdUserResult.Succeeded)
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
             }
 
             await AddNewUserRolesAsync(newUser);
             // TODO: Send email verification
+        }
+
+        private async Task<bool> IsUserRegisteredByExternalProviderAsync(ApplicationUser user)
+        {
+            // Note: Internal provider is removed
+            var logins = await _userManager.GetLoginsAsync(user);
+
+            return logins.Any();
         }
     }
 }

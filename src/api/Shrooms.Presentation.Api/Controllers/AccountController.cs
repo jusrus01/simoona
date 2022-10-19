@@ -659,10 +659,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Shrooms.Authentification.ExternalLoginInfrastructure;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Organizations;
@@ -678,6 +680,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
+// Checklist:
+// Local token auth
+// Login [x]
+// Register []
+//  w/o confirmation
+//  w confirmation
 namespace Shrooms.Presentation.Api
 {
     [Authorize]
@@ -685,15 +693,18 @@ namespace Shrooms.Presentation.Api
     public class AccountController : ShroomsControllerBase
     {
         private const int StateStrengthInBits = 256;
-
-        private readonly IMapper _mapper;
+        
+        private readonly ApplicationOptions _applicationOptions;
+        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+
+        private readonly IMapper _mapper;
+    
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPermissionService _permissionService;
         private readonly AuthenticationService _authenticationService;
-        private readonly IConfiguration _configuration;
         private readonly ITokenService _tokenService;
         private readonly IAdministrationUsersService _administrationUsersService;
 
@@ -706,9 +717,11 @@ namespace Shrooms.Presentation.Api
             IPermissionService permissionService,
             IAuthenticationService authenticationService,
             IAdministrationUsersService administrationUsersService,
-            IConfiguration configuration, // TODO: Replace IConfiguration with options
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IOptions<ApplicationOptions> applicationOptions)
         {
+            _applicationOptions = applicationOptions.Value;
+
             _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -716,7 +729,6 @@ namespace Shrooms.Presentation.Api
             _tenantNameContainer = tenantNameContainer;
             _permissionService = permissionService;
             _authenticationService = (AuthenticationService)authenticationService;
-            _configuration = configuration;
             _tokenService = tokenService;
             _administrationUsersService = administrationUsersService;
         }
@@ -963,7 +975,7 @@ namespace Shrooms.Presentation.Api
                 $"provider={authenticationScheme.Name}&",
                 $"organization={_tenantNameContainer.TenantName}&",
                 $"response_type=token&",
-                $"client_id={_configuration["ClientId"]}&",
+                $"client_id={_applicationOptions.ClientId}&",
                 $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&",
                 $"state={state}",
                 isLinkable ? $"userId={GetUserAndOrganization().UserId}" : "",

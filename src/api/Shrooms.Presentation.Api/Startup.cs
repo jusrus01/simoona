@@ -107,8 +107,11 @@ namespace Shrooms.Presentation.Api
             //signing key jwt
             //refresh token
 
-            services.AddIdentity<ApplicationUser, ApplicationRole>()
-                .AddEntityFrameworkStores<ShroomsDbContext>();
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            {
+                options.Lockout.AllowedForNewUsers = false;
+            })
+            .AddEntityFrameworkStores<ShroomsDbContext>();
 
             //services.ConfigureApplicationCookie(options =>
             //{
