@@ -12,7 +12,6 @@ using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
-using System.Web;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.ExcelGenerator;
@@ -27,7 +26,6 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Shrooms.Domain.Services.Administration

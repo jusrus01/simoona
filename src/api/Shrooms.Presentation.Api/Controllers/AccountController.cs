@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Tokens;
+using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
@@ -35,19 +37,22 @@ namespace Shrooms.Presentation.Api
     
         private readonly ITokenService _tokenService;
         private readonly IAdministrationUsersService _administrationUsersService;
+        private readonly ITenantNameContainer _tenantNameContainer;
 
         public AccountController(
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IAdministrationUsersService administrationUsersService,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            ITenantNameContainer tenantNameContainer)
         {
             _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _administrationUsersService = administrationUsersService;
+            _tenantNameContainer = tenantNameContainer;
         }
 
         [AllowAnonymous]
@@ -109,8 +114,13 @@ namespace Shrooms.Presentation.Api
         }
 
         [AllowAnonymous]
-        [HttpGet("ExternalLogin")]
-        public async Task<IActionResult> GetExternalLogin(string provider, string? client_Id = null, string? userId = null, bool isRegistration = false, string? error = null)
+        [HttpGet("ExternalLogin")] // TODO: Figure out what to do with these params (and if they are necessary)
+        public async Task<IActionResult> ExternalLogin(
+            string provider,
+            string? client_Id = null,
+            string? userId = null,
+            bool isRegistration = false,
+            string? error = null)
         {
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
 
@@ -119,9 +129,14 @@ namespace Shrooms.Presentation.Api
                 return await CompleteExternalLoginAsync(externalLoginInfo);
             }
 
-            var redirectUrl = Url.Action("ExternalLogin", "Account", new { organization = "SimoonaClone" });
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
-            return new ChallengeResult("Google", properties);
+            var redirectUrl = Url.Action(
+                ControllerContext.ActionDescriptor.ActionName,
+                ControllerContext.ActionDescriptor.ControllerName,
+                new { organization = _tenantNameContainer.TenantName });
+            
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
+
+            return new ChallengeResult(GoogleDefaults.AuthenticationScheme, properties);
         }
 
         [AllowAnonymous]
