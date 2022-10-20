@@ -27,6 +27,8 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -700,15 +702,27 @@ namespace Shrooms.Domain.Services.Administration
             string userId,
             bool isRegistration)
         {
-            return HttpUtility.UrlEncode($"/{controllerName}/ExternalLogin?" +
-                $"provider={authenticationScheme.Name}&" +
-                $"organization={_tenantNameContainer.TenantName}&" +
-                $"response_type=token&" +
-                $"client_id={_applicationOptions.ClientId}&" +
-                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&" +
-                $"state={state}" +
-                $"{(userId != null ? $"&userId={userId}" : "")}" +
-                $"{(isRegistration ? "isRegistration=true" : "")}");
+            var queryParams = new Dictionary<string, string>
+            {
+                { "provider", authenticationScheme.Name },
+                { "organization", _tenantNameContainer.TenantName },
+                { "response_type", "token" },
+                { "client_id", _applicationOptions.ClientId },
+                { "redirect_url", new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri },
+                { "state", state }
+            };
+
+            if (userId != null)
+            {
+                queryParams["userId"] = userId;
+            }
+
+            if (isRegistration)
+            {
+                queryParams["isRegistration"] = "true";
+            }
+
+            return QueryHelpers.AddQueryString($"/{controllerName}/ExternalLogin", queryParams);
         }
 
         private ExternalLoginDto CreateExternalLogin(
