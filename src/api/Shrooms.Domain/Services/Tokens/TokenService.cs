@@ -109,6 +109,7 @@ namespace Shrooms.Domain.Services.Tokens
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.GivenName, user.FullName),
                 new Claim(WebApiConstants.ClaimOrganizationName, organization.Name),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(WebApiConstants.ClaimOrganizationId, organization.Id.ToString())
