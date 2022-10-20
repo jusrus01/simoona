@@ -220,19 +220,16 @@ namespace Shrooms.Presentation.Api
             //return Ok();
         }
 
-
         private async Task<IActionResult> CompleteExternalLoginAsync(ExternalLoginInfo externalLoginInfo)
         {
-            //var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
-
-            //if (result.Succeeded)
-            //{
-            //    var accessToken = await HttpContext.GetTokenAsync(GoogleDefaults.AuthenticationScheme, "access_token");
-            //    return Redirect($"http://localhost:3000/SimoonaClone/Login?authType=Google#access_token={accessToken}");
-            //}
-
-            var accessToken = await _tokenService.GetTokenForExternalAsync(externalLoginInfo);
-            return Redirect($"http://localhost:3000/SimoonaClone/Login?authType=Google#access_token={accessToken}");
+            try
+            {
+                return Redirect(await _tokenService.GetTokenRedirectUrlForExternalAsync(externalLoginInfo));
+            }
+            catch (ValidationException e)
+            {
+                return BadRequestWithError(e);
+            }
         }
     }
 }

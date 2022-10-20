@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Contracts.Constants;
@@ -49,22 +50,12 @@ namespace Shrooms.Domain.Services.Tokens
             _tenantNameContainer = tenantNameContainer;
         }
 
-        public async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
+        public async Task<string> GetTokenRedirectUrlForExternalAsync(ExternalLoginInfo externalLoginInfo)
         {
-            var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
+            var token = await GetTokenForExternalAsync(externalLoginInfo);
+            var uri = $"{_applicationOptions.ClientUrl}/{_tenantNameContainer.TenantName}/Login";
 
-            if (!result.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
-            }
-
-            var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
-            var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
-            var user = await _userManager.FindByEmailAsync(email);
-
-            await _userManager.AddLoginAsync(user, externalLoginInfo);
-
-            return (await CreateTokenAsync(user)).AccessToken;
+            return $"{QueryHelpers.AddQueryString(uri, "authType", externalLoginInfo.ProviderDisplayName)}#access_token={token}";
         }
 
         public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
@@ -84,6 +75,24 @@ namespace Shrooms.Domain.Services.Tokens
             }
 
             return await CreateTokenAsync(user);
+        }
+
+        private async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
+        {
+            var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
+
+            if (!result.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
+            }
+
+            var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
+            var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+            var user = await _userManager.FindByEmailAsync(email);
+
+            await _userManager.AddLoginAsync(user, externalLoginInfo);
+
+            return (await CreateTokenAsync(user)).AccessToken;
         }
 
         private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user)
