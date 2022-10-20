@@ -4,21 +4,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Shrooms.Authentification.ExternalLoginInfrastructure;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Administration;
-using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Tokens;
-using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -35,19 +28,11 @@ namespace Shrooms.Presentation.Api
     [Route("Account")]
     public class AccountController : ShroomsControllerBase
     {
-        private const int StateStrengthInBits = 256;
-        
-        private readonly ApplicationOptions _applicationOptions;
-        
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly IMapper _mapper;
     
-        private readonly IOrganizationService _organizationService;
-        private readonly ITenantNameContainer _tenantNameContainer;
-        private readonly IPermissionService _permissionService;
-        private readonly AuthenticationService _authenticationService;
         private readonly ITokenService _tokenService;
         private readonly IAdministrationUsersService _administrationUsersService;
 
@@ -55,23 +40,12 @@ namespace Shrooms.Presentation.Api
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IOrganizationService organizationService,
-            ITenantNameContainer tenantNameContainer,
-            IPermissionService permissionService,
-            IAuthenticationService authenticationService,
             IAdministrationUsersService administrationUsersService,
-            ITokenService tokenService,
-            IOptions<ApplicationOptions> applicationOptions)
+            ITokenService tokenService)
         {
-            _applicationOptions = applicationOptions.Value;
-
             _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
-            _organizationService = organizationService;
-            _tenantNameContainer = tenantNameContainer;
-            _permissionService = permissionService;
-            _authenticationService = (AuthenticationService)authenticationService;
             _tokenService = tokenService;
             _administrationUsersService = administrationUsersService;
         }
