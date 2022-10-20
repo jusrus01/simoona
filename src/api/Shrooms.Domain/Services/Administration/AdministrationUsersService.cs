@@ -692,7 +692,7 @@ namespace Shrooms.Domain.Services.Administration
             await HandleExistingUserRegistrationAsync(registerDto);
         }
 
-        private string CreateUrl(
+        private string CreateExternalLoginUrl(
             string controllerName,
             AuthenticationScheme authenticationScheme,
             string returnUrl,
@@ -700,19 +700,15 @@ namespace Shrooms.Domain.Services.Administration
             string userId,
             bool isRegistration)
         {
-            // TODO: Refactor, use url builder or something
-            return string.Concat(
-                "/",
-                controllerName,
-                "/ExternalLogin?",
-                $"provider={authenticationScheme.Name}&",
-                $"organization={_tenantNameContainer.TenantName}&",
-                $"response_type=token&",
-                $"client_id={_applicationOptions.ClientId}&",
-                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&",
-                $"state={state}",
-                userId != null ? $"userId={userId}" : "",
-                isRegistration ? "isRegistration=true" : "");
+            return HttpUtility.UrlEncode($"/{controllerName}/ExternalLogin?" +
+                $"provider={authenticationScheme.Name}&" +
+                $"organization={_tenantNameContainer.TenantName}&" +
+                $"response_type=token&" +
+                $"client_id={_applicationOptions.ClientId}&" +
+                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&" +
+                $"state={state}" +
+                $"{(userId != null ? $"&userId={userId}" : "")}" +
+                $"{(isRegistration ? "isRegistration=true" : "")}");
         }
 
         private ExternalLoginDto CreateExternalLogin(
@@ -727,7 +723,7 @@ namespace Shrooms.Domain.Services.Administration
             return new ExternalLoginDto
             {
                 Name = !isRegistration ? authenticationScheme.Name : $"{authenticationScheme.Name}Registration",
-                Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, isRegistration),
+                Url = CreateExternalLoginUrl(controllerName, authenticationScheme, returnUrl, state, userId, isRegistration),
                 State = state
             };
         }
