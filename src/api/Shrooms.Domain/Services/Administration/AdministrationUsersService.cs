@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -7,14 +9,17 @@ using Shrooms.Contracts.DataTransferObjects.Models.Administration;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Infrastructure.ExcelGenerator;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
+using System.Web;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.ExcelGenerator;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -28,11 +33,16 @@ namespace Shrooms.Domain.Services.Administration
     public class AdministrationUsersService : IAdministrationUsersService
     {
         private const string UsersExcelWorksheetName = "Users";
+        private const int StateStrengthInBits = 256;
 
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPermissionService _permissionService;
+
+        private readonly ApplicationOptions _applicationOptions;
+
+        private readonly AuthenticationService _authenticationService;
 
         //private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly DbSet<ApplicationUser> _usersDbSet;
@@ -59,7 +69,9 @@ namespace Shrooms.Domain.Services.Administration
             //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IAuthenticationService authenticationService,
+            IOptions<ApplicationOptions> applicationOptions)
         {
             _uow = uow;
             //_mapper = mapper;
@@ -74,6 +86,9 @@ namespace Shrooms.Domain.Services.Administration
             _userManager = userManager;
             _tenantNameContainer = tenantNameContainer;
             _permissionService = permissionService;
+            _authenticationService = (AuthenticationService)authenticationService;
+
+            _applicationOptions = applicationOptions.Value;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -579,7 +594,7 @@ namespace Shrooms.Domain.Services.Administration
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
             var providers = organization.AuthenticationProviders;
 
-            if (!providers.ToLower().Contains(AuthenticationConstants.InternalLoginProvider.ToLower()))
+            if (!ContainsProvider(providers, AuthenticationConstants.InternalLoginProvider.ToLower()))
             {
                 return Enumerable.Empty<ExternalLoginDto>();
             }
@@ -634,6 +649,46 @@ namespace Shrooms.Domain.Services.Administration
             };
         }
 
+        // TODO: Register scheme only if key exists (on start up, before adding facebook signin)
+        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId)
+        {
+            var externalLogins = new List<ExternalLoginDto>();
+
+            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
+            foreach (var authenticationScheme in availableAuthenticationSchemes)
+            {
+                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
+                {
+                    continue;
+                }
+
+                var state = GenerateExternalAuthenticationState();
+
+                var login = new ExternalLoginDto
+                {
+                    Name = authenticationScheme.Name,
+                    Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, false),
+                    State = state
+                };
+
+                externalLogins.Add(login);
+
+                state = GenerateExternalAuthenticationState();
+                login = new ExternalLoginDto
+                {
+                    Name = $"{authenticationScheme.Name}Registration",
+                    Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, true),
+                    State = state
+                };
+
+                externalLogins.Add(login);
+            }
+
+            return externalLogins;
+        }
+
         // TODO: Update registration logic when organization logic is fixed
         public async Task RegisterInternalAsync(RegisterDto registerDto)
         {
@@ -650,6 +705,35 @@ namespace Shrooms.Domain.Services.Administration
             }
 
             await HandleExistingUserRegistrationAsync(registerDto);
+        }
+
+        private string CreateUrl(
+            string controllerName,
+            AuthenticationScheme authenticationScheme,
+            string returnUrl,
+            string state,
+            string userId,
+            bool isRegistration)
+        {
+            // TODO: Check if ExternalLogin exists? On start up?
+            // TODO: Refactor
+            return string.Concat(
+                "/",
+                controllerName,
+                "/ExternalLogin?",
+                $"provider={authenticationScheme.Name}&",
+                $"organization={_tenantNameContainer.TenantName}&",
+                $"response_type=token&",
+                $"client_id={_applicationOptions.ClientId}&",
+                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&",
+                $"state={state}",
+                userId != null ? $"userId={userId}" : "",
+                isRegistration ? "isRegistration=true" : "");
+        }
+
+        private static bool ContainsProvider(string providerList, string providerName)
+        {
+            return providerList.ToLower().Contains(providerName.ToLower());
         }
 
         private async Task HandleNormalRegistrationAsync(RegisterDto registerDto)
@@ -719,6 +803,30 @@ namespace Shrooms.Domain.Services.Administration
             var logins = await _userManager.GetLoginsAsync(user);
 
             return logins.Any();
+        }
+
+        private string GenerateExternalAuthenticationState()
+        {
+            const int bitsPerByte = 8;
+
+            using var cryptoProvider = new RNGCryptoServiceProvider();
+
+            if (StateStrengthInBits % bitsPerByte != 0)
+            {
+                throw new ArgumentException("strengthInBits must be evenly divisible by 8.", "strengthInBits");
+            }
+
+            var strengthInBytes = StateStrengthInBits / bitsPerByte;
+
+            var data = new byte[strengthInBytes];
+
+            cryptoProvider.GetBytes(data);
+
+            //return HttpServerUtility.UrlTokenEncode(data); // TODO: Make sure that state is fine
+
+            var base64 = Convert.ToBase64String(data);
+
+            return base64[0..^1];
         }
     }
 }

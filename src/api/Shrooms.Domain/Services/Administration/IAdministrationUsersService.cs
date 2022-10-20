@@ -50,5 +50,7 @@ namespace Shrooms.Domain.Services.Administration
         Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
 
         Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync();
+
+        Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId);
     }
 }

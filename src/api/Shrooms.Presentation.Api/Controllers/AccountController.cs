@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shrooms.Authentification.ExternalLoginInfrastructure;
-using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
@@ -21,7 +20,6 @@ using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -156,42 +154,14 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
-            var externalLogins = new List<ExternalLoginViewModel>();
+            var externalLoginDtos = await _administrationUsersService.GetExternalLoginsAsync(
+                ControllerContext.ActionDescriptor.ControllerName,
+                returnUrl,
+                isLinkable ? GetUserAndOrganization().UserId : null);
 
-            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName); // TODO: Figure out ITenantNameContainer usage
-            
-            // TODO: Register scheme only if key exists
-            foreach (var authenticationScheme in availableAuthenticationSchemes)
-            {
-                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
-                {
-                    continue;
-                }
+            var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
 
-                var state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
-
-                var login = new ExternalLoginViewModel
-                {
-                    Name = authenticationScheme.Name,
-                    Url = CreateUrl(authenticationScheme, returnUrl, state, isLinkable, false),
-                    State = state
-                };
-
-                externalLogins.Add(login);
-
-                state = RandomOAuthStateGenerator.Generate(StateStrengthInBits);
-                login = new ExternalLoginViewModel
-                {
-                    Name = $"{authenticationScheme.Name}Registration",
-                    Url = CreateUrl(authenticationScheme, returnUrl, state, isLinkable, true),
-                    State = state
-                };
-
-                externalLogins.Add(login);
-            }
-
-            return Ok(externalLogins);
+            return Ok(externalLoginViewModels);
         }
 
         // Responsible only for providing cookie, so we could access images... (not sure how google log in will work for that)
@@ -261,59 +231,6 @@ namespace Shrooms.Presentation.Api
             //return Ok();
         }
 
-        private async Task<LoggedInUserInfoViewModel> GetLoggedInUserInfoAsync()
-        {
-            var userId = GetAuthenticatedUserId();
-            var organizationId = GetOrganizationId();
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-
-            var user = await _userManager.FindByIdAsync(userId);
-            var permissions = await _permissionService.GetUserPermissionsAsyncDeprecated(userId);
-
-            var userInfo = new LoggedInUserInfoViewModel
-            {
-                HasRegistered = true,
-                Roles = await _userManager.GetRolesAsync(user),
-                UserName = User.Identity.Name,
-                UserId = userId,
-                OrganizationName = _tenantNameContainer.TenantName,
-                OrganizationId = GetOrganizationId(),
-                FullName = GetAuthenticatedUserFullName(),
-                Permissions = permissions,
-                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false,
-                CultureCode = user.CultureCode,
-                TimeZone = user.TimeZone,
-                PictureId = user.PictureId
-            };
-
-            return userInfo;
-        }
-
-        private static bool ContainsProvider(string providerList, string providerName)
-        {
-            return providerList.ToLower().Contains(providerName.ToLower());
-        }
-
-        private string CreateUrl(AuthenticationScheme authenticationScheme, string returnUrl, string state, bool isLinkable, bool isRegistration)
-        {
-            var controllerName = ControllerContext.ActionDescriptor.ControllerName;
-
-            // TODO: Check if ExternalLogin exists? On start up?
-            // TODO: Refactor
-
-            return string.Concat(
-                "/",
-                controllerName,
-                "/ExternalLogin?",
-                $"provider={authenticationScheme.Name}&",
-                $"organization={_tenantNameContainer.TenantName}&",
-                $"response_type=token&",
-                $"client_id={_applicationOptions.ClientId}&",
-                $"redirect_url={new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri}&",
-                $"state={state}",
-                isLinkable ? $"userId={GetUserAndOrganization().UserId}" : "",
-                isRegistration ? "isRegistration=true" : "");
-        }
 
         private async Task<IActionResult> CompleteExternalLoginAsync(ExternalLoginInfo externalLoginInfo)
         {

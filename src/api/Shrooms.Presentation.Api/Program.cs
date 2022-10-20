@@ -35,7 +35,7 @@ namespace Shrooms.Presentation.Api
 
             if (apiHostingUrl == null)
             {
-                throw new Exception("Hosting url is not specified in web.config");
+                throw new Exception("Hosting url is not specified in app.config");
             }
 
             return Host.CreateDefaultBuilder(args)
