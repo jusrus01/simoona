@@ -642,7 +642,7 @@ namespace Shrooms.Domain.Services.Administration
                 OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
                 FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
                 Permissions = permissions,
-                Impersonated = claimsIdentity?.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && c.Value == true.ToString()) ?? false, // TODO: Change
+                Impersonated = claimsIdentity.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && bool.Parse(c.Value)),
                 CultureCode = user.CultureCode,
                 TimeZone = user.TimeZone,
                 PictureId = user.PictureId
