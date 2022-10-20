@@ -663,27 +663,12 @@ namespace Shrooms.Domain.Services.Administration
                 {
                     continue;
                 }
-
-                var state = GenerateExternalAuthenticationState();
-
-                var login = new ExternalLoginDto
+                
+                externalLogins.AddRange(new List<ExternalLoginDto>
                 {
-                    Name = authenticationScheme.Name,
-                    Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, false),
-                    State = state
-                };
-
-                externalLogins.Add(login);
-
-                state = GenerateExternalAuthenticationState();
-                login = new ExternalLoginDto
-                {
-                    Name = $"{authenticationScheme.Name}Registration",
-                    Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, true),
-                    State = state
-                };
-
-                externalLogins.Add(login);
+                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: false),
+                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: true),
+                });
             }
 
             return externalLogins;
@@ -715,8 +700,7 @@ namespace Shrooms.Domain.Services.Administration
             string userId,
             bool isRegistration)
         {
-            // TODO: Check if ExternalLogin exists? On start up?
-            // TODO: Refactor
+            // TODO: Refactor, use url builder or something
             return string.Concat(
                 "/",
                 controllerName,
@@ -729,6 +713,23 @@ namespace Shrooms.Domain.Services.Administration
                 $"state={state}",
                 userId != null ? $"userId={userId}" : "",
                 isRegistration ? "isRegistration=true" : "");
+        }
+
+        private ExternalLoginDto CreateExternalLogin(
+            string controllerName,
+            AuthenticationScheme authenticationScheme,
+            string returnUrl,
+            string userId,
+            bool isRegistration)
+        {
+            var state = GenerateExternalAuthenticationState();
+
+            return new ExternalLoginDto
+            {
+                Name = !isRegistration ? authenticationScheme.Name : $"{authenticationScheme.Name}Registration",
+                Url = CreateUrl(controllerName, authenticationScheme, returnUrl, state, userId, isRegistration),
+                State = state
+            };
         }
 
         private static bool ContainsProvider(string providerList, string providerName)
