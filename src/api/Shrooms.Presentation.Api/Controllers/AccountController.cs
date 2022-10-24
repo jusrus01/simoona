@@ -114,7 +114,9 @@ namespace Shrooms.Presentation.Api
         }
 
         [AllowAnonymous]
-        [HttpGet("ExternalLogin")] // TODO: Figure out what to do with these params (and if they are necessary)
+        [HttpGet("ExternalLogin")]
+        // TODO: Figure out what to do with these params (and if they are necessary)
+        // TODO: Return .AspNet.Cookies. cookie here, since we get it from older API here
         public async Task<IActionResult> ExternalLogin(
             string provider,
             string? client_Id = null,
@@ -153,71 +155,34 @@ namespace Shrooms.Presentation.Api
             return Ok(externalLoginViewModels);
         }
 
-        // Responsible only for providing cookie, so we could access images... (not sure how google log in will work for that)
-        [Authorize] // Make sure that token is received before this call?
-        [HttpPost("SignIn")] // Idenity returns so .AspNetCore. cookie instead of .AspNet.Cookies
-        public async Task<IActionResult> SignIn([FromBody] LoginViewModel model)
+        // TODO: Ask about refresh token
+        // TODO: Make sure that we receive this .AspNet.Cookies when using external providers
+        /// <summary>
+        /// Only responsible for providing a cookie for StorageController
+        /// </summary>
+        /// <param name="loginViewModel"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost("SignIn")]
+        public async Task<IActionResult> SetSignInCookie([FromBody] LoginViewModel loginViewModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByNameAsync(model.UserName); // Username = email
-
-            if (user == null)
+            try
             {
-                return BadRequest();
-            }
+                var loginDto = _mapper.Map<LoginDto>(loginViewModel);
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Email),
-                new Claim("FullName", user.FullName),
-                new Claim(ClaimTypes.Role, "Administrator"),
-            };
+                await _administrationUsersService.SetSignInCookieAsync(loginDto);
 
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignOutAsync();
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-            if (result.Succeeded)
-            {
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-                //await _signInManager.PasswordSignInAsync(user, model.Password, true, false);
                 return Ok();
             }
-            return Forbid();
-
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest();
-            //}
-
-            //var user = await _userManager.FindAsync(model.UserName, model.Password);
-
-            //if (user == null)
-            //{
-            //    return BadRequest();
-            //}
-
-            //Authentication.SignOut(ShroomsDefaultAuthenticationTypes.ExternalCookie);
-
-            //var oAuthIdentity = await _userManager.CreateIdentityAsync(user, OAuthDefaults.AuthenticationType);
-            //var cookieIdentity = await _userManager.CreateIdentityAsync(user, CookieAuthenticationDefaults.AuthenticationType);
-
-            //var properties = await CreateInitialRefreshToken(model.ClientId, user, oAuthIdentity);
-
-            //SetCookieExpirationDateToAccessTokenLifeTime(properties);
-
-            //Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
-
-            //await _userManager.AddLoginAsync(user.Id, new UserLoginInfo(AuthenticationConstants.InternalLoginProvider, user.Id));
-
-            //return Ok();
+            catch (ValidationException e)
+            {
+                return BadRequestWithError(e);
+            }
         }
 
         private async Task<IActionResult> CompleteExternalLoginAsync(ExternalLoginInfo externalLoginInfo)

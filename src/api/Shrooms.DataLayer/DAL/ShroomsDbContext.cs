@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
-using Shrooms.DataLayer.EntityModels.Attributes;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Badges;
 using Shrooms.DataLayer.EntityModels.Models.Books;
@@ -26,7 +25,9 @@ using Shrooms.DataLayer.EntityModels.Models.Notifications;
 using Shrooms.DataLayer.EntityModels.Models.Projects;
 using Shrooms.DataLayer.EntityModels.Models.ServiceRequests;
 
-namespace Shrooms.DataLayer.DAL//TODO: Handle soft deleting and configuration
+// TODO: Migrate db from not merged PR https://github.com/VismaLietuva/simoona/pull/243
+// TODO: Handle soft deleting and configuration
+namespace Shrooms.DataLayer.DAL
 {
     public class ShroomsDbContextDesignFactory : IDesignTimeDbContextFactory<ShroomsDbContext>
     {

@@ -69,6 +69,7 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
             CreateMap<UserNotificationsSettingsViewModel, UserNotificationsSettingsDto>();
 
             CreateMap<RegisterViewModel, RegisterDto>();
+            CreateMap<LoginViewModel, LoginDto>();
         }
     }
 }

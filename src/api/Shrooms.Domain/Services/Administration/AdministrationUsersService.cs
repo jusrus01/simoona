@@ -27,6 +27,8 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -38,6 +40,8 @@ namespace Shrooms.Domain.Services.Administration
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         private readonly IPermissionService _permissionService;
 
         private readonly ApplicationOptions _applicationOptions;
@@ -71,7 +75,8 @@ namespace Shrooms.Domain.Services.Administration
             IPermissionService permissionService,
             UserManager<ApplicationUser> userManager,
             IAuthenticationService authenticationService,
-            IOptions<ApplicationOptions> applicationOptions)
+            IOptions<ApplicationOptions> applicationOptions,
+            IHttpContextAccessor httpContextAccessor)
         {
             _uow = uow;
             //_mapper = mapper;
@@ -89,6 +94,7 @@ namespace Shrooms.Domain.Services.Administration
             _authenticationService = (AuthenticationService)authenticationService;
 
             _applicationOptions = applicationOptions.Value;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -394,6 +400,28 @@ namespace Shrooms.Domain.Services.Administration
                     SetHorizontalTextCenter = true
                 }
             };
+        }
+
+        public async Task SetSignInCookieAsync(LoginDto loginDto)
+        {
+            var user = await _userManager.FindByNameAsync(loginDto.UserName); // UserName is email
+
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
+            {
+                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid crediantials");
+            }
+
+            var claimsIdentity = new ClaimsIdentity(
+                new List<Claim>(),
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
 
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)

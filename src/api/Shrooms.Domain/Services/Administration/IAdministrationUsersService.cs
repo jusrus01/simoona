@@ -13,6 +13,8 @@ namespace Shrooms.Domain.Services.Administration
 {
     public interface IAdministrationUsersService
     {
+        Task SetSignInCookieAsync(LoginDto loginDto);
+
         Task RegisterInternalAsync(RegisterDto registerDto);
 
         Task<bool> UserEmailExistsAsync(string email);
