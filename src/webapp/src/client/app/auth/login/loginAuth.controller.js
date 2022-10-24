@@ -134,17 +134,20 @@
             authService.requestToken(signInInfo).then(function(response) {
                 authService.getUserInfo(response.access_token).then(function(info) {
                     authService.setAuthenticationData(info, response.access_token);
-                    authService.signIn(signInInfo);
+                    // Wait for signIn request to finish
+                    authService.signIn(signInInfo).then(function() {
+                        if (redirect) {
+                            $window.location.href = redirect;
+                        }
 
-                    if (redirect) {
-                        $window.location.href = redirect;
-                    }
-                    if(sessionStorage.getItem("redirectAfterFailedLogin"))
-                    {
-                        $window.location.href = sessionStorage.getItem("redirectAfterFailedLogin");
-                        sessionStorage.removeItem("redirectAfterFailedLogin");
-                    }
-                    authService.redirectToHome();
+                        if(sessionStorage.getItem("redirectAfterFailedLogin"))
+                        {
+                            $window.location.href = sessionStorage.getItem("redirectAfterFailedLogin");
+                            sessionStorage.removeItem("redirectAfterFailedLogin");
+                        }
+
+                        authService.redirectToHome();
+                    });
                 });
             }).catch(function(error) {
                 if (error.data.error === 'not_verified') {
