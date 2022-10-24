@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +13,6 @@ using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 // Checklist:
@@ -30,7 +27,6 @@ namespace Shrooms.Presentation.Api
     [Route("Account")]
     public class AccountController : ShroomsControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly IMapper _mapper;
@@ -41,14 +37,12 @@ namespace Shrooms.Presentation.Api
 
         public AccountController(
             IMapper mapper,
-            UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IAdministrationUsersService administrationUsersService,
             ITokenService tokenService,
             ITenantNameContainer tenantNameContainer)
         {
             _mapper = mapper;
-            _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _administrationUsersService = administrationUsersService;

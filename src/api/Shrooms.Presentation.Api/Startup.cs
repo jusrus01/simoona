@@ -156,6 +156,7 @@ namespace Shrooms.Presentation.Api
             {
                 options.AddBearerAsDefault();
                 options.AddBasicPolicy();
+                options.AddStoragePolicy();
             });
 
             services.AddControllers();
