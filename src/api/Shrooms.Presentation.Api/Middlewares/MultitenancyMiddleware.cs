@@ -43,7 +43,7 @@ namespace Shrooms.Presentation.Api.Middlewares
             }
             else if (!_applicationOptions.ConnectionStrings.ContainsKey(tenantName))
             {
-                throw new ValidationException(ErrorCodes.InvalidOrganization, "Organization was not provided for this request");
+                throw new ValidationException(ErrorCodes.InvalidOrganization, "Invalid organization");
             }
             else
             {
