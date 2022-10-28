@@ -39,7 +39,7 @@ namespace Shrooms.Presentation.Api.Middlewares
 
             if (tenantName == null)
             {
-                throw new ValidationException(ErrorCodes.Unspecified, "Organization name was not provided for this request");
+                throw new ValidationException(ErrorCodes.Unspecified, "Organization not provided");
             }
             else if (!_applicationOptions.ConnectionStrings.ContainsKey(tenantName))
             {
