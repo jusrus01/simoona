@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
@@ -9,7 +8,6 @@ using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
-using System.Linq;
 
 namespace Shrooms.IoC.Modules
 {
@@ -25,7 +23,7 @@ namespace Shrooms.IoC.Modules
             builder.Register(context =>
             {
                 var httpContextAccessor = context.Resolve<IHttpContextAccessor>();
-                var tenantName = ExtractTenantName(httpContextAccessor.HttpContext);
+                var tenantName = httpContextAccessor.HttpContext.Request.Headers[WebApiConstants.OrganizationHeader];
 
                 return new TenantNameContainer(tenantName);
             })
@@ -35,25 +33,14 @@ namespace Shrooms.IoC.Modules
             builder.Register(contextBuilder =>
             {
                 var tenantContainer = contextBuilder.Resolve<ITenantNameContainer>();
-
-                if (tenantContainer.TenantName == null)
-                {
-                    throw new Exception("Organization name was not provided for this request");
-                }
-
                 var applicationOptions = contextBuilder.Resolve<IOptions<ApplicationOptions>>().Value;
-
-                if (!applicationOptions.ConnectionStrings.TryGetValue(tenantContainer.TenantName, out var connectionString))
-                {
-                    throw new Exception("Invalid organization");
-                }
 
                 var serviceProvider = contextBuilder.Resolve<IServiceProvider>();
 
                 var optionsBuilder = new DbContextOptionsBuilder<ShroomsDbContext>()
                                    .UseApplicationServiceProvider(serviceProvider)
                                    .UseSqlServer(
-                                       connectionString,
+                                       applicationOptions.ConnectionStrings[tenantContainer.TenantName],
                                        serverOptions => serverOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(30), null));
 
                 return optionsBuilder.Options;
@@ -74,35 +61,6 @@ namespace Shrooms.IoC.Modules
             builder.RegisterType<UnitOfWork2>()
                 .As<IUnitOfWork2>()
                 .InstancePerLifetimeScope();
-        }
-
-        // TODO: Refactor
-        private static string ExtractTenantName(HttpContext httpContext)
-        {
-            if (httpContext.User != null &&
-                httpContext.User.Identity.IsAuthenticated &&
-                httpContext.User.Claims.Any(x => x.Type == WebApiConstants.ClaimOrganizationName))
-            {
-                return httpContext.User.Claims.First(x => x.Type == WebApiConstants.ClaimOrganizationName).Value;
-            }
-
-            // TODO: Change this to case-insensitive
-            if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
-            {
-                return organizationFromHeader;
-            }
-
-            if (httpContext.Request.Query.TryGetValue("organization", out var organizationFromUri))
-            {
-                return organizationFromUri;
-            }
-
-            if (httpContext.Request.Path.ToString().StartsWith("/storage"))
-            {
-                return httpContext.Request.Path.ToString().Split('/')[2];
-            }
-
-            return null;
         }
     }
 }

@@ -1,126 +1,84 @@
-﻿//using System;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Microsoft.Owin;
-//using Shrooms.Contracts.Constants;
-//using Shrooms.Presentation.Api.GeneralCode;
-//using Shrooms.Resources.Helpers;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Exceptions;
+using Shrooms.Contracts.Options;
+using System.Linq;
+using System.Threading.Tasks;
 
-//namespace Shrooms.Presentation.Api.Middlewares
-//{
-//    public class MultiTenancyMiddleware : OwinMiddleware
-//    {
-//        public MultiTenancyMiddleware(OwinMiddleware next)
-//            : base(next)
-//        {
-//        }
+namespace Shrooms.Presentation.Api.Middlewares
+{
+    public class MultiTenancyMiddleware : ExceptionMiddlewareBase
+    {
+        private readonly ApplicationOptions _applicationOptions;
 
-//        // TODO
-//        public override async Task Invoke(IOwinContext context)
-//        {
-//            var request = context.Request;
+        public MultiTenancyMiddleware(RequestDelegate next, IOptions<ApplicationOptions> applicationOptions)
+            :
+            base(next)
+        {
+            _applicationOptions = applicationOptions.Value;
+        }
 
-//            if (request.Path.ToString().StartsWith("/signin-google") || request.Path.ToString().StartsWith("/signin-facebook") || request.Path.ToString().StartsWith("/swagger"))
-//            {
-//                await Next.Invoke(context);
-//            }
-//            else
-//            {
-//                await Next.Invoke(context);
-//                //var tenantKey = ExtractTenant(context);
+        public async Task InvokeAsync(HttpContext httpContext)
+        {
+            try
+            {
+                SetRequestOrganizationHeader(httpContext);
+                
+                await _next(httpContext);
+            }
+            catch (ValidationException ex)
+            {
+                await HandleExceptionAsync(httpContext, ex.ErrorMessage, StatusCodes.Status400BadRequest, ex.ErrorCode);
+            }
+        }
 
-//                //if (string.IsNullOrEmpty(tenantKey))
-//                //{
-//                //    Unauthorized(context);
-//                //}
-//                //else if (!TryFindTenant(out var tenantName, tenantKey))
-//                //{
-//                //    await ReturnInvalidOrganizationResponse(context);
-//                //}
-//                //else
-//                //{
-//                //    request.Set("tenantName", tenantName);
+        private void SetRequestOrganizationHeader(HttpContext httpContext)
+        {
+            var tenantName = ExtractTenantName(httpContext);
 
-//                //    try
-//                //    {
-//                //        await Next.Invoke(context);
-//                //    }
-//                //    catch (OperationCanceledException)
-//                //    {
-//                //    }
-//                //}
-//            }
-//        }
+            if (tenantName == null)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Organization name was not provided for this request");
+            }
+            else if (!_applicationOptions.ConnectionStrings.ContainsKey(tenantName))
+            {
+                throw new ValidationException(ErrorCodes.InvalidOrganization, "Organization was not provided for this request");
+            }
+            else
+            {
+                httpContext.Request.Headers[WebApiConstants.OrganizationHeader] = tenantName;
+            }
+        }
 
-//        private static string ExtractTenant(IOwinContext context)
-//        {
-//            var tenantKey = default(string);
-//            var requestPath = context.Request.Path.ToString();
+        private static string? ExtractTenantName(HttpContext httpContext)
+        {
+            if (httpContext.User != null &&
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                httpContext.User.Identity.IsAuthenticated &&
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                httpContext.User.Claims.Any(x => x.Type == WebApiConstants.ClaimOrganizationName))
+            {
+                return httpContext.User.Claims.First(x => x.Type == WebApiConstants.ClaimOrganizationName).Value;
+            }
 
-//            if (requestPath.StartsWith("/storage"))
-//            {
-//                tenantKey = context.Request.Path.ToString().Split('/')[2];
-//            }
-//            else if (context.Authentication.User != null &&
-//                context.Authentication.User.Identity.IsAuthenticated &&
-//                context.Authentication.User.Claims.Any(x => x.Type == "OrganizationName"))
-//            {
-//                tenantKey = context.Authentication.User.Claims.First(x => x.Type == "OrganizationName").Value.ToLowerInvariant();
-//            }
-//            else if (requestPath.StartsWith("/token") ||
-//                requestPath.StartsWith("/externaljobs") ||
-//                requestPath.StartsWith("/externalpremiumjobs") ||
-//                requestPath.StartsWith("/Account/ExternalLogin") ||
-//                requestPath.StartsWith("/Account/RegisterExternal") ||
-//                requestPath.StartsWith("/Account/InternalLogins") ||
-//                requestPath.StartsWith("/Account/UserInfo") ||
-//                requestPath.StartsWith("/Account/Register") ||
-//                requestPath.StartsWith("/Account/ResetPassword") ||
-//                requestPath.StartsWith("/Account/RequestPasswordReset") ||
-//                requestPath.StartsWith("/Account/VerifyEmail") ||
-//                requestPath.StartsWith("/bookmobile"))
-//            {
-//                var organizationFromHeader = context.Request.Headers.Get("Organization");
-//                var organizationFromUri = context.Request.Query.Get("organization");
+            // TODO: Change this to case-insensitive
+            if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
+            {
+                return organizationFromHeader;
+            }
 
-//                if (organizationFromHeader != null)
-//                {
-//                    tenantKey = organizationFromHeader;
-//                }
-//                else if (organizationFromUri != null)
-//                {
-//                    tenantKey = organizationFromUri;
-//                }
-//            }
+            if (httpContext.Request.Query.TryGetValue("organization", out var organizationFromUri))
+            {
+                return organizationFromUri;
+            }
 
-//             return tenantKey;
-//        }
+            if (httpContext.Request.Path.ToString().StartsWith("/storage"))
+            {
+                return httpContext.Request.Path.ToString().Split('/')[2];
+            }
 
-//        private static async Task ReturnInvalidOrganizationResponse(IOwinContext context)
-//        {
-//            context.Response.StatusCode = 400;
-//            context.Response.ReasonPhrase = "Invalid organization";
-//            context.Response.ContentType = "application/json";
-//            var responseBody = new
-//            {
-//                errorCode = ErrorCodes.InvalidOrganization,
-//                errorMessage = "Invalid organization"
-//            };
-
-//            await context.Response.WriteAsync(Encoding.UTF8.GetBytes(responseBody.ToJson()));
-//        }
-
-//        private static void Unauthorized(IOwinContext context)
-//        {
-//            context.Response.StatusCode = 401;
-//            context.Response.ReasonPhrase = "Unauthorized";
-//        }
-
-//        private static bool TryFindTenant(out string tenantName, string tenantKey)
-//        {
-//            var tenantMatch = OrganizationUtils.AvailableOrganizations.TryGetValue(tenantKey, out tenantName);
-//            return tenantMatch;
-//        }
-//    }
-//}
+            return null;
+        }
+    }
+}

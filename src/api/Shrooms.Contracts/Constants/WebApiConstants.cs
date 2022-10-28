@@ -2,6 +2,8 @@
 {
     public static class WebApiConstants
     {
+        public const string OrganizationHeader = "Organization";
+
         public const string ConfigurationApiUrlKey = "ApiUrl";
 
         public const int DefaultPageSize = 10;

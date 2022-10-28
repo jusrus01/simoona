@@ -16,7 +16,7 @@ namespace Shrooms.Presentation.Api.Configurations
 
             policyBuilder = policyBuilder.RequireAuthenticatedUser();
 
-            options.DefaultPolicy = policyBuilder
+            options.DefaultPolicy = policyBuilder 
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .Build();
         }

@@ -167,12 +167,12 @@ namespace Shrooms.Presentation.Api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors();
 
-            app.UseMiddleware<GlobalExceptionMiddleware>();
+            app.UseMiddleware<MultiTenancyMiddleware>();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
