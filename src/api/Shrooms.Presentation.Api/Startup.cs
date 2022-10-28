@@ -63,6 +63,7 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.IoC;
 using Shrooms.Presentation.Api.Configurations;
 using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
+using Shrooms.Presentation.Api.Middlewares;
 using System;
 using System.Text;
 
@@ -127,6 +128,7 @@ namespace Shrooms.Presentation.Api
             .AddCookie(options =>
             {
                 options.Cookie.Name = ".AspNet.Cookies";
+                // TODO: Match cookie expiration date to bearer token
             })
             .AddJwtBearer(options =>
             {
@@ -169,6 +171,8 @@ namespace Shrooms.Presentation.Api
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors();
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
