@@ -504,6 +504,23 @@ namespace Shrooms.Domain.Services.Administration
             return externalLogins;
         }
 
+        public async Task VerifyEmailAsync(VerifyEmailDto verifyDto)
+        {
+            var user = await _userManager.FindByEmailAsync(verifyDto.Email);
+
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
+
+            if (!result.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Invalid confirmation code");
+            }
+        }
+
         // TODO: Update registration logic when organization logic is fixed
         public async Task RegisterInternalAsync(RegisterDto registerDto)
         {

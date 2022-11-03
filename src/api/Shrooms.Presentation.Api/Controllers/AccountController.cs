@@ -108,6 +108,29 @@ namespace Shrooms.Presentation.Api
         }
 
         [AllowAnonymous]
+        [HttpPost("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailViewModel verifyViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
+
+                await _administrationUsersService.VerifyEmailAsync(verifyDto);
+
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequestWithError(ex);
+            }
+        }
+
+        [AllowAnonymous]
         [HttpGet("ExternalLogin")]
         // TODO: Figure out what to do with these params (and if they are necessary)
         // TODO: Return .AspNet.Cookies. cookie here, since we get it from older API here
