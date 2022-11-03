@@ -17,7 +17,7 @@ namespace Shrooms.Domain.Services.Email.Kudos
     public class KudosNotificationService : IKudosNotificationService
     {
         private readonly IMailTemplate _mailTemplate;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailingService;
         private readonly ApplicationOptions _applicationOptions;
 
         private readonly DbSet<ApplicationUser> _usersDbSet;
@@ -25,7 +25,7 @@ namespace Shrooms.Domain.Services.Email.Kudos
 
         public KudosNotificationService(
             IUnitOfWork2 uow,
-            IMailingService mailingService,
+            IMailService mailingService,
             IOptions<ApplicationOptions> applicationSettings,
             IMailTemplate mailTemplate)
         {

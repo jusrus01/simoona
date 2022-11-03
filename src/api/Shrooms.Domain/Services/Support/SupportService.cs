@@ -14,10 +14,10 @@ namespace Shrooms.Domain.Services.Support
     public class SupportService : ISupportService
     {
         private readonly DbSet<ApplicationUser> _applicationUsers;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailingService;
         private readonly ApplicationOptions _applicationOptions;
 
-        public SupportService(IUnitOfWork2 uow, IMailingService mailingService, IOptions<ApplicationOptions> applicationOptions)
+        public SupportService(IUnitOfWork2 uow, IMailService mailingService, IOptions<ApplicationOptions> applicationOptions)
         {
             _mailingService = mailingService;
             _applicationOptions = applicationOptions.Value;

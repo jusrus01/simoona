@@ -16,7 +16,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
     public class AdministrationUsersNotificationService : IAdministrationNotificationService
     {
         private readonly DbSet<Organization> _organizationDbSet;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailService;
         private readonly ApplicationOptions _applicationOptions;
         private readonly IMailTemplate _mailTemplate;
         private readonly IUserService _userService;
@@ -24,7 +24,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
         public AdministrationUsersNotificationService(
             IOptions<ApplicationOptions> applicationOptions,
             IUnitOfWork2 uow,
-            IMailingService mailingService,
+            IMailService mailingService,
             IMailTemplate mailTemplate,
             IUserService permissionService)
         {
@@ -32,7 +32,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
             _organizationDbSet = uow.GetDbSet<Organization>();
 
-            _mailingService = mailingService;
+            _mailService = mailingService;
             _mailTemplate = mailTemplate;
             _userService = permissionService;
         }
@@ -57,7 +57,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
             var body = _mailTemplate.Generate(emailTemplateViewModel);
 
-            await _mailingService.SendEmailAsync(new EmailDto(userEmail, subject, body));
+            await _mailService.SendEmailAsync(new EmailDto(userEmail, subject, body));
         }
 
         public async Task NotifyAboutNewUserAsync(ApplicationUser newUser, int orgId)
@@ -83,7 +83,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
             var body = _mailTemplate.Generate(emailTemplateViewModel);
 
             var emailDto = new EmailDto(userAdministrationEmails, subject, body);
-            await _mailingService.SendEmailAsync(emailDto);
+            await _mailService.SendEmailAsync(emailDto);
         }
 
         public async Task SendUserResetPasswordEmailAsync(ApplicationUser user, string token, string organizationName)
@@ -95,7 +95,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
             var subject = string.Format(Resources.Common.UserResetPasswordEmailSubject);
             var content = _mailTemplate.Generate(resetPasswordTemplateViewModel);
 
-            await _mailingService.SendEmailAsync(new EmailDto(user.Email, subject, content));
+            await _mailService.SendEmailAsync(new EmailDto(user.Email, subject, content));
         }
 
         public async Task SendUserVerificationEmailAsync(ApplicationUser user, string token, string organizationName)
@@ -107,7 +107,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
             var subject = string.Format(Resources.Common.UserVerifyEmailSubject);
             var content = _mailTemplate.Generate(verifyEmailTemplateViewModel);
 
-            await _mailingService.SendEmailAsync(new EmailDto(user.Email, subject, content));
+            await _mailService.SendEmailAsync(new EmailDto(user.Email, subject, content));
         }
     }
 }

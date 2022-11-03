@@ -7,6 +7,12 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Extensions\EmailTemplates\**" />
+	  <Content Remove="Extensions\EmailTemplates\**" />
+	  <EmbeddedResource Remove="Extensions\EmailTemplates\**" />
+	  <None Remove="Extensions\EmailTemplates\**" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Content Remove="EmailTemplates\AdministrationUsers\NotificationAboutNewUser.cshtml" />
 	  <Content Remove="EmailTemplates\AdministrationUsers\UserConfirmation.cshtml" />
 	  <Content Remove="EmailTemplates\AdministrationUsers\UserResetPassword.cshtml" />

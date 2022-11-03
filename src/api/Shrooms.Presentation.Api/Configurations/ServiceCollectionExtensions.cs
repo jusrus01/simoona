@@ -28,6 +28,7 @@ namespace Shrooms.Presentation.Api.Configurations
             services.Configure<GoogleAuthenticationOptions>(options => options = applicationOptions.Authentication.Google);
             services.Configure<JwtAuthenticationOptions>(options => options = applicationOptions.Authentication.Jwt);
             services.Configure<ShroomsAuthenticationOptions>(options => options = applicationOptions.Authentication);
+            services.Configure<MailOptions>(options => options = applicationOptions.MailSettings);
 
             return applicationOptions;
         }

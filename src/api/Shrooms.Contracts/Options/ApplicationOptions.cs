@@ -22,6 +22,8 @@ namespace Shrooms.Contracts.Options
 
         public ConcurrentDictionary<string, string> ConnectionStrings { get; set; }
 
+        public MailOptions MailSettings { get; set; }
+
         //public bool IsEmailEnabled => bool.Parse(ConfigurationManager.AppSettings["EmailEnabled"]);
 
         //public int DefaultOrganizationId => int.Parse(ConfigurationManager.AppSettings["DefaultOrganizationId"]);

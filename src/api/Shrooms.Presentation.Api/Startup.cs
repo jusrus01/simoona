@@ -53,11 +53,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.IoC;
@@ -77,6 +79,8 @@ namespace Shrooms.Presentation.Api
         }
 
         public IConfiguration Configuration { get; }
+
+        public ApplicationOptions? ApplicationOptions { get; set; } 
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
@@ -110,9 +114,28 @@ namespace Shrooms.Presentation.Api
 
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
+                // Temporary settings, for development
+                // TODO: Remove before PR
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 1;
+                options.Password.RequiredUniqueChars = 1;
+
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+
+                // Activate email confirmation
+                options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout.AllowedForNewUsers = false;
             })
-            .AddEntityFrameworkStores<ShroomsDbContext>();
+            .AddEntityFrameworkStores<ShroomsDbContext>()
+            .AddDefaultTokenProviders();
 
             //services.ConfigureApplicationCookie(options =>
             //{

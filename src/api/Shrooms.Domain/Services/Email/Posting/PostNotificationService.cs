@@ -30,7 +30,7 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly IUserService _userService;
         private readonly IPostService _postService;
         private readonly IMailTemplate _mailTemplate;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailingService;
         private readonly ApplicationOptions _applicationOptions;
         private readonly IOrganizationService _organizationService;
 
@@ -43,7 +43,7 @@ namespace Shrooms.Domain.Services.Email.Posting
             IUserService userService,
             IPostService postService,
             IMailTemplate mailTemplate,
-            IMailingService mailingService,
+            IMailService mailingService,
             IOptions<ApplicationOptions> applicationOptions,
             IOrganizationService organizationService)
         {

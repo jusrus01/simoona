@@ -31,7 +31,7 @@ namespace Shrooms.Domain.Services.Email.Posting
         private readonly IUserService _userService;
         private readonly ICommentService _commentService;
         private readonly IMailTemplate _mailTemplate;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailingService;
         private readonly ApplicationOptions _applicationOptions;
         private readonly IOrganizationService _organizationService;
         private readonly IPostService _postService;
@@ -45,7 +45,7 @@ namespace Shrooms.Domain.Services.Email.Posting
             IUserService userService,
             ICommentService commentService,
             IMailTemplate mailTemplate,
-            IMailingService mailingService,
+            IMailService mailingService,
             IOptions<ApplicationOptions> applicationOptions,
             IOrganizationService organizationService,
             IPostService postService)

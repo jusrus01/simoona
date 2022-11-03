@@ -17,10 +17,10 @@ namespace Shrooms.Domain.Services.DailyMailingService
     {
         private readonly DbSet<ApplicationUser> _applicationUserDbSeb;
         private readonly DbSet<Post> _postDbSet;
-        private readonly IMailingService _emailService;
+        private readonly IMailService _emailService;
         private readonly ISystemClock _systemClock;
 
-        public DailyMailingService(IUnitOfWork2 unitOfWork, ISystemClock systemClock, IMailingService emailService)
+        public DailyMailingService(IUnitOfWork2 unitOfWork, ISystemClock systemClock, IMailService emailService)
         {
             _applicationUserDbSeb = unitOfWork.GetDbSet<ApplicationUser>();
             _postDbSet = unitOfWork.GetDbSet<Post>();

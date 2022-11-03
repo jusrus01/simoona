@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Shrooms.Domain.Services.Email.AdministrationUsers;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -55,7 +56,7 @@ namespace Shrooms.Domain.Services.Administration
         private readonly IOrganizationService _organizationService;
         //private readonly IPictureService _pictureService;
         //private readonly IMapper _mapper;
-        //private readonly IAdministrationNotificationService _notificationService;
+        private readonly IAdministrationNotificationService _userAdministrationNotificationService;
         //private readonly IKudosService _kudosService;
         private readonly IUnitOfWork2 _uow;
         //private readonly IExcelBuilderFactory _excelBuilderFactory;
@@ -68,7 +69,7 @@ namespace Shrooms.Domain.Services.Administration
             IOrganizationService organizationService,
             //IPictureService pictureService,
             //IDbContext context,
-            //IAdministrationNotificationService notificationService,
+            IAdministrationNotificationService userAdministrationNotificationService,
             //IKudosService kudosService,
             //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
@@ -95,6 +96,7 @@ namespace Shrooms.Domain.Services.Administration
 
             _applicationOptions = applicationOptions.Value;
             _httpContextAccessor = httpContextAccessor;
+            _userAdministrationNotificationService = userAdministrationNotificationService;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -182,13 +184,6 @@ namespace Shrooms.Domain.Services.Administration
             //var token = await _userManager.GeneratePasswordResetTokenAsync(user.Id);
 
             //await _notificationService.SendUserResetPasswordEmailAsync(user, token, organizationName);
-        }
-
-        public async Task SendUserVerificationEmailAsync(ApplicationUser user, string orgazinationName)
-        {
-            //var token = await _userManager.GenerateEmailConfirmationTokenAsync(user.Id);
-
-            //await _notificationService.SendUserVerificationEmailAsync(user, token, orgazinationName);
         }
 
         public async Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg)
@@ -424,6 +419,109 @@ namespace Shrooms.Domain.Services.Administration
             await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
 
+        public async Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync()
+        {
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var providers = organization.AuthenticationProviders;
+
+            if (!ContainsProvider(providers, AuthenticationConstants.InternalLoginProvider.ToLower()))
+            {
+                return Enumerable.Empty<ExternalLoginDto>();
+            }
+
+            return new List<ExternalLoginDto>
+            {
+                new ExternalLoginDto
+                {
+                    Name = AuthenticationConstants.InternalLoginProvider,
+                }
+            };
+        }
+
+        public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
+        {
+            if (identity is not ClaimsIdentity claimsIdentity)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
+            }
+
+            if (!claimsIdentity.IsAuthenticated)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
+            }
+
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
+
+            return new LoggedInUserInfoDto
+            {
+                HasRegistered = true,
+                Roles = roles,
+                UserName = identity.Name,
+                UserId = userId,
+                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
+                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
+                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
+                Permissions = permissions,
+                Impersonated = claimsIdentity.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && bool.Parse(c.Value)),
+                CultureCode = user.CultureCode,
+                TimeZone = user.TimeZone,
+                PictureId = user.PictureId
+            };
+        }
+
+        // TODO: Register scheme only if key exists (on start up, before adding facebook signin)
+        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId)
+        {
+            var externalLogins = new List<ExternalLoginDto>();
+
+            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
+            foreach (var authenticationScheme in availableAuthenticationSchemes)
+            {
+                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
+                {
+                    continue;
+                }
+
+                externalLogins.AddRange(new List<ExternalLoginDto>
+                {
+                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: false),
+                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: true),
+                });
+            }
+
+            return externalLogins;
+        }
+
+        // TODO: Update registration logic when organization logic is fixed
+        public async Task RegisterInternalAsync(RegisterDto registerDto)
+        {
+            if (!await UserEmailExistsAsync(registerDto.Email))
+            {
+                await HandleNormalRegistrationAsync(registerDto);
+                return;
+            }
+
+            if (await IsUserSoftDeletedAsync(registerDto.Email))
+            {
+                await HandleSoftDeletedUserRegistrationAsync(registerDto);
+                return;
+            }
+
+            await HandleExistingUserRegistrationAsync(registerDto);
+        }
+
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)
         {
             //var welcomeKudosDto = await _kudosService.GetWelcomeKudosAsync();
@@ -617,107 +715,12 @@ namespace Shrooms.Domain.Services.Administration
             }
         }
 
-        public async Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync()
+        private async Task SendUserEmailConfirmationTokenAsync(ApplicationUser user)
         {
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            var providers = organization.AuthenticationProviders;
-
-            if (!ContainsProvider(providers, AuthenticationConstants.InternalLoginProvider.ToLower()))
-            {
-                return Enumerable.Empty<ExternalLoginDto>();
-            }
-
-            return new List<ExternalLoginDto>
-            {
-                new ExternalLoginDto
-                {
-                    Name = AuthenticationConstants.InternalLoginProvider,
-                }
-            };
-        }
-
-        public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
-        {
-            if (identity is not ClaimsIdentity claimsIdentity)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
-            }
-
-            if (!claimsIdentity.IsAuthenticated)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
-            }
-
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var permissions = await _permissionService.GetUserPermissionsAsync(userId);
-
-            return new LoggedInUserInfoDto
-            {
-                HasRegistered = true,
-                Roles = roles,
-                UserName = identity.Name,
-                UserId = userId,
-                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
-                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
-                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
-                Permissions = permissions,
-                Impersonated = claimsIdentity.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && bool.Parse(c.Value)),
-                CultureCode = user.CultureCode,
-                TimeZone = user.TimeZone,
-                PictureId = user.PictureId
-            };
-        }
-
-        // TODO: Register scheme only if key exists (on start up, before adding facebook signin)
-        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId)
-        {
-            var externalLogins = new List<ExternalLoginDto>();
-
-            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-
-            foreach (var authenticationScheme in availableAuthenticationSchemes)
-            {
-                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
-                {
-                    continue;
-                }
-                
-                externalLogins.AddRange(new List<ExternalLoginDto>
-                {
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: false),
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: true),
-                });
-            }
-
-            return externalLogins;
-        }
-
-        // TODO: Update registration logic when organization logic is fixed
-        public async Task RegisterInternalAsync(RegisterDto registerDto)
-        {
-            if (!await UserEmailExistsAsync(registerDto.Email))
-            {
-                await HandleNormalRegistrationAsync(registerDto);
-                return;
-            }
-
-            if (await IsUserSoftDeletedAsync(registerDto.Email))
-            {
-                await HandleSoftDeletedUserRegistrationAsync(registerDto);
-                return;
-            }
-
-            await HandleExistingUserRegistrationAsync(registerDto);
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            
+            // Note: blocks, maybe should reimplement this?
+            await _userAdministrationNotificationService.SendUserVerificationEmailAsync(user, token, _tenantNameContainer.TenantName);
         }
 
         private string CreateExternalLoginUrl(
@@ -831,7 +834,8 @@ namespace Shrooms.Domain.Services.Administration
             }
 
             await AddNewUserRolesAsync(newUser);
-            // TODO: Send email verification
+
+            await SendUserEmailConfirmationTokenAsync(newUser);
         }
 
         private async Task<bool> IsUserRegisteredByExternalProviderAsync(ApplicationUser user)

@@ -79,17 +79,17 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public IEnumerable<Committee> Committees 
         {
-            get => CommitteesUserMembership.Select(model => model.Committee);
+            get => CommitteesUserMembership?.Select(model => model.Committee);
         }
 
         public IEnumerable<Committee> LeadingCommittees
         {
-            get => CommitteesUserLeadership.Select(model => model.Committee);
+            get => CommitteesUserLeadership?.Select(model => model.Committee);
         }
 
         public IEnumerable<Committee> DelegatingCommittees
         {
-            get => CommitteesUserDelegates.Select(model => model.Committee); 
+            get => CommitteesUserDelegates?.Select(model => model.Committee); 
         }
 
         public int OrganizationId { get; set; }
@@ -108,14 +108,14 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public virtual IEnumerable<Exam> Exams 
         {
-            get => ApplicationUserExams.Select(model => model.Exam);
+            get => ApplicationUserExams?.Select(model => model.Exam);
         }
 
         public virtual ICollection<Certificate> Certificates { get; set; }
 
         public virtual IEnumerable<Skill> Skills 
         { 
-            get => ApplicationUserSkills.Select(model => model.Skill); 
+            get => ApplicationUserSkills?.Select(model => model.Skill); 
         }
 
         public virtual ICollection<Book> Books { get; set; }
@@ -130,7 +130,7 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public virtual IEnumerable<ServiceRequestCategory> ServiceRequestCategoriesAssigned
         { 
-            get => ServiceRequestCategoryApplicationUsers.Select(model => model.ServiceRequestCategory); 
+            get => ServiceRequestCategoryApplicationUsers?.Select(model => model.ServiceRequestCategory); 
         }
 
         public double? VacationTotalTime { get; set; }
@@ -149,7 +149,7 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public IEnumerable<Project> Projects 
         { 
-            get => ProjectApplicationUsers.Select(model => model.Project);
+            get => ProjectApplicationUsers?.Select(model => model.Project);
         }
 
         public ICollection<Project> OwnedProjects { get; set; }

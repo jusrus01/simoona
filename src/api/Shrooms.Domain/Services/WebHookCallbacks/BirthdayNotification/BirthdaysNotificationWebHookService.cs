@@ -20,13 +20,13 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.BirthdayNotification
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly DbSet<Organization> _organizationsDbSet;
         private readonly DateTime _date;
-        private readonly IMailingService _mailingService;
+        private readonly IMailService _mailingService;
         private readonly IRoleService _roleService;
         private readonly IMailTemplate _mailTemplate;
         private readonly ApplicationOptions _applicationOptions;
 
         public BirthdaysNotificationWebHookService(IUnitOfWork2 uow,
-            IMailingService mailingService,
+            IMailService mailingService,
             IRoleService roleService,
             IMailTemplate mailTemplate,
             IOptions<ApplicationOptions> applicationOptions)
