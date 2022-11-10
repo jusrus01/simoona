@@ -886,6 +886,18 @@ namespace Shrooms.Domain.Services.Administration
                 throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
             }
 
+            var internalLogin = new UserLoginInfo(
+                AuthenticationConstants.InternalLoginProvider,
+                providerKey: Guid.NewGuid().ToString(),
+                AuthenticationConstants.InternalLoginProvider);
+
+            var loginResult = await _userManager.AddLoginAsync(newUser, internalLogin);
+
+            if (!loginResult.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Failed to add login");
+            }
+
             await AddNewUserRolesAsync(newUser);
 
             await SendUserEmailConfirmationTokenAsync(newUser);
