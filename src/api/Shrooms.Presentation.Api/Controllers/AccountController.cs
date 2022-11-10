@@ -122,11 +122,6 @@ namespace Shrooms.Presentation.Api
 
         [AllowAnonymous]
         [HttpGet("ExternalLogin")]
-        // TODO: Figure out what to do with these params (and if they are necessary)
-        // TODO: Return .AspNet.Cookies. cookie here, since we get it from older API here
-
-
-        // If i add through settings, then userId is set and requires linking (register external does not get called)
         public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
         {
             if (!ModelState.IsValid)
@@ -168,10 +163,8 @@ namespace Shrooms.Presentation.Api
             return Ok(externalLoginViewModels);
         }
 
-        // TODO: Ask about refresh token
-        // TODO: Make sure that we receive this .AspNet.Cookies when using external providers
         /// <summary>
-        /// Only responsible for providing a cookie for StorageController
+        /// Only responsible for providing a cookie that is used in StorageController
         /// </summary>
         /// <param name="loginViewModel"></param>
         /// <returns></returns>
