@@ -563,7 +563,7 @@ namespace Shrooms.Domain.Services.Administration
         {
             if (!await UserEmailExistsAsync(registerDto.Email))
             {
-                await HandleNormalRegistrationAsync(registerDto);
+                await CreateNewInternalUserAsync(registerDto);
             }
             else if (await IsUserSoftDeletedAsync(registerDto.Email))
             {
@@ -829,11 +829,6 @@ namespace Shrooms.Domain.Services.Administration
             return providerList.ToLower().Contains(providerName.ToLower());
         }
 
-        private async Task HandleNormalRegistrationAsync(RegisterDto registerDto)
-        {
-            await CreateNewInternalUserAsync(registerDto);
-        }
-
         private async Task HandleSoftDeletedUserRegistrationAsync(RegisterDto registerDto)
         {
             throw new NotImplementedException();
@@ -853,7 +848,7 @@ namespace Shrooms.Domain.Services.Administration
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, registerDto.Password);
 
-            // TODO: Send verification email
+            await SendUserEmailConfirmationTokenAsync(user);
         }
 
         private async Task CreateNewInternalUserAsync(RegisterDto registerDto)
