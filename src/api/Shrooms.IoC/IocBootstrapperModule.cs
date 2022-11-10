@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using AutoMapper;
 using Shrooms.Contracts.Infrastructure;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
@@ -36,9 +37,20 @@ namespace Shrooms.IoC
 
             builder.RegisterModule(new InfrastructureModule());
             builder.RegisterModule(new ContextModule());
+
             builder.RegisterModule(new RoleModule());
+
+            builder.RegisterType<CookieService>()
+                .As<ICookieService>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterModule(new ServicesModule());
             builder.RegisterModule(new AuthenticationModule());
+
+            builder.RegisterType<TokenService>()
+                .As<ITokenService>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterModule(new EmailModule());
             builder.RegisterModule(new MapperModule());
 
@@ -54,11 +66,6 @@ namespace Shrooms.IoC
             builder.RegisterModule(new FilterPresetModule());
             builder.RegisterModule(new BlacklistUserModule());
             builder.RegisterModule(new EmployeeModule());
-
-            builder.RegisterType<TokenService>()
-                .As<ITokenService>()
-                .InstancePerLifetimeScope();
-
 
             builder.RegisterModule(new ExternalProviderModule());
         }
