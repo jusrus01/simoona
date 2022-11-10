@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
+using Shrooms.Domain.Services.Cookies;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -59,9 +60,12 @@ namespace Shrooms.Domain.Services.Administration
         private readonly IAdministrationNotificationService _userAdministrationNotificationService;
         //private readonly IKudosService _kudosService;
         private readonly IUnitOfWork2 _uow;
+        private readonly ICookieService _cookieService;
+
         //private readonly IExcelBuilderFactory _excelBuilderFactory;
 
         public AdministrationUsersService(
+            ICookieService cookieService,
             IDbContext dbContext,
             //IUnitOfWork unitOfWork,
             IUnitOfWork2 uow,
@@ -80,6 +84,7 @@ namespace Shrooms.Domain.Services.Administration
             IHttpContextAccessor httpContextAccessor)
         {
             _uow = uow;
+            _cookieService = cookieService;
             //_mapper = mapper;
             //_applicationUserRepository = unitOfWork.GetRepository<ApplicationUser>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
@@ -411,12 +416,7 @@ namespace Shrooms.Domain.Services.Administration
                 throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid crediantials");
             }
 
-            var claimsIdentity = new ClaimsIdentity(
-                new List<Claim>(),
-                CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            await _cookieService.SetExternalCookieAsync();
         }
 
         public async Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync()

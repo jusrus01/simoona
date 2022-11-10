@@ -5,6 +5,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
@@ -22,8 +23,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly ApplicationOptions _applicationOptions;
         private readonly ITokenService _tokenService;
         private readonly IOrganizationService _organizationService;
-
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICookieService _cookieService;
 
         public ExternalProviderService(
             ITokenService tokenService,
@@ -33,7 +33,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             UserManager<ApplicationUser> userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
-            IHttpContextAccessor httpContextAccessor)
+            ICookieService cookieService)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
@@ -41,7 +41,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _tokenService = tokenService;
             _userManager = userManager;
             _organizationService = organizationService;
-            _httpContextAccessor = httpContextAccessor;
+            _cookieService = cookieService;
 
             _applicationOptions = applicationOptions.Value;
         }
@@ -77,8 +77,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
                         _userManager,
                         _organizationService,
                         _tenantNameContainer,
-                        _httpContextAccessor) :
-                    new ExternalLoginStrategy(_httpContextAccessor, _tokenService, externalLoginInfo);
+                        _cookieService) :
+                    new ExternalLoginStrategy(_cookieService, _tokenService, externalLoginInfo);
             }
 
             return requestDto.IsRegistration ? 

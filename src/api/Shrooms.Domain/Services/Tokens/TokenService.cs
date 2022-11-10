@@ -7,6 +7,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.FireAndForget;

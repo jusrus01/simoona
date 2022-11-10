@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Tokens;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -13,35 +14,25 @@ namespace Shrooms.Domain.Services.ExternalProviders
     {
         private readonly ITokenService _tokenService;
         private readonly ExternalLoginInfo _externalLoginInfo;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICookieService _cookieService;
 
         public ExternalLoginStrategy(
-            IHttpContextAccessor httpContextAccessor,
+            ICookieService cookieService,
             ITokenService tokenService,
             ExternalLoginInfo externalLoginInfo)
         {
             _tokenService = tokenService;
             _externalLoginInfo = externalLoginInfo;
-            _httpContextAccessor = httpContextAccessor;
+            _cookieService = cookieService;
         }
 
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(_externalLoginInfo);
 
-            await SetExternalCookieAsync();
+            await _cookieService.SetExternalCookieAsync();
             
             return new ExternalProviderResult(tokenRedirectUrl);
-        }
-
-        private async Task SetExternalCookieAsync()
-        {
-            var claimsIdentity = new ClaimsIdentity(
-                          new List<Claim>(),
-                          CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
     }
 }

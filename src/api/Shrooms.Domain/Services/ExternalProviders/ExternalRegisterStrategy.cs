@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
@@ -18,7 +19,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICookieService _cookieService;
         private readonly ExternalLoginInfo _externalLoginInfo;
         private readonly ITokenService _tokenService;
         private readonly IOrganizationService _organizationService;
@@ -30,14 +31,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
             UserManager<ApplicationUser> userManager,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
-            IHttpContextAccessor httpContextAccessor)
+            ICookieService cookieService)
         {
             _userManager = userManager;
             _externalLoginInfo = externalLoginInfo;
             _tokenService = tokenService;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
-            _httpContextAccessor = httpContextAccessor;
+            _cookieService = cookieService;
         }
 
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
@@ -85,7 +86,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync()
         {
-            return await new ExternalLoginStrategy(_httpContextAccessor, _tokenService, _externalLoginInfo).ExecuteStrategyAsync();
+            return await new ExternalLoginStrategy(_cookieService, _tokenService, _externalLoginInfo).ExecuteStrategyAsync();
         }
     }
 }
