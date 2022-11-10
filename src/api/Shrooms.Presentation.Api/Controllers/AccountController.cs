@@ -1,15 +1,13 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Administration;
-using Shrooms.Domain.Services.Tokens;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Domain.Services.ExternalProviders;
 using Shrooms.Presentation.Api.Controllers;
+using Shrooms.Presentation.Api.ShroomsExtensions;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System.Collections.Generic;
@@ -27,26 +25,19 @@ namespace Shrooms.Presentation.Api
     [Route("Account")]
     public class AccountController : ShroomsControllerBase
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-
         private readonly IMapper _mapper;
-    
-        private readonly ITokenService _tokenService;
+
         private readonly IAdministrationUsersService _administrationUsersService;
-        private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IExternalProviderService _externalProviderService;
 
         public AccountController(
             IMapper mapper,
-            SignInManager<ApplicationUser> signInManager,
             IAdministrationUsersService administrationUsersService,
-            ITokenService tokenService,
-            ITenantNameContainer tenantNameContainer)
+            IExternalProviderService externalProviderService)
         {
             _mapper = mapper;
-            _signInManager = signInManager;
-            _tokenService = tokenService;
             _administrationUsersService = administrationUsersService;
-            _tenantNameContainer = tenantNameContainer;
+            _externalProviderService = externalProviderService;
         }
 
         [AllowAnonymous]
@@ -134,28 +125,34 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogin")]
         // TODO: Figure out what to do with these params (and if they are necessary)
         // TODO: Return .AspNet.Cookies. cookie here, since we get it from older API here
-        public async Task<IActionResult> ExternalLogin(
-            string provider,
-            string? client_Id = null,
-            string? userId = null,
-            bool isRegistration = false,
-            string? error = null)
-        {
-            var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
 
-            if (externalLoginInfo != null)
+
+        // If i add through settings, then userId is set and requires linking (register external does not get called)
+        public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
+        {
+            if (!ModelState.IsValid)
             {
-                return await CompleteExternalLoginAsync(externalLoginInfo);
+                return BadRequest(ModelState);
             }
 
-            var redirectUrl = Url.Action(
-                ControllerContext.ActionDescriptor.ActionName,
-                ControllerContext.ActionDescriptor.ControllerName,
-                new { organization = _tenantNameContainer.TenantName });
-            
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
+            try
+            {
+                var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
+                
+                var routeDto = new ControllerRouteDto
+                {
+                    ControllerName = ControllerContext.ActionDescriptor.ControllerName,
+                    ActionName = ControllerContext.ActionDescriptor.ActionName
+                };
 
-            return new ChallengeResult(GoogleDefaults.AuthenticationScheme, properties);
+                var externalProviderResult = await _externalProviderService.ExternalLoginOrRegisterAsync(requestDto, routeDto);
+
+                return externalProviderResult.ToActionResult(this);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequestWithError(ex);
+            }
         }
 
         [AllowAnonymous]
@@ -195,18 +192,6 @@ namespace Shrooms.Presentation.Api
                 await _administrationUsersService.SetSignInCookieAsync(loginDto);
 
                 return Ok();
-            }
-            catch (ValidationException e)
-            {
-                return BadRequestWithError(e);
-            }
-        }
-
-        private async Task<IActionResult> CompleteExternalLoginAsync(ExternalLoginInfo externalLoginInfo)
-        {
-            try
-            {
-                return Redirect(await _tokenService.GetTokenRedirectUrlForExternalAsync(externalLoginInfo));
             }
             catch (ValidationException e)
             {
