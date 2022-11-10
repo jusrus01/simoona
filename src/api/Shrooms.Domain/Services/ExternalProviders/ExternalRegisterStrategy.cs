@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Tokens;
+using Shrooms.Infrastructure.FireAndForget;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -14,22 +17,32 @@ namespace Shrooms.Domain.Services.ExternalProviders
     public class ExternalRegisterStrategy : IExternalProviderStrategy
     {
         private readonly UserManager<ApplicationUser> _userManager;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ExternalLoginInfo _externalLoginInfo;
         private readonly ITokenService _tokenService;
+        private readonly IOrganizationService _organizationService;
+        private readonly ITenantNameContainer _tenantNameContainer;
 
         public ExternalRegisterStrategy(
             ITokenService tokenService,
             ExternalLoginInfo externalLoginInfo,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IOrganizationService organizationService,
+            ITenantNameContainer tenantNameContainer,
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _externalLoginInfo = externalLoginInfo;
             _tokenService = tokenService;
+            _organizationService = organizationService;
+            _tenantNameContainer = tenantNameContainer;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
-            var userEmail = _externalLoginInfo.Principal.FindFirst(ClaimTypes.Email).Value;
+            var userEmail = (_externalLoginInfo.Principal.Identity as ClaimsIdentity).FindFirst(ClaimTypes.Email).Value;
 
             if (userEmail == null) // TODO: Test it with Facebook provider
             {
@@ -43,11 +56,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 return await ExecuteExternalLoginStrategyAsync();
             }
 
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
             user = new ApplicationUser
             {
                 Email = userEmail,
                 UserName = userEmail,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                OrganizationId = organization.Id
             };
 
             var identityResult = await _userManager.CreateAsync(user, userEmail);
@@ -69,7 +85,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync()
         {
-            return await new ExternalLoginStrategy(_tokenService, _externalLoginInfo).ExecuteStrategyAsync();
+            return await new ExternalLoginStrategy(_httpContextAccessor, _tokenService, _externalLoginInfo).ExecuteStrategyAsync();
         }
     }
 }

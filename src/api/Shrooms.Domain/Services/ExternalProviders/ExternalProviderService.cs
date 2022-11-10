@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
 using System.Threading.Tasks;
@@ -19,6 +21,9 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly ApplicationOptions _applicationOptions;
         private readonly ITokenService _tokenService;
+        private readonly IOrganizationService _organizationService;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ExternalProviderService(
             ITokenService tokenService,
@@ -26,13 +31,17 @@ namespace Shrooms.Domain.Services.ExternalProviders
             IExternalProviderContext externalProviderContext,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            ITenantNameContainer tenantNameContainer)
+            ITenantNameContainer tenantNameContainer,
+            IOrganizationService organizationService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
             _tenantNameContainer = tenantNameContainer;
             _tokenService = tokenService;
             _userManager = userManager;
+            _organizationService = organizationService;
+            _httpContextAccessor = httpContextAccessor;
 
             _applicationOptions = applicationOptions.Value;
         }
@@ -62,8 +71,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
             if (externalLoginInfo != null)
             {
                 return requestDto.IsRegistration ? 
-                    new ExternalRegisterStrategy(_tokenService, externalLoginInfo, _userManager) :
-                    new ExternalLoginStrategy(_tokenService, externalLoginInfo);
+                    new ExternalRegisterStrategy(
+                        _tokenService,
+                        externalLoginInfo,
+                        _userManager,
+                        _organizationService,
+                        _tenantNameContainer,
+                        _httpContextAccessor) :
+                    new ExternalLoginStrategy(_httpContextAccessor, _tokenService, externalLoginInfo);
             }
 
             return requestDto.IsRegistration ? 
