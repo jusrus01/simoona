@@ -58,6 +58,9 @@ namespace Shrooms.IoC
             builder.RegisterType<TokenService>()
                 .As<ITokenService>()
                 .InstancePerLifetimeScope();
+
+
+            builder.RegisterModule(new ExternalProviderModule());
         }
 
         //public static IContainer Bootstrap(IAppBuilder app, Func<string> getConnectionStringName, HttpConfiguration config)
