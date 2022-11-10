@@ -831,7 +831,13 @@ namespace Shrooms.Domain.Services.Administration
 
         private async Task HandleSoftDeletedUserRegistrationAsync(RegisterDto registerDto)
         {
-            throw new NotImplementedException();
+            await _usersDbSet
+                .FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {registerDto.Email}") // Bad
+                .ToListAsync();
+
+            var user = await _userManager.FindByEmailAsync(registerDto.Email);
+
+            await AddNewUserRolesAsync(user);
         }
 
         private async Task HandleExistingUserRegistrationAsync(RegisterDto registerDto)

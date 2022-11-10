@@ -53,7 +53,6 @@ namespace Shrooms.Presentation.Api
             {
                 var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
 
-                // TODO: Handle soft deleted user
                 await _administrationUsersService.RegisterInternalAsync(registerDto);
 
                 return Ok();
