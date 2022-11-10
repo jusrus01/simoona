@@ -54,5 +54,9 @@ namespace Shrooms.Domain.Services.Administration
         Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId);
 
         Task VerifyEmailAsync(VerifyEmailDto verifyDto);
+
+        Task AddExternalProviderToUserAsync(ExternalLoginInfo externalLoginInfo, string userId);
+
+        Task RegisterExternalAsync(ExternalLoginInfo externalLoginInfo);
     }
 }

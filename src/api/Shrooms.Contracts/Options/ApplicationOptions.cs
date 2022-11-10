@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Web;
 
@@ -81,5 +82,16 @@ namespace Shrooms.Contracts.Options
         public string FeedUrl(string tenant) => GetClientPath($"{tenant}/Wall/Feed");
 
         private string GetClientPath(string relativePath) => Path.Combine(ClientUrl, relativePath);
+
+        // TODO: Refactor/export somewhere else
+        public string GetClientLoginUrl(string organizationName)
+        {
+            if (ClientUrl == null)
+            {
+                throw new Exception("Can not find client url");
+            }
+
+            return $"{ClientUrl}/{organizationName}/Login";
+        }
     }
 }

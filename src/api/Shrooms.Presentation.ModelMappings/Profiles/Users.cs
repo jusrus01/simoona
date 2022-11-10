@@ -71,6 +71,8 @@ namespace Shrooms.Presentation.ModelMappings.Profiles
             CreateMap<RegisterViewModel, RegisterDto>();
             CreateMap<LoginViewModel, LoginDto>();
             CreateMap<VerifyEmailViewModel, VerifyEmailDto>();
+
+            CreateMap<ExternalLoginRequestViewModel, ExternalLoginRequestDto>();
         }
     }
 }

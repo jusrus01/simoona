@@ -42,7 +42,6 @@ namespace Shrooms.Domain.Services.Tokens
             ITenantNameContainer tenantNameContainer)
         {
             _applicationOptions = applicationOptions.Value;
-
             _userManager = userManager;
             _permissionService = permissionService;
             _signInManager = signInManager;
@@ -53,8 +52,8 @@ namespace Shrooms.Domain.Services.Tokens
         public async Task<string> GetTokenRedirectUrlForExternalAsync(ExternalLoginInfo externalLoginInfo)
         {
             var token = await GetTokenForExternalAsync(externalLoginInfo);
-            var uri = $"{_applicationOptions.ClientUrl}/{_tenantNameContainer.TenantName}/Login";
-
+            var uri = _applicationOptions.GetClientLoginUrl(_tenantNameContainer.TenantName);
+            // TODO: export strings somewhere
             return $"{QueryHelpers.AddQueryString(uri, "authType", externalLoginInfo.ProviderDisplayName)}#access_token={token}";
         }
 

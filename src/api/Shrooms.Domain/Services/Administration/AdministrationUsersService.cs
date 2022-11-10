@@ -503,6 +503,43 @@ namespace Shrooms.Domain.Services.Administration
 
             return externalLogins;
         }
+        // TODO: Create validator
+        /// <summary>
+        /// This method should be called only when the user is logged in
+        /// </summary>
+        public async Task AddExternalProviderToUserAsync(ExternalLoginInfo externalLoginInfo, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            await AddExternalProviderToUserAsync(user, externalLoginInfo);
+        }
+
+        public async Task RegisterExternalAsync(ExternalLoginInfo externalLoginInfo)
+        {
+            var email = externalLoginInfo
+                .Principal
+                .Claims
+                .FirstOrDefault(claim => claim.Type == ClaimTypes.Email).Value;
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            await AddExternalProviderToUserAsync(user, externalLoginInfo);
+        }
+
+        private async Task AddExternalProviderToUserAsync(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
+        {
+            if (user == null)
+            {
+                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
+            }
+
+            var result = await _userManager.AddLoginAsync(user, externalLoginInfo);
+
+            if (!result.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Failed to add external provider");
+            }
+        }
 
         public async Task VerifyEmailAsync(VerifyEmailDto verifyDto)
         {
@@ -527,16 +564,15 @@ namespace Shrooms.Domain.Services.Administration
             if (!await UserEmailExistsAsync(registerDto.Email))
             {
                 await HandleNormalRegistrationAsync(registerDto);
-                return;
             }
-
-            if (await IsUserSoftDeletedAsync(registerDto.Email))
+            else if (await IsUserSoftDeletedAsync(registerDto.Email))
             {
                 await HandleSoftDeletedUserRegistrationAsync(registerDto);
-                return;
             }
-
-            await HandleExistingUserRegistrationAsync(registerDto);
+            else
+            {
+                await HandleExistingUserRegistrationAsync(registerDto);
+            }
         }
 
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)
