@@ -40,7 +40,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
             if (user != null)
             {
-                throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is registered"); // TODO: figure out if this should really throw
+                return await ExecuteExternalLoginStrategyAsync();
             }
 
             user = new ApplicationUser
@@ -64,9 +64,12 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 throw new ValidationException(ErrorCodes.Unspecified, "Failed to add login");
             }
 
-            var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(_externalLoginInfo);
+            return await ExecuteExternalLoginStrategyAsync();
+        }
 
-            return new ExternalProviderResult(tokenRedirectUrl);
+        private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync()
+        {
+            return await new ExternalLoginStrategy(_tokenService, _externalLoginInfo).ExecuteStrategyAsync();
         }
     }
 }
