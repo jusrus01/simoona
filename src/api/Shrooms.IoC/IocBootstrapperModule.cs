@@ -5,6 +5,8 @@ using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
+using Shrooms.Infrastructure.Storage;
+using Shrooms.Infrastructure.Storage.FileSystem;
 using Shrooms.IoC.Modules;
 using System.Linq;
 using System.Reflection;
@@ -42,6 +44,10 @@ namespace Shrooms.IoC
 
             builder.RegisterType<CookieService>()
                 .As<ICookieService>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<FileSystemStorage>()
+                .As<IStorage>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterModule(new ServicesModule());

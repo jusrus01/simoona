@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
@@ -7,6 +6,7 @@ using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
+using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Infrastructure.FireAndForget;
 using System.Threading.Tasks;
@@ -24,6 +24,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly ITokenService _tokenService;
         private readonly IOrganizationService _organizationService;
         private readonly ICookieService _cookieService;
+        private readonly IPictureService _pictureService;
 
         public ExternalProviderService(
             ITokenService tokenService,
@@ -33,7 +34,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
             UserManager<ApplicationUser> userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
-            ICookieService cookieService)
+            ICookieService cookieService,
+            IPictureService pictureService)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
@@ -42,6 +44,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _userManager = userManager;
             _organizationService = organizationService;
             _cookieService = cookieService;
+            _pictureService = pictureService;
 
             _applicationOptions = applicationOptions.Value;
         }
@@ -77,7 +80,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
                         _userManager,
                         _organizationService,
                         _tenantNameContainer,
-                        _cookieService) :
+                        _cookieService,
+                        _pictureService) :
                     new ExternalLoginStrategy(_cookieService, _tokenService, externalLoginInfo);
             }
 

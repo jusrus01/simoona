@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-//using System.Web.Hosting;
 
 namespace Shrooms.Infrastructure.Storage.FileSystem
 {
@@ -36,13 +35,14 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
 
         public async Task UploadPictureAsync(Stream stream, string blobKey, string mimeType, string tenantPicturesContainer)
         {
-            throw new NotImplementedException();
+            // Temporary
+            var filePath = $"{AppDomain.CurrentDomain.BaseDirectory}/storage/{tenantPicturesContainer}";
             //var filePath = HostingEnvironment.MapPath($"~/storage/{tenantPicturesContainer}/");
-            //var fullPath = Path.Combine(filePath, blobKey);
-            //Directory.CreateDirectory(filePath);
+            var fullPath = Path.Combine(filePath, blobKey);
+            Directory.CreateDirectory(filePath);
 
-            //var destinationStream = File.Create(fullPath);
-            //await stream.CopyToAsync(destinationStream);
+            var destinationStream = File.Create(fullPath);
+            await stream.CopyToAsync(destinationStream);
         }
     }
 }

@@ -67,7 +67,9 @@ using Shrooms.Presentation.Api.Configurations;
 using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
 using Shrooms.Presentation.Api.Middlewares;
 using System;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api
 {
@@ -175,6 +177,20 @@ namespace Shrooms.Presentation.Api
                 options.ClientSecret = applicationOptions.Authentication.Google.ClientSecret;
                 options.SaveTokens = false;
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
+
+                options.Events.OnCreatingTicket = (context) =>
+                {
+                    var picture = context.User.GetProperty(WebApiConstants.ClaimPicture).GetString();
+
+                    if (picture == null)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    context.Identity.AddClaim(new Claim(WebApiConstants.ClaimPicture, picture));
+
+                    return Task.CompletedTask;
+                };
             });
 
             services.AddAuthorization(options =>
