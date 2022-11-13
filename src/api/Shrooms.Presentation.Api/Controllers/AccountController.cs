@@ -13,12 +13,6 @@ using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-// Checklist:
-// Local token auth
-// Login [x]
-// Register []
-//  w/o confirmation
-//  w confirmation
 namespace Shrooms.Presentation.Api
 {
     [Authorize]
@@ -65,7 +59,7 @@ namespace Shrooms.Presentation.Api
 
         [Authorize]
         [HttpGet("UserInfo")]
-        public async Task<IActionResult> GetUserInfo() // TODO: Make sure that this is not used by external providers
+        public async Task<IActionResult> GetUserInfo()
         {
             try
             {
@@ -120,6 +114,12 @@ namespace Shrooms.Presentation.Api
             }
         }
 
+        /// <summary>
+        /// This method handles external provider registration and login. 
+        /// Based on the sent request parameters, it either registers or signs in the user.
+        /// </summary>
+        /// <param name="requestViewModel">Parameters</param>
+        /// <returns>Redirects to an external provider or redirects to the client with an access token and set .AspNet.Cookies cookie</returns>
         [AllowAnonymous]
         [HttpGet("ExternalLogin")]
         public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
