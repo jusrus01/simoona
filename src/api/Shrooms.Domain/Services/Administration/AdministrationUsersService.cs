@@ -869,6 +869,7 @@ namespace Shrooms.Domain.Services.Administration
 
             var newUser = new ApplicationUser
             {
+                Id = Guid.NewGuid().ToString(),
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 UserName = registerDto.UserName,
@@ -889,7 +890,7 @@ namespace Shrooms.Domain.Services.Administration
 
             var internalLogin = new UserLoginInfo(
                 AuthenticationConstants.InternalLoginProvider,
-                providerKey: Guid.NewGuid().ToString(),
+                providerKey: newUser.Id,
                 AuthenticationConstants.InternalLoginProvider);
 
             var loginResult = await _userManager.AddLoginAsync(newUser, internalLogin);

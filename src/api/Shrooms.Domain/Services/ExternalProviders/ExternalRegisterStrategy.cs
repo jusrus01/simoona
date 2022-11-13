@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.DAL;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
@@ -45,26 +48,36 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPictureService _pictureService;
+        private readonly IAdministrationUsersService _userAdministrationService;
+        private readonly IUnitOfWork2 _uow;
+        private readonly ExternalLoginRequestDto _requestDto;
 
         public ExternalRegisterStrategy(
             ITokenService tokenService,
-            ExternalLoginInfo externalLoginInfo,
             UserManager<ApplicationUser> userManager,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
             ICookieService cookieService,
-            IPictureService pictureService)
+            IPictureService pictureService,
+            IAdministrationUsersService userAdministrationService,
+            IUnitOfWork2 uow,
+            ExternalLoginRequestDto requestDto,
+            ExternalLoginInfo externalLoginInfo)
         {
-            _userManager = userManager;
+            _requestDto = requestDto;
 
+            _userManager = userManager;
             _externalLoginInfo = externalLoginInfo;
             _tokenService = tokenService;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
             _cookieService = cookieService;
             _pictureService = pictureService;
+            _userAdministrationService = userAdministrationService;
+            _uow = uow;
         }
 
+        // TODO: Refactor
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var claimsIdentity = _externalLoginInfo.Principal.Identity as ClaimsIdentity;
@@ -75,24 +88,55 @@ namespace Shrooms.Domain.Services.ExternalProviders
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "External provider did not provide email");
             }
+            
+            if (await _userAdministrationService.IsUserSoftDeletedAsync(userEmail))
+            {
+                return await new ExternalProviderLinkAccountStrategy(
+                    _userManager,
+                    _uow,
+                    _requestDto,
+                    _externalLoginInfo,
+                    restoreUser: true)
+                    .ExecuteStrategyAsync();
+            }
 
-            var user = await _userManager.FindByEmailAsync(userEmail);
+            var registeredUser = await _userManager.FindByEmailAsync(userEmail);
 
-            if (user != null)
+            if (registeredUser != null && registeredUser.EmailConfirmed)
             {
                 return await ExecuteExternalLoginStrategyAsync();
             }
 
+            var unconfirmedInternalAccountFound = registeredUser != null && !registeredUser.EmailConfirmed;
+
             // TODO: Fill in more, retrieve from claims and validate from another provider
             // TODO: Make sure that the email will be filled in by another service call
-            user = await CreateNewUserAsync(claimsIdentity, userEmail);
+            var newUser = await CreateNewUserAsync(claimsIdentity, userEmail);
 
-            var identityResult = await _userManager.CreateAsync(user, userEmail);
-            
+            if (unconfirmedInternalAccountFound)
+            {
+                await _userManager.RemoveLoginAsync(registeredUser, AuthenticationConstants.InternalLoginProvider, registeredUser.Id);
+                await _userManager.RemovePasswordAsync(registeredUser);
+                
+                registeredUser.FirstName = newUser.FirstName;
+                registeredUser.LastName = newUser.LastName;
+                registeredUser.Email = newUser.Email;
+                registeredUser.UserName = newUser.UserName;
+                registeredUser.EmailConfirmed = newUser.EmailConfirmed;
+                registeredUser.OrganizationId = newUser.OrganizationId;
+                registeredUser.PictureId = newUser.PictureId;
+            }
+
+            var identityResult = unconfirmedInternalAccountFound ?
+                await _userManager.UpdateAsync(registeredUser) :
+                await _userManager.CreateAsync(newUser);
+
             if (!identityResult.Succeeded)
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
             }
+
+            var user = unconfirmedInternalAccountFound ? registeredUser : newUser;
 
             identityResult = await _userManager.AddLoginAsync(user, _externalLoginInfo);
 
@@ -141,7 +185,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             }
         }
 
-        private async Task<byte[]> DownloadProviderImageAsync(ClaimsIdentity claimsIdentity)
+        private static async Task<byte[]> DownloadProviderImageAsync(ClaimsIdentity claimsIdentity)
         {
             var imageUrl = claimsIdentity.FindFirst(WebApiConstants.ClaimPicture)?.Value;
 

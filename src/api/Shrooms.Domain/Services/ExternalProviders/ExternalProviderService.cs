@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
@@ -25,6 +27,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly ICookieService _cookieService;
         private readonly IPictureService _pictureService;
+        private readonly IAdministrationUsersService _userAdministrationService;
+        private readonly IUnitOfWork2 _uow;
 
         public ExternalProviderService(
             ITokenService tokenService,
@@ -35,7 +39,9 @@ namespace Shrooms.Domain.Services.ExternalProviders
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
-            IPictureService pictureService)
+            IPictureService pictureService,
+            IAdministrationUsersService userAdministrationService,
+            IUnitOfWork2 uow)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
@@ -45,6 +51,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _organizationService = organizationService;
             _cookieService = cookieService;
             _pictureService = pictureService;
+            _userAdministrationService = userAdministrationService;
+            _uow = uow;
 
             _applicationOptions = applicationOptions.Value;
         }
@@ -68,7 +76,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             if (externalLoginInfo != null && requestDto.UserId != null)
             {
-                return new ExternalProviderLinkAccountStrategy();
+                return new ExternalProviderLinkAccountStrategy(_userManager, _uow, requestDto, externalLoginInfo);
             }
 
             if (externalLoginInfo != null)
@@ -76,12 +84,15 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 return requestDto.IsRegistration ? 
                     new ExternalRegisterStrategy(
                         _tokenService,
-                        externalLoginInfo,
                         _userManager,
                         _organizationService,
                         _tenantNameContainer,
                         _cookieService,
-                        _pictureService) :
+                        _pictureService,
+                        _userAdministrationService,
+                        _uow,
+                        requestDto,
+                        externalLoginInfo) :
                     new ExternalLoginStrategy(_cookieService, _tokenService, externalLoginInfo);
             }
 
