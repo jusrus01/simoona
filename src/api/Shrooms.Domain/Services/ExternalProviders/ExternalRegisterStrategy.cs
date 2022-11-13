@@ -20,61 +20,41 @@ namespace Shrooms.Domain.Services.ExternalProviders
 {
     /// <summary>
     /// Strategy that registers user
-    /// 
-    /// It behaves a little differently than the old version,
-    /// since it seems to me that most of the operations in there are
-    /// quite useless. Change implementation if we cannot mimic the
-    /// required behavior without them.
-    /// 
-    /// There is something with provider pictures,
-    /// although I am not sure why they exist.
-    /// 
-    /// Edit: we download existing picture fron the provider and then set it.
-    /// Edit 2: this strategy needs to handle the same cases that register internal does
-    /// Edit 3: need to download stuff from external providers.
-    /// Edit 4: handle the case when internal login is not confirmed and we try to register
-    /// with external provider.
-    /// 
-    /// Q: do i really need to mimic that sign in flow? only redirects change.
-    /// Q: how do we know by which email to send emails? (when we have multiple binded?) should that be restricted?
     /// </summary>
     public class ExternalRegisterStrategy : IExternalProviderStrategy
-    {
+    {//Q: get feedback on this and on ExternalResult
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly ICookieService _cookieService;
         private readonly ExternalLoginInfo _externalLoginInfo;
         private readonly ITokenService _tokenService;
-        private readonly IOrganizationService _organizationService;
-        private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IPictureService _pictureService;
         private readonly IAdministrationUsersService _userAdministrationService;
         private readonly IUnitOfWork2 _uow;
         private readonly ExternalLoginRequestDto _requestDto;
+        private readonly Organization _organization;
 
         public ExternalRegisterStrategy(
             ITokenService tokenService,
             UserManager<ApplicationUser> userManager,
-            IOrganizationService organizationService,
-            ITenantNameContainer tenantNameContainer,
             ICookieService cookieService,
             IPictureService pictureService,
             IAdministrationUsersService userAdministrationService,
             IUnitOfWork2 uow,
             ExternalLoginRequestDto requestDto,
-            ExternalLoginInfo externalLoginInfo)
+            ExternalLoginInfo externalLoginInfo,
+            Organization organization)
         {
             _requestDto = requestDto;
 
             _userManager = userManager;
             _externalLoginInfo = externalLoginInfo;
             _tokenService = tokenService;
-            _organizationService = organizationService;
-            _tenantNameContainer = tenantNameContainer;
             _cookieService = cookieService;
             _pictureService = pictureService;
             _userAdministrationService = userAdministrationService;
             _uow = uow;
+            _organization = organization;
         }
 
         // TODO: Refactor
@@ -150,12 +130,10 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private async Task<ApplicationUser> CreateNewUserAsync(ClaimsIdentity claimsIdentity, string email)
         {
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-
             var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value;
             var userLastName = claimsIdentity.FindFirst(ClaimTypes.Surname).Value;
 
-            var userPictureId = await UploadProviderImageAsync(claimsIdentity, organization);
+            var userPictureId = await UploadProviderImageAsync(claimsIdentity, _organization);
 
             return new ApplicationUser
             {
@@ -164,7 +142,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 Email = email,
                 UserName = email,
                 EmailConfirmed = true,
-                OrganizationId = organization.Id,
+                OrganizationId = _organization.Id,
                 PictureId = userPictureId
             };
         }

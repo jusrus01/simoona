@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Extensions;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
@@ -59,10 +62,15 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public async Task<ExternalProviderResult> ExternalLoginOrRegisterAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            // TODO: Validate that ExternalLoginRequestDto has valid parameters
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
+            if (!organization.HasProvider(requestDto.Provider))
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Invalid provider");
+            }
 
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-            var strategy = GetStrategy(externalLoginInfo, requestDto, routeDto);
+            var strategy = GetStrategy(externalLoginInfo, requestDto, routeDto, organization);
 
             _externalProviderContext.SetStrategy(strategy);
 
@@ -72,7 +80,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private IExternalProviderStrategy GetStrategy(
             ExternalLoginInfo externalLoginInfo,
             ExternalLoginRequestDto requestDto,
-            ControllerRouteDto routeDto)
+            ControllerRouteDto routeDto,
+            Organization organization)
         {
             if (externalLoginInfo != null && requestDto.UserId != null)
             {
@@ -85,14 +94,13 @@ namespace Shrooms.Domain.Services.ExternalProviders
                     new ExternalRegisterStrategy(
                         _tokenService,
                         _userManager,
-                        _organizationService,
-                        _tenantNameContainer,
                         _cookieService,
                         _pictureService,
                         _userAdministrationService,
                         _uow,
                         requestDto,
-                        externalLoginInfo) :
+                        externalLoginInfo,
+                        organization) :
                     new ExternalLoginStrategy(_cookieService, _tokenService, externalLoginInfo);
             }
 
