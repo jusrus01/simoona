@@ -11,5 +11,7 @@
         public string Password { get; set; }
 
         public int? Port { get; set; }
+
+        public bool UseSmtp4Dev { get; set; }
     }
 }

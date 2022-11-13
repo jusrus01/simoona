@@ -37,7 +37,7 @@ namespace Shrooms.IoC.Modules
                 // TODO: Figure out why IOptions<MailSettings> does not get serialized
                 var options = context.Resolve<IOptions<ApplicationOptions>>().Value;
 
-                if (options.MailSettings.UseSmtp4Dev())
+                if (options.MailSettings.UseSmtp4Dev)
                 {
                     return new Smpt4DevMailService(Options.Create(options.MailSettings));
                 }
