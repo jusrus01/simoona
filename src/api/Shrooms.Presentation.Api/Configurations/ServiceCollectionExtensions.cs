@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Options;
@@ -9,7 +10,7 @@ namespace Shrooms.Presentation.Api.Configurations
 {
     public static class ServiceCollectionExtensions
     {
-        public static ApplicationOptions AddOptions(this IServiceCollection services, IConfiguration configuration)
+        public static ApplicationOptions AddOptions(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
             var applicationOptions = configuration.Get<ApplicationOptions>();
 
@@ -19,6 +20,7 @@ namespace Shrooms.Presentation.Api.Configurations
             services.Configure<ApplicationOptions>(options =>
             {
                 options.ApiUrl = applicationOptions.ApiUrl;
+                options.ContentRootPath = environment.ContentRootPath;
 
                 // Creating case-insensitive dictionary
                 options.ConnectionStrings = new ConcurrentDictionary<string, string>(options.ConnectionStrings, StringComparer.InvariantCultureIgnoreCase);

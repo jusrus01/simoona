@@ -75,14 +75,17 @@ namespace Shrooms.Presentation.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
         public IConfiguration Configuration { get; }
 
-        public ApplicationOptions? ApplicationOptions { get; set; } 
+        public IWebHostEnvironment Environment { get; }
+        
+        public ApplicationOptions? ApplicationOptions { get; set; }
+
+        public Startup(IWebHostEnvironment environment, IConfiguration configuration)
+        {
+            Configuration = configuration;
+            Environment = environment;
+        }
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
@@ -91,7 +94,7 @@ namespace Shrooms.Presentation.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var applicationOptions = services.AddOptions(Configuration);
+            var applicationOptions = services.AddOptions(Configuration, Environment);
 
             // TODO: change this
             services.AddCors(options => 
