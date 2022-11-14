@@ -61,6 +61,10 @@ namespace Shrooms.IoC.Modules
             builder.RegisterType<UnitOfWork2>()
                 .As<IUnitOfWork2>()
                 .InstancePerLifetimeScope();
+
+            builder.RegisterType<EfUnitOfWork>()
+                .As<IUnitOfWork>()
+                .InstancePerLifetimeScope();
         }
     }
 }

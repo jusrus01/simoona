@@ -2,40 +2,43 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DAL;
-using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.Options;
 
 namespace Shrooms.DataLayer.DAL
 {
     public class EfUnitOfWork : IUnitOfWork
     {
         private readonly Dictionary<Type, object> _repositories;
-        //private readonly IApplicationSettings _appSettings;
+        private readonly ApplicationOptions _applicationOptions;
 
         public IDbContext DbContext { get; }
 
-        public EfUnitOfWork(IDbContext context)
+        public EfUnitOfWork(IDbContext context, IOptions<ApplicationOptions> applicationOptions)
         {
             DbContext = context;
-            //_appSettings = appSettings;
+            _applicationOptions = applicationOptions.Value;
+
             _repositories = new Dictionary<Type, object>();
         }
 
         public IRepository<TEntity> GetRepository<TEntity>(int organizationId = 2)
             where TEntity : class
         {
-            throw new NotImplementedException();
-            //IRepository<TEntity> repository;
+            IRepository<TEntity> repository;
 
-            //if (_repositories.Keys.Contains(typeof(TEntity)))
-            //{
-            //    repository = _repositories[typeof(TEntity)] as IRepository<TEntity>;
-            //    return repository;
-            //}
+            if (_repositories.Keys.Contains(typeof(TEntity)))
+            {
+                repository = _repositories[typeof(TEntity)] as IRepository<TEntity>;
+                return repository;
+            }
 
-            ////repository = new EfRepository<TEntity>(DbContext, _appSettings);
-            ////_repositories.Add(typeof(TEntity), repository);
-            //return repository;
+            repository = new EfRepository<TEntity>(DbContext);
+
+            _repositories.Add(typeof(TEntity), repository);
+
+            return repository;
         }
 
         public async Task SaveAsync()

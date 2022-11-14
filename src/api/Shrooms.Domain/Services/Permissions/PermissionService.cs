@@ -48,9 +48,9 @@ namespace Shrooms.Domain.Services.Permissions
             //return isPermitted;
         }
 
-        public async Task<bool> UserHasPermissionAsync(UserAndOrganizationDto userAndOrg, string permissionName)
+        public async Task<bool> UserHasPermissionAsync(UserAndOrganizationDto userOrg, string permissionName)
         {
-            throw new NotImplementedException();
+            return true;
             //if (!_permissionsCache.TryGetValue(userAndOrg.UserId, out var permissions))
             //{
             //    permissions = await _permissionsDbSet

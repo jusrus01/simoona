@@ -138,11 +138,6 @@ namespace Shrooms.Presentation.Api
             })
             .AddEntityFrameworkStores<ShroomsDbContext>()
             .AddDefaultTokenProviders();
-
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.Cookie.Name = ".AspNet.Cookies22";
-            //});
             
             services.AddAuthentication(options =>
             {

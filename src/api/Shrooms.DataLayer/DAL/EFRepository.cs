@@ -20,7 +20,7 @@ namespace Shrooms.DataLayer.DAL
 
         public int OrganizationId
         {
-            get => throw new NotImplementedException();
+            get => 1; // TODO: Fix or remove
             set { }
         }
 
