@@ -49,7 +49,11 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
             var storagePath = GetStorageFolderPath(tenantPicturesContainer);
             Directory.CreateDirectory(storagePath);
 
-            var destinationStream = File.Create(GetStorageFilePath(storagePath, blobKey));
+            var filePath = GetStorageFilePath(storagePath, blobKey);
+
+            using var destinationStream = File.Create(filePath);
+
+            stream.Seek(0, SeekOrigin.Begin);
             
             await stream.CopyToAsync(destinationStream);
         }
