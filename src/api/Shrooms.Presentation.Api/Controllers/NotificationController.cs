@@ -1,84 +1,91 @@
-﻿//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
-//using System.Web.Http;
-//using AutoMapper;
-//using Shrooms.Contracts.DataTransferObjects.Notification;
-//using Shrooms.Contracts.Enums;
-//using Shrooms.Contracts.ViewModels.Notifications;
-//using Shrooms.Domain.Services.Notifications;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Shrooms.Contracts.DataTransferObjects.Notification;
+using Shrooms.Contracts.Enums;
+using Shrooms.Contracts.ViewModels.Notifications;
+using Shrooms.Domain.Services.Notifications;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-//namespace Shrooms.Presentation.Api.Controllers
-//{
-//    [Authorize]
-//    public class NotificationController : BaseController
-//    {
-//        private readonly INotificationService _notificationService;
-//        private readonly IMapper _mapper;
+namespace Shrooms.Presentation.Api.Controllers
+{
+    [Route("Notification")]
+    [Authorize]
+    public class NotificationController : ShroomsControllerBase
+    {
+        private readonly INotificationService _notificationService;
+        private readonly IMapper _mapper;
 
-//        public NotificationController(INotificationService notificationService, IMapper mapper)
-//        {
-//            _notificationService = notificationService;
-//            _mapper = mapper;
-//        }
+        public NotificationController(INotificationService notificationService, IMapper mapper)
+        {
+            _notificationService = notificationService;
+            _mapper = mapper;
+        }
 
-//        public async Task<IEnumerable<NotificationViewModel>> GetAll()
-//        {
-//            var result = await _notificationService.GetAllAsync(GetUserAndOrganization());
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _notificationService.GetAllAsync(GetUserAndOrganization());
 
-//            return MakeCommentsStacked(result);
-//        }
+            return Ok(MakeCommentsStacked(result));
+        }
 
-//        [HttpPut]
-//        public async Task<IHttpActionResult> MarkAsRead(IEnumerable<int> ids)
-//        {
-//            await _notificationService.MarkAsReadAsync(GetUserAndOrganization(), ids);
+        private IEnumerable<NotificationViewModel> MakeCommentsStacked(IEnumerable<NotificationDto> comments)
+        {
+            var stackedList = new List<NotificationViewModel>();
 
-//            return Ok();
-//        }
+            foreach (var item in comments)
+            {
+                var parentComment = stackedList
+                    .FirstOrDefault(x => CompareSourcesIds(x.sourceIds, item.SourceIds) && item.Type != NotificationType.EventReminder);
 
-//        [HttpPut]
-//        public async Task<IHttpActionResult> MarkAllAsRead()
-//        {
-//            await _notificationService.MarkAllAsReadAsync(GetUserAndOrganization());
+                if (parentComment == null)
+                {
+                    stackedList.Add(_mapper.Map<NotificationViewModel>(item));
+                }
+                else
+                {
+                    parentComment.stackedIds.Add(item.Id);
+                    if (parentComment.title.Equals(item.Title) == false)
+                    {
+                        parentComment.others++;
+                    }
+                }
+            }
 
-//            return Ok();
-//        }
+            return stackedList;
+        }
 
-//        private IEnumerable<NotificationViewModel> MakeCommentsStacked(IEnumerable<NotificationDto> comments)
-//        {
-//            var stackedList = new List<NotificationViewModel>();
+        private static bool CompareSourcesIds(SourcesViewModel viewModel, SourcesDto dtoModel)
+        {
+            if (viewModel.PostId != dtoModel.PostId ||
+                viewModel.EventId != dtoModel.EventId ||
+                viewModel.ProjectId != dtoModel.ProjectId ||
+                viewModel.WallId != dtoModel.WallId)
+            {
+                return false;
+            }
 
-//            foreach (var item in comments)
-//            {
-//                var parentComment = stackedList
-//                    .FirstOrDefault(x => CompareSourcesIds(x.sourceIds, item.SourceIds) && item.Type != NotificationType.EventReminder);
+            return true;
+        }
 
-//                if (parentComment == null)
-//                {
-//                    stackedList.Add(_mapper.Map<NotificationViewModel>(item));
-//                }
-//                else
-//                {
-//                    parentComment.stackedIds.Add(item.Id);
-//                    if (parentComment.title.Equals(item.Title) == false)
-//                    {
-//                        parentComment.others++;
-//                    }
-//                }
-//            }
+        [HttpPut("MarkAsRead")]
+        public async Task<IActionResult> MarkAsRead(IEnumerable<int> ids)
+        {
+            await _notificationService.MarkAsReadAsync(GetUserAndOrganization(), ids);
 
-//            return stackedList;
-//        }
+            return Ok();
+        }
 
-//        private static bool CompareSourcesIds(SourcesViewModel viewModel, SourcesDto dtoModel)
-//        {
-//            if (viewModel.PostId != dtoModel.PostId || viewModel.EventId != dtoModel.EventId || viewModel.ProjectId != dtoModel.ProjectId || viewModel.WallId != dtoModel.WallId)
-//            {
-//                return false;
-//            }
+        [HttpPut("MarkAllAsRead")]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            await _notificationService.MarkAllAsReadAsync(GetUserAndOrganization());
 
-//            return true;
-//        }
-//    }
-//}
+            return Ok();
+        }
+
+    }
+}

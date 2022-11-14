@@ -160,6 +160,8 @@ namespace Shrooms.DataLayer.DAL
 
         public virtual DbSet<Notification> Notifications { get; set; }
 
+        public virtual DbSet<NotificationUser> NotificationUsers { get; set; }
+
         public virtual DbSet<BadgeCategory> BadgeCategories { get; set; }
 
         public virtual DbSet<BadgeType> BadgeTypes { get; set; }
