@@ -41,21 +41,12 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shrooms.Authentication.Attributes;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Administration;
-using Shrooms.Domain.Services.BlacklistUsers;
-using Shrooms.Domain.Services.Kudos;
-using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
-using Shrooms.Domain.Services.Picture;
-using Shrooms.Domain.Services.Projects;
-using Shrooms.Domain.Services.Roles;
-using Shrooms.Domain.Services.UserService;
 using Shrooms.Presentation.WebViewModels.Models.User;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.Controllers
@@ -384,7 +375,7 @@ namespace Shrooms.Presentation.Api.Controllers
         //        //}
 
         [HttpGet("GetUserProfile/{id}")]
-        //[PermissionAuthorize(Permission = BasicPermissions.ApplicationUser)]
+        [PermissionAuthorize(BasicPermissions.ApplicationUser)]
         public async Task<IActionResult> GetUserProfile(string id)
         {
             var user = await _applicationUserRepository

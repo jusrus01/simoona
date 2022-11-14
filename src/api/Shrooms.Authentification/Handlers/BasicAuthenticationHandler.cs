@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
-using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Infrastructure.FireAndForget;
@@ -28,7 +27,7 @@ namespace Shrooms.Authentification.Handlers
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            Microsoft.AspNetCore.Authentication.ISystemClock clock,
+            ISystemClock clock,
             IOptions<BasicAuthenticationOptions> basicOptions,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer)
