@@ -52,6 +52,7 @@ namespace Shrooms.IoC
 
             builder.RegisterModule(new ServicesModule());
             builder.RegisterModule(new AuthenticationModule());
+            builder.RegisterModule(new UserModule());
 
             builder.RegisterType<TokenService>()
                 .As<ITokenService>()
