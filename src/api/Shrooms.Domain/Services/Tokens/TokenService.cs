@@ -7,9 +7,9 @@ using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
+using Shrooms.Domain.Services.Users;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace Shrooms.Domain.Services.Tokens
 
         private readonly ApplicationOptions _applicationOptions;
 
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IShroomsUserManager _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly IPermissionService _permissionService;
@@ -36,7 +36,7 @@ namespace Shrooms.Domain.Services.Tokens
 
         public TokenService(
             IOptions<ApplicationOptions> applicationOptions,
-            UserManager<ApplicationUser> userManager,
+            IShroomsUserManager userManager,
             SignInManager<ApplicationUser> signInManager,
             IPermissionService permissionService,
             IOrganizationService organizationService,
@@ -62,17 +62,7 @@ namespace Shrooms.Domain.Services.Tokens
         {
             var user = await _userManager.FindByNameAsync(requestDto.Username);
 
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            var isValidPassword = await _userManager.CheckPasswordAsync(user, requestDto.Password);
-
-            if (!isValidPassword)
-            {
-                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
-            }
+            await _userManager.CheckPasswordAsync(user, requestDto.Password);
 
             return await CreateTokenAsync(user);
         }

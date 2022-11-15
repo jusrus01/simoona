@@ -5,6 +5,7 @@ using Shrooms.Domain.ServiceValidators.Validators.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Users
@@ -112,6 +113,11 @@ namespace Shrooms.Domain.Services.Users
         public async Task AddPasswordAsync(ApplicationUser user, string password)
         {
             await _userManager.AddPasswordAsync(user, password);
+        }
+
+        public async Task<IList<Claim>> GetClaimsAsync(ApplicationUser user)
+        {
+            return await _userManager.GetClaimsAsync(user);
         }
     }
 }
