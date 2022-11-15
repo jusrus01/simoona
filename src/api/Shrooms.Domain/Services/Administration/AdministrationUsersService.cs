@@ -28,9 +28,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
 using Shrooms.Domain.Services.Cookies;
+using Shrooms.Domain.Services.Users;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -39,7 +39,7 @@ namespace Shrooms.Domain.Services.Administration
         private const string UsersExcelWorksheetName = "Users";
         private const int StateStrengthInBits = 256;
 
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IShroomsUserManager _userManager;
 
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -78,7 +78,7 @@ namespace Shrooms.Domain.Services.Administration
             //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
-            UserManager<ApplicationUser> userManager,
+            IShroomsUserManager userManager,
             IAuthenticationService authenticationService,
             IOptions<ApplicationOptions> applicationOptions,
             IHttpContextAccessor httpContextAccessor)
@@ -183,12 +183,13 @@ namespace Shrooms.Domain.Services.Administration
             //await _notificationService.NotifyAboutNewUserAsync(user, orgId);
         }
 
-        public async Task SendUserPasswordResetEmailAsync(ApplicationUser user, string organizationName)
+        public async Task SendUserPasswordResetEmailAsync(string email)
         {
-            throw new NotImplementedException();
-            //var token = await _userManager.GeneratePasswordResetTokenAsync(user.Id);
+            var user = await _userManager.FindByEmailAsync(email);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             //await _notificationService.SendUserResetPasswordEmailAsync(user, token, organizationName);
+            throw new NotImplementedException();
         }
 
         public async Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg)
@@ -404,18 +405,10 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task SetSignInCookieAsync(LoginDto loginDto)
         {
-            var user = await _userManager.FindByNameAsync(loginDto.UserName); // UserName is email
-
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
-            {
-                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid crediantials");
-            }
-
+            var user = await _userManager.FindByNameAsync(loginDto.UserName);
+            
+            await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            
             await _cookieService.SetExternalCookieAsync();
         }
 
@@ -453,13 +446,8 @@ namespace Shrooms.Domain.Services.Administration
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
             var roles = await _userManager.GetRolesAsync(user);
+
             var permissions = await _permissionService.GetUserPermissionsAsync(userId);
 
             return new LoggedInUserInfoDto
@@ -528,17 +516,7 @@ namespace Shrooms.Domain.Services.Administration
 
         private async Task AddExternalProviderToUserAsync(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
         {
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            var result = await _userManager.AddLoginAsync(user, externalLoginInfo);
-
-            if (!result.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to add external provider");
-            }
+            await _userManager.AddLoginAsync(user, externalLoginInfo);
         }
 
         public async Task VerifyEmailAsync(VerifyEmailDto verifyDto)
@@ -550,12 +528,7 @@ namespace Shrooms.Domain.Services.Administration
                 throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
-
-            if (!result.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Invalid confirmation code");
-            }
+            await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
         }
 
         // TODO: Update registration logic when organization logic is fixed
@@ -846,7 +819,7 @@ namespace Shrooms.Domain.Services.Administration
             // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
             var user = await _userManager.FindByEmailAsync(registerDto.Email);
 
-            if (user.EmailConfirmed || await IsUserRegisteredByExternalProviderAsync(user))
+            if (user.EmailConfirmed || await _userManager.HasExternalLoginAsync(user))
             {
                 throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is already registered");
             }
@@ -881,36 +854,18 @@ namespace Shrooms.Domain.Services.Administration
                 OrganizationId = organization.Id,
             };
 
-            var createdUserResult = await _userManager.CreateAsync(newUser, registerDto.Password);
-
-            if (!createdUserResult.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
-            }
+            await _userManager.CreateAsync(newUser, registerDto.Password);
 
             var internalLogin = new UserLoginInfo(
                 AuthenticationConstants.InternalLoginProvider,
                 providerKey: newUser.Id,
                 AuthenticationConstants.InternalLoginProvider);
 
-            var loginResult = await _userManager.AddLoginAsync(newUser, internalLogin);
-
-            if (!loginResult.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to add login");
-            }
+            await _userManager.AddLoginAsync(newUser, internalLogin);
 
             await AddNewUserRolesAsync(newUser);
 
             await SendUserEmailConfirmationTokenAsync(newUser);
-        }
-
-        private async Task<bool> IsUserRegisteredByExternalProviderAsync(ApplicationUser user)
-        {
-            // Note: Internal provider is removed
-            var logins = await _userManager.GetLoginsAsync(user);
-
-            return logins.Any();
         }
 
         private string GenerateExternalAuthenticationState()

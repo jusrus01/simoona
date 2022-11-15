@@ -45,7 +45,7 @@ namespace Shrooms.Domain.Services.Administration
 
         Task AddProviderEmailAsync(string userId, string provider, string email);
 
-        Task SendUserPasswordResetEmailAsync(ApplicationUser user, string organizationName);
+        Task SendUserPasswordResetEmailAsync(string email);
 
         Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
 
