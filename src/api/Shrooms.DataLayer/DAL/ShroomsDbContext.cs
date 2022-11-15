@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +59,7 @@ namespace Shrooms.DataLayer.DAL
         {
             _httpContextAccessor = httpContextAccessor;
 
-            //ChangeTracker.LazyLoadingEnabled = false;
+            ChangeTracker.LazyLoadingEnabled = false;
         }
 
 
