@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
-using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
@@ -19,7 +18,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 {//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user
     public class ExternalProviderService : IExternalProviderService
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IApplicationSignInManager _signInManager;
         private readonly IApplicationUserManager _userManager;
 
         private readonly IExternalProviderContext _externalProviderContext;
@@ -29,19 +28,17 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly ICookieService _cookieService;
         private readonly IPictureService _pictureService;
-        private readonly IUnitOfWork2 _uow;
 
         public ExternalProviderService(
             ITokenService tokenService,
             IOptions<ApplicationOptions> applicationOptions,
             IExternalProviderContext externalProviderContext,
-            SignInManager<ApplicationUser> signInManager,
+            IApplicationSignInManager signInManager,
             IApplicationUserManager userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
-            IPictureService pictureService,
-            IUnitOfWork2 uow)
+            IPictureService pictureService)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
@@ -51,7 +48,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _organizationService = organizationService;
             _cookieService = cookieService;
             _pictureService = pictureService;
-            _uow = uow;
 
             _applicationOptions = applicationOptions.Value;
         }

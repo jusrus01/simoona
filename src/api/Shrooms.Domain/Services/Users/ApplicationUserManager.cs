@@ -14,14 +14,14 @@ namespace Shrooms.Domain.Services.Users
 {
     public class ApplicationUserManager : IApplicationUserManager// Q: strict user manager for exceptions?
     {//TODO: figure out wether or not to add exceptions on all Task functions
-        private readonly IUserManagerValidator _validator;
+        private readonly IApplicationUserManagerValidator _validator;
 
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly DbSet<ApplicationUser> _usersDbSet;
 
         public ApplicationUserManager(
             UserManager<ApplicationUser> userManager,
-            IUserManagerValidator validator,
+            IApplicationUserManagerValidator validator,
             IUnitOfWork2 uow)
         {
             _usersDbSet = uow.GetDbSet<ApplicationUser>();

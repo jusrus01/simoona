@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.Users
 {
-    public class UserManagerValidator : IUserManagerValidator
+    public class ApplicationUserManagerValidator : IApplicationUserManagerValidator
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserManagerValidator(UserManager<ApplicationUser> userManager)
+        public ApplicationUserManagerValidator(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }

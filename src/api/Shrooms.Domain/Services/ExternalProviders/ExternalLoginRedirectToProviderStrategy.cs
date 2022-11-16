@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
-using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Helpers;
+using Shrooms.Domain.Services.Users;
 using Shrooms.Infrastructure.FireAndForget;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 {
     public class ExternalLoginRedirectToProviderStrategy : IExternalProviderStrategy
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IApplicationSignInManager _signInManager;
         private readonly ApplicationOptions _applicationOptions;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly ControllerRouteDto _routeDto;
@@ -21,7 +20,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         public ExternalLoginRedirectToProviderStrategy(
             ApplicationOptions applicationOptions,
             ITenantNameContainer tenantNameContainer,
-            SignInManager<ApplicationUser> signInManager,
+            IApplicationSignInManager signInManager,
             ExternalLoginRequestDto requestDto,
             ControllerRouteDto routeDto)
         {

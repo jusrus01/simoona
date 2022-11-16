@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
-using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Helpers;
+using Shrooms.Domain.Services.Users;
 using Shrooms.Infrastructure.FireAndForget;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private const string ResponseType = "token";
         private const string IsRegistration = "true";
 
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IApplicationSignInManager _signInManager;
         private readonly ITenantNameContainer _tenantNameContainer;
 
         private readonly ControllerRouteDto _routeDto;
@@ -26,7 +25,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public ExternalRegisterRedirectToProviderStrategy(
             ITenantNameContainer tenantNameContainer,
-            SignInManager<ApplicationUser> signInManager,
+            IApplicationSignInManager signInManager,
             ControllerRouteDto routeDto,
             ExternalLoginRequestDto requestDto,
             ApplicationOptions applicationOptions)

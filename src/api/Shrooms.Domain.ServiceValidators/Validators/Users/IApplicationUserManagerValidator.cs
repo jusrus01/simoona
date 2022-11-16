@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.Users
 {
-    public interface IUserManagerValidator
+    public interface IApplicationUserManagerValidator
     {
         void CheckIfUserExists(ApplicationUser user);
 

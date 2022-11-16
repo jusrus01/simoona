@@ -44,7 +44,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _pictureService = pictureService;
             _organization = organization;
         }
-        // TODO: see if it can be refactored further andn chekc if it works
+        
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var claimsIdentity = _externalLoginInfo.Principal.Identity as ClaimsIdentity;

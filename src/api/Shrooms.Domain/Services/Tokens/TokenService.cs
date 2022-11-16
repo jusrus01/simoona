@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
@@ -33,7 +32,7 @@ namespace Shrooms.Domain.Services.Tokens
         private readonly ApplicationOptions _applicationOptions;
 
         private readonly IApplicationUserManager _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IApplicationSignInManager _signInManager;
 
         private readonly IPermissionService _permissionService;
         private readonly IOrganizationService _organizationService;
@@ -43,7 +42,7 @@ namespace Shrooms.Domain.Services.Tokens
         public TokenService(
             IOptions<ApplicationOptions> applicationOptions,
             IApplicationUserManager userManager,
-            SignInManager<ApplicationUser> signInManager,
+            IApplicationSignInManager signInManager,
             IPermissionService permissionService,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
@@ -78,12 +77,7 @@ namespace Shrooms.Domain.Services.Tokens
 
         private async Task<string> GetTokenForExternalAsync(ExternalLoginInfo externalLoginInfo)
         {
-            var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
-
-            if (!result.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.InvalidCredentials, "Invalid credentials");
-            }
+            await _signInManager.ExternalLoginSignInAsync(externalLoginInfo);
 
             var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
             var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;

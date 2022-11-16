@@ -8,8 +8,16 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<UserManagerValidator>()
-                .As<IUserManagerValidator>()
+            builder.RegisterType<ApplicationUserManagerValidator>()
+                .As<IApplicationUserManagerValidator>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ApplicationSignInManagerValidator>()
+                .As<IApplicationSignInManagerValidator>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ApplicationSignInManager>()
+                .As<IApplicationSignInManager>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ApplicationUserManager>()
