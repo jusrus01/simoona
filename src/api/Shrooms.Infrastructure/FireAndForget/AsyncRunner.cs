@@ -7,6 +7,9 @@ using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Infrastructure.FireAndForget
 {
+    /// <summary>
+    /// Singleton
+    /// </summary>
     public class AsyncRunner : IAsyncRunner
     {
         public ILifetimeScope LifetimeScope { get; set; }

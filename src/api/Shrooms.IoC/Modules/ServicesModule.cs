@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Shrooms.Domain.Services.Email.InternalProviders;
+using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Domain.Services.Notifications;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
@@ -13,6 +15,14 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<InternalProviderNotificationService>()
+                .As<IInternalProviderNotificationService>()
+                .InstancePerMatchingLifetimeScope();
+
+            builder.RegisterType<InternalProviderService>()
+                .As<IInternalProviderService>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<OrganizationService>().As<IOrganizationService>().InstancePerLifetimeScope().EnableClassTelemetryInterceptor();
             builder.RegisterType<OrganizationValidator>().As<IOrganizationValidator>().InstancePerLifetimeScope();
 

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
@@ -13,10 +11,6 @@ namespace Shrooms.Domain.Services.Administration
 {
     public interface IAdministrationUsersService
     {
-        Task SetSignInCookieAsync(LoginDto loginDto);
-
-        Task RegisterInternalAsync(RegisterDto registerDto);
-
         Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId);
 
         Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg);
@@ -25,15 +19,7 @@ namespace Shrooms.Domain.Services.Administration
 
         //Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization);
 
-        Task<IdentityResult> CreateNewUserAsync(ApplicationUser user, string password, string requestedOrganization);
-
         Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filter, string includeProperties);
-
-        Task<bool> IsUserSoftDeletedAsync(string email);
-
-        Task RestoreUserAsync(string email);
-
-        Task AddProviderImageAsync(string userId, ClaimsIdentity externalIdentity);
 
         Task NotifyAboutNewUserAsync(ApplicationUser user, int orgId);
 
@@ -41,20 +27,10 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<bool> GetUserTutorialStatusAsync(string userId);
 
-        Task AddProviderEmailAsync(string userId, string provider, string email);
-
         Task SendUserPasswordResetEmailAsync(string email);
 
         Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
 
-        Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync();
-
-        Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId);
-
         Task VerifyEmailAsync(VerifyEmailDto verifyDto);
-
-        Task AddExternalProviderToUserAsync(ExternalLoginInfo externalLoginInfo, string userId);
-
-        Task RegisterExternalAsync(ExternalLoginInfo externalLoginInfo);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shrooms.Authentication.Attributes;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Notification;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.ViewModels.Notifications;

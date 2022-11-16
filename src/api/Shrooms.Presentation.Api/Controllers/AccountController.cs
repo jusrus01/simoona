@@ -6,6 +6,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.ExternalProviders;
+using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.Api.ShroomsExtensions;
 using Shrooms.Presentation.WebViewModels.Models;
@@ -23,15 +24,19 @@ namespace Shrooms.Presentation.Api
 
         private readonly IAdministrationUsersService _administrationUsersService;
         private readonly IExternalProviderService _externalProviderService;
+        private readonly IInternalProviderService _internalProviderService;
 
         public AccountController(
             IMapper mapper,
             IAdministrationUsersService administrationUsersService,
-            IExternalProviderService externalProviderService)
+            IExternalProviderService externalProviderService,
+            IInternalProviderService internalProviderService)
         {
             _mapper = mapper;
+
             _administrationUsersService = administrationUsersService;
             _externalProviderService = externalProviderService;
+            _internalProviderService = internalProviderService;
         }
 
         [AllowAnonymous]
@@ -47,7 +52,7 @@ namespace Shrooms.Presentation.Api
             {
                 var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
 
-                await _administrationUsersService.RegisterInternalAsync(registerDto);
+                await _internalProviderService.RegisterAsync(registerDto);
 
                 return Ok();
             }
@@ -80,7 +85,7 @@ namespace Shrooms.Presentation.Api
         {
             try
             {
-                var loginDtos = await _administrationUsersService.GetInternalLoginsAsync();
+                var loginDtos = await _internalProviderService.GetLoginsAsync();
                 var loginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(loginDtos);
 
                 return Ok(loginViewModels);
@@ -91,6 +96,7 @@ namespace Shrooms.Presentation.Api
             }
         }
 
+        // Q: why do we redirect to client instead of api?
         [AllowAnonymous]
         [HttpPost("VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailViewModel verifyViewModel)
@@ -153,7 +159,7 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
-            var externalLoginDtos = await _administrationUsersService.GetExternalLoginsAsync(
+            var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(
                 ControllerContext.ActionDescriptor.ControllerName,
                 returnUrl,
                 isLinkable ? GetUserAndOrganization().UserId : null);
@@ -166,11 +172,13 @@ namespace Shrooms.Presentation.Api
         /// <summary>
         /// Only responsible for providing a cookie that is used in StorageController
         /// </summary>
-        /// <param name="loginViewModel"></param>
+        /// <param name="loginViewModel">Deprecated parameter</param>
         /// <returns></returns>
         [Authorize]
         [HttpPost("SignIn")]
+#pragma warning disable IDE0060 // Remove unused parameter
         public async Task<IActionResult> SetSignInCookie([FromBody] LoginViewModel loginViewModel)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             if (!ModelState.IsValid)
             {
@@ -179,15 +187,33 @@ namespace Shrooms.Presentation.Api
 
             try
             {
-                var loginDto = _mapper.Map<LoginDto>(loginViewModel);
-
-                await _administrationUsersService.SetSignInCookieAsync(loginDto);
+                await _internalProviderService.SetSignInCookieAsync();
 
                 return Ok();
             }
             catch (ValidationException e)
             {
                 return BadRequestWithError(e);
+            }
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestPasswordReset(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                await _administrationUsersService.SendUserPasswordResetEmailAsync(model.Email);
+             
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequestWithError(ex);
             }
         }
     }

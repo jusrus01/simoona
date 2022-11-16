@@ -151,6 +151,7 @@ namespace Shrooms.Domain.Services.Users
             return await _userManager.FindByEmailAsync(email) != null;
         }
 
+        // OO sql generation...
         public async Task<bool> IsUserSoftDeletedAsync(string email)
         {
             var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1") // TODO: Change implementation
@@ -159,9 +160,20 @@ namespace Shrooms.Domain.Services.Users
             return softDeleteUser != null;
         }
 
+        //TODO: refactor
         public async Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id)
         {
             var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Id = {id}") // TODO: Change implementation
+                .SingleOrDefaultAsync();
+
+            _validator.CheckIfUserExists(user);
+
+            return user;
+        }
+
+        public async Task<ApplicationUser> RestoreSoftDeletedUserByEmailAsync(string email)
+        {
+            var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {email}") // TODO: Change implementation
                 .SingleOrDefaultAsync();
 
             _validator.CheckIfUserExists(user);

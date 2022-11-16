@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
+using Shrooms.Contracts.DataTransferObjects.Models.Organizations;
 using Shrooms.Contracts.DataTransferObjects.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
@@ -106,6 +107,17 @@ namespace Shrooms.Domain.Services.Organizations
             }
 
             return true;
+        }
+
+        public async Task<OrganizationEmailDto> GetWelcomeEmailAsync(int id)
+        {
+            var organization = await _organizationsDbSet.FirstOrDefaultAsync(organization => organization.Id == id);
+
+            return new OrganizationEmailDto
+            {
+                ShortName = organization.ShortName,
+                WelcomeEmail = organization.WelcomeEmail
+            };
         }
 
         public async Task<bool> RequiresUserConfirmationAsync(int organizationId)

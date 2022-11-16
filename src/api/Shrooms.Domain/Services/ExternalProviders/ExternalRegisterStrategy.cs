@@ -125,7 +125,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private async Task<ApplicationUser> CreateApplicationUserFromIdentityAsync(ClaimsIdentity claimsIdentity, string email)
         {
-            var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value; // Q: export these somewhere?
+            var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value; // Q: export these to service or something?
             var userLastName = claimsIdentity.FindFirst(ClaimTypes.Surname).Value;
 
             var userPictureId = await UploadProviderImageAsync(claimsIdentity, _organization);

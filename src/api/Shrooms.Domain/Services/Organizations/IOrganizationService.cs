@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Shrooms.Contracts.DataTransferObjects;
+using Shrooms.Contracts.DataTransferObjects.Models.Organizations;
 using Shrooms.Contracts.DataTransferObjects.Users;
 using Shrooms.DataLayer.EntityModels.Models;
 
@@ -32,5 +33,7 @@ namespace Shrooms.Domain.Services.Organizations
         Task SetManagingDirectorAsync(string userId, UserAndOrganizationDto userAndOrganizationDto);
 
         bool HasProvider(Organization organization, string provider);
+
+        Task<OrganizationEmailDto> GetWelcomeEmailAsync(int id);
     }
 }

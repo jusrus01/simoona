@@ -16,6 +16,8 @@ namespace Shrooms.Domain.Services.Users
 
         Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id);
 
+        Task<ApplicationUser> RestoreSoftDeletedUserByEmailAsync(string email);
+
         Task CheckPasswordAsync(ApplicationUser user, string password);
 
         Task<IList<string>> GetRolesAsync(ApplicationUser user);

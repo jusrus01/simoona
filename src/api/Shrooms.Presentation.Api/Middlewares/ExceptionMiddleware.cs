@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Domain.Exceptions.Exceptions;
+using System;
 using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.Middlewares
@@ -27,7 +28,7 @@ namespace Shrooms.Presentation.Api.Middlewares
             {
                 await HandleExceptionAsync(httpContext, errorMessage: "Unauthorized", StatusCodes.Status401Unauthorized);
             }
-            catch
+            catch (Exception ex)
             {
                 await HandleExceptionAsync(httpContext, "Internal server error", StatusCodes.Status500InternalServerError);
             }

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -9,16 +7,12 @@ using Shrooms.Contracts.DataTransferObjects.Models.Administration;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Infrastructure.ExcelGenerator;
-using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
-using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Infrastructure.ExcelGenerator;
-using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
@@ -26,8 +20,6 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.AspNetCore.Http;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Users;
@@ -37,70 +29,30 @@ namespace Shrooms.Domain.Services.Administration
     public class AdministrationUsersService : IAdministrationUsersService
     {
         private const string UsersExcelWorksheetName = "Users";
-        private const int StateStrengthInBits = 256;
 
         private readonly IApplicationUserManager _userManager;
-
-        private readonly ITenantNameContainer _tenantNameContainer;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         private readonly IPermissionService _permissionService;
-
-        private readonly ApplicationOptions _applicationOptions;
-
-        private readonly AuthenticationService _authenticationService;
-
-        //private readonly IRepository<ApplicationUser> _applicationUserRepository;
         private readonly DbSet<ApplicationUser> _usersDbSet;
-        private readonly DbSet<Organization> _organizationDbSet;
         private readonly DbSet<WallMember> _wallUsersDbSet;
-        private readonly IOrganizationService _organizationService;
-        //private readonly IPictureService _pictureService;
-        //private readonly IMapper _mapper;
         private readonly IAdministrationNotificationService _userAdministrationNotificationService;
-        //private readonly IKudosService _kudosService;
         private readonly IUnitOfWork2 _uow;
         private readonly ICookieService _cookieService;
 
-        //private readonly IExcelBuilderFactory _excelBuilderFactory;
-
         public AdministrationUsersService(
             ICookieService cookieService,
-            IDbContext dbContext,
-            //IUnitOfWork unitOfWork,
             IUnitOfWork2 uow,
-            //IUserAdministrationValidator userAdministrationValidator,
-            IOrganizationService organizationService,
-            //IPictureService pictureService,
-            //IDbContext context,
             IAdministrationNotificationService userAdministrationNotificationService,
-            //IKudosService kudosService,
-            //IExcelBuilderFactory excelBuilderFactory,
-            ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
-            IApplicationUserManager userManager,
-            IAuthenticationService authenticationService,
-            IOptions<ApplicationOptions> applicationOptions,
-            IHttpContextAccessor httpContextAccessor)
+            IApplicationUserManager userManager)
         {
             _uow = uow;
             _cookieService = cookieService;
-            //_mapper = mapper;
-            //_applicationUserRepository = unitOfWork.GetRepository<ApplicationUser>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
-            _organizationDbSet = uow.GetDbSet<Organization>();
             _wallUsersDbSet = uow.GetDbSet<WallMember>();
-            _organizationService = organizationService;
-            //_notificationService = notificationService;
-            //_kudosService = kudosService;
 
             _userManager = userManager;
-            _tenantNameContainer = tenantNameContainer;
             _permissionService = permissionService;
-            _authenticationService = (AuthenticationService)authenticationService;
 
-            _applicationOptions = applicationOptions.Value;
-            _httpContextAccessor = httpContextAccessor;
             _userAdministrationNotificationService = userAdministrationNotificationService;
         }
 
@@ -110,7 +62,7 @@ namespace Shrooms.Domain.Services.Administration
             //var users = await _usersDbSet
             //    .Include(user => user.WorkingHours)
             //    .Include(user => user.JobPosition)
-            //    .Where(user => user.OrganizationId == organizationId)
+            //    .Where(user => user.OrganizationId == organizationId) 
             //    .ToListAsync();
 
             //var excelBuilder = _excelBuilderFactory.GetBuilder();
@@ -136,15 +88,6 @@ namespace Shrooms.Domain.Services.Administration
             //};
 
             //return content;
-        }
-
-        // TODO: Change logic when ShroomsDbContext is configured correctly
-        public async Task<bool> IsUserSoftDeletedAsync(string email)
-        {
-            var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1") // Temporary
-                .SingleOrDefaultAsync();
-
-            return softDeleteUser != null;
         }
 
         public async Task RestoreUserAsync(string email)
@@ -405,25 +348,6 @@ namespace Shrooms.Domain.Services.Administration
             await _cookieService.SetExternalCookieAsync();
         }
 
-        public async Task<IEnumerable<ExternalLoginDto>> GetInternalLoginsAsync()
-        {
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            var providers = organization.AuthenticationProviders;
-
-            if (!ContainsProvider(providers, AuthenticationConstants.InternalLoginProvider.ToLower()))
-            {
-                return Enumerable.Empty<ExternalLoginDto>();
-            }
-
-            return new List<ExternalLoginDto>
-            {
-                new ExternalLoginDto
-                {
-                    Name = AuthenticationConstants.InternalLoginProvider,
-                }
-            };
-        }
-
         public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
         {
             if (identity is not ClaimsIdentity claimsIdentity)
@@ -460,58 +384,6 @@ namespace Shrooms.Domain.Services.Administration
             };
         }
 
-        // TODO: Register scheme only if key exists (on start up, before adding facebook signin)
-        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId)
-        {
-            var externalLogins = new List<ExternalLoginDto>();
-
-            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-
-            foreach (var authenticationScheme in availableAuthenticationSchemes)
-            {
-                if (!ContainsProvider(organization.AuthenticationProviders, authenticationScheme.Name))
-                {
-                    continue;
-                }
-
-                externalLogins.AddRange(new List<ExternalLoginDto>
-                {
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: false),
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: true),
-                });
-            }
-
-            return externalLogins;
-        }
-        // TODO: Create validator
-        /// <summary>
-        /// This method should be called only when the user is logged in
-        /// </summary>
-        public async Task AddExternalProviderToUserAsync(ExternalLoginInfo externalLoginInfo, string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            await AddExternalProviderToUserAsync(user, externalLoginInfo);
-        }
-
-        public async Task RegisterExternalAsync(ExternalLoginInfo externalLoginInfo)
-        {
-            var email = externalLoginInfo
-                .Principal
-                .Claims
-                .FirstOrDefault(claim => claim.Type == ClaimTypes.Email).Value;
-
-            var user = await _userManager.FindByEmailAsync(email);
-
-            await AddExternalProviderToUserAsync(user, externalLoginInfo);
-        }
-
-        private async Task AddExternalProviderToUserAsync(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
-        {
-            await _userManager.AddLoginAsync(user, externalLoginInfo);
-        }
-
         public async Task VerifyEmailAsync(VerifyEmailDto verifyDto)
         {
             var user = await _userManager.FindByEmailAsync(verifyDto.Email);
@@ -522,23 +394,6 @@ namespace Shrooms.Domain.Services.Administration
             }
 
             await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
-        }
-
-        // TODO: Update registration logic when organization logic is fixed
-        public async Task RegisterInternalAsync(RegisterDto registerDto)
-        {
-            if (!await _userManager.UserExistsAsync(registerDto.Email))
-            {
-                await CreateNewInternalUserAsync(registerDto);
-            }
-            else if (await IsUserSoftDeletedAsync(registerDto.Email))
-            {
-                await HandleSoftDeletedUserRegistrationAsync(registerDto);
-            }
-            else
-            {
-                await HandleExistingUserRegistrationAsync(registerDto);
-            }
         }
 
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)
@@ -631,12 +486,6 @@ namespace Shrooms.Domain.Services.Administration
         private static void SetTutorialStatus(ApplicationUser user, bool tutorialStatus)
         {
             user.IsTutorialComplete = tutorialStatus;
-        }
-
-        private async Task AddNewUserRolesAsync(ApplicationUser user)
-        {
-            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.NewUser);
-            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.FirstLogin);
         }
 
         private async Task SetNewUsersValuesAsync(IList<AdministrationUserDto> administrationUserDto, IEnumerable<ApplicationUser> applicationUsers)
@@ -732,157 +581,6 @@ namespace Shrooms.Domain.Services.Administration
 
                 _wallUsersDbSet.Add(wallMember);
             }
-        }
-
-        private async Task SendUserEmailConfirmationTokenAsync(ApplicationUser user)
-        {
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            
-            // Note: blocks, maybe should reimplement this?
-            await _userAdministrationNotificationService.SendUserVerificationEmailAsync(user, token, _tenantNameContainer.TenantName);
-        }
-
-        private string CreateExternalLoginUrl(
-            string controllerName,
-            AuthenticationScheme authenticationScheme,
-            string returnUrl,
-            string state,
-            string userId,
-            bool isRegistration)
-        {
-            var queryParams = new Dictionary<string, string>
-            {
-                { "provider", authenticationScheme.Name },
-                { "organization", _tenantNameContainer.TenantName },
-                { "response_type", "token" },
-                { "client_id", _applicationOptions.ClientId },
-                { "redirect_url", new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri },
-                { "state", state }
-            };
-
-            if (userId != null)
-            {
-                queryParams["userId"] = userId;
-            }
-
-            if (isRegistration)
-            {
-                queryParams["isRegistration"] = "true";
-            }
-
-            return QueryHelpers.AddQueryString($"/{controllerName}/ExternalLogin", queryParams);
-        }
-
-        private ExternalLoginDto CreateExternalLogin(
-            string controllerName,
-            AuthenticationScheme authenticationScheme,
-            string returnUrl,
-            string userId,
-            bool isRegistration)
-        {
-            var state = GenerateExternalAuthenticationState();
-
-            return new ExternalLoginDto
-            {
-                Name = !isRegistration ? authenticationScheme.Name : $"{authenticationScheme.Name}Registration",
-                Url = CreateExternalLoginUrl(controllerName, authenticationScheme, returnUrl, state, userId, isRegistration),
-                State = state
-            };
-        }
-
-        private static bool ContainsProvider(string providerList, string providerName)
-        {
-            return providerList.ToLower().Contains(providerName.ToLower());
-        }
-
-        private async Task HandleSoftDeletedUserRegistrationAsync(RegisterDto registerDto)
-        {
-            await _usersDbSet
-                .FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {registerDto.Email}") // Bad
-                .ToListAsync();
-
-            var user = await _userManager.FindByEmailAsync(registerDto.Email);
-
-            await AddNewUserRolesAsync(user);
-        }
-
-        private async Task HandleExistingUserRegistrationAsync(RegisterDto registerDto)
-        {
-            // Possible unexpected behavior when a user tries to register for another organization with the same email address
-            // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
-            var user = await _userManager.FindByEmailAsync(registerDto.Email);
-
-            if (user.EmailConfirmed || await _userManager.HasExternalLoginAsync(user))
-            {
-                throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is already registered");
-            }
-
-            await _userManager.RemovePasswordAsync(user);
-            await _userManager.AddPasswordAsync(user, registerDto.Password);
-
-            await SendUserEmailConfirmationTokenAsync(user);
-        }
-
-        private async Task CreateNewInternalUserAsync(RegisterDto registerDto)
-        {
-            var tenantName = _tenantNameContainer.TenantName;
-
-            var defaultUserOrganizationSettings = await _organizationDbSet.Where(o => o.ShortName == tenantName)
-                .Select(u => new { u.CultureCode, u.TimeZone })
-                .FirstAsync();
-
-            var organization = await _organizationService.GetOrganizationByNameAsync(tenantName);
-
-            var newUser = new ApplicationUser
-            {
-                Id = Guid.NewGuid().ToString(),
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                UserName = registerDto.UserName,
-                Email = registerDto.Email,
-                EmploymentDate = DateTime.UtcNow,
-                CultureCode = defaultUserOrganizationSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture,
-                TimeZone = defaultUserOrganizationSettings.TimeZone,
-                NotificationsSettings = null,
-                OrganizationId = organization.Id,
-            };
-
-            await _userManager.CreateAsync(newUser, registerDto.Password);
-
-            var internalLogin = new UserLoginInfo(
-                AuthenticationConstants.InternalLoginProvider,
-                providerKey: newUser.Id,
-                AuthenticationConstants.InternalLoginProvider);
-
-            await _userManager.AddLoginAsync(newUser, internalLogin);
-
-            await AddNewUserRolesAsync(newUser);
-
-            await SendUserEmailConfirmationTokenAsync(newUser);
-        }
-
-        private string GenerateExternalAuthenticationState()
-        {
-            const int bitsPerByte = 8;
-
-            using var cryptoProvider = new RNGCryptoServiceProvider();
-
-            if (StateStrengthInBits % bitsPerByte != 0)
-            {
-                throw new ArgumentException("strengthInBits must be evenly divisible by 8.", "strengthInBits");
-            }
-
-            var strengthInBytes = StateStrengthInBits / bitsPerByte;
-
-            var data = new byte[strengthInBytes];
-
-            cryptoProvider.GetBytes(data);
-
-            //return HttpServerUtility.UrlTokenEncode(data); // TODO: Make sure that state is fine
-
-            var base64 = Convert.ToBase64String(data);
-
-            return base64[0..^1];
         }
     }
 }
