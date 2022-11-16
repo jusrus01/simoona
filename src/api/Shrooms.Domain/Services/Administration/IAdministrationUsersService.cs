@@ -17,8 +17,6 @@ namespace Shrooms.Domain.Services.Administration
 
         Task RegisterInternalAsync(RegisterDto registerDto);
 
-        Task<bool> UserEmailExistsAsync(string email);
-
         Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId);
 
         Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg);

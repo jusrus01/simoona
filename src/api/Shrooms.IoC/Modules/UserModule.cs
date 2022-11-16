@@ -12,8 +12,8 @@ namespace Shrooms.IoC.Modules
                 .As<IUserManagerValidator>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<ShroomsUserManager>()
-                .As<IShroomsUserManager>()
+            builder.RegisterType<ApplicationUserManager>()
+                .As<IApplicationUserManager>()
                 .InstancePerLifetimeScope();
         }
     }

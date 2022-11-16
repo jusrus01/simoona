@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Users
 {
-    public interface IShroomsUserManager
+    public interface IApplicationUserManager
     {
         Task<ApplicationUser> FindByIdAsync(string id);
 
         Task<ApplicationUser> FindByEmailAsync(string email);
 
         Task<ApplicationUser> FindByNameAsync(string userName);
+
+        Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id);
 
         Task CheckPasswordAsync(ApplicationUser user, string password);
 
@@ -34,10 +36,20 @@ namespace Shrooms.Domain.Services.Users
 
         Task CreateAsync(ApplicationUser user, string password);
 
+        Task CreateAsync(ApplicationUser user);
+
         Task<bool> HasExternalLoginAsync(ApplicationUser user);
 
         Task RemovePasswordAsync(ApplicationUser user);
 
         Task AddPasswordAsync(ApplicationUser user, string password);
+
+        Task RemoveLoginAsync(ApplicationUser user, string provider, string providerKey);
+
+        Task UpdateAsync(ApplicationUser user);
+
+        Task<bool> UserExistsAsync(string email);
+
+        Task<bool> IsUserSoftDeletedAsync(string email);
     }
 }

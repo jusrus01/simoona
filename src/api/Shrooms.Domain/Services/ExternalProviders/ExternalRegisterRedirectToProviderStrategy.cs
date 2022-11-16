@@ -11,9 +11,6 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
-    /// <summary>
-    /// Strategy that redirects user to external provider to handle registration
-    /// </summary>
     public class ExternalRegisterRedirectToProviderStrategy : IExternalProviderStrategy
     {
         private const string ResponseType = "token";
@@ -43,7 +40,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
-            var uri = ShroomsUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
+            var uri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
 
             var loginRedirectUri = _applicationOptions.GetClientLoginUrl(_tenantNameContainer.TenantName);
             

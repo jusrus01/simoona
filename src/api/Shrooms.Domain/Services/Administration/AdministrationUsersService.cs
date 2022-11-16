@@ -39,7 +39,7 @@ namespace Shrooms.Domain.Services.Administration
         private const string UsersExcelWorksheetName = "Users";
         private const int StateStrengthInBits = 256;
 
-        private readonly IShroomsUserManager _userManager;
+        private readonly IApplicationUserManager _userManager;
 
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -78,7 +78,7 @@ namespace Shrooms.Domain.Services.Administration
             //IExcelBuilderFactory excelBuilderFactory,
             ITenantNameContainer tenantNameContainer,
             IPermissionService permissionService,
-            IShroomsUserManager userManager,
+            IApplicationUserManager userManager,
             IAuthenticationService authenticationService,
             IOptions<ApplicationOptions> applicationOptions,
             IHttpContextAccessor httpContextAccessor)
@@ -295,13 +295,6 @@ namespace Shrooms.Domain.Services.Administration
 
             //var hasLogin = user.Logins.Any(login => login.LoginProvider == loginProvider);
             //return hasLogin;
-        }
-
-        public async Task<bool> UserEmailExistsAsync(string email)
-        {
-            // Possible unexpected behavior when a user is registered in multiple organizations
-            // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
-            return await _userManager.FindByEmailAsync(email) != null;
         }
 
         public async Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filterModel, string includeProperties)
@@ -534,7 +527,7 @@ namespace Shrooms.Domain.Services.Administration
         // TODO: Update registration logic when organization logic is fixed
         public async Task RegisterInternalAsync(RegisterDto registerDto)
         {
-            if (!await UserEmailExistsAsync(registerDto.Email))
+            if (!await _userManager.UserExistsAsync(registerDto.Email))
             {
                 await CreateNewInternalUserAsync(registerDto);
             }

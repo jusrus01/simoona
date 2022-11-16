@@ -1,6 +1,6 @@
 ﻿namespace Shrooms.Contracts.Constants
 {
-    public static class AuthenticationConstants
+    public static class AuthenticationConstants//Q: using other constants that might change?
     {
         public const string InternalLoginProvider = "Internal";
         public const string GoogleLoginProvider = "Google";

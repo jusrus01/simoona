@@ -10,6 +10,7 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Users;
+using Shrooms.Domain.ServiceValidators.Validators.Organizations;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
@@ -24,38 +25,46 @@ namespace Shrooms.Domain.Services.Tokens
     public class TokenService : ITokenService
     {
         private const int SecondsInADay = 86400;
+        private const string TokenType = "Bearer";
+
+        private const string AccessTokenQueryParameter = "access_token";
+        private const string AuthTypeParameterName = "authType"; // Q: where to put this when I have the same constant in ExternalProviders?
 
         private readonly ApplicationOptions _applicationOptions;
 
-        private readonly IShroomsUserManager _userManager;
+        private readonly IApplicationUserManager _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         private readonly IPermissionService _permissionService;
         private readonly IOrganizationService _organizationService;
+        private readonly IOrganizationValidator _organizationValidator;
         private readonly ITenantNameContainer _tenantNameContainer;
 
         public TokenService(
             IOptions<ApplicationOptions> applicationOptions,
-            IShroomsUserManager userManager,
+            IApplicationUserManager userManager,
             SignInManager<ApplicationUser> signInManager,
             IPermissionService permissionService,
             IOrganizationService organizationService,
-            ITenantNameContainer tenantNameContainer)
+            ITenantNameContainer tenantNameContainer,
+            IOrganizationValidator organizationValidator)
         {
             _applicationOptions = applicationOptions.Value;
+
             _userManager = userManager;
             _permissionService = permissionService;
             _signInManager = signInManager;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
+            _organizationValidator = organizationValidator;
         }
 
         public async Task<string> GetTokenRedirectUrlForExternalAsync(ExternalLoginInfo externalLoginInfo)
         {
             var token = await GetTokenForExternalAsync(externalLoginInfo);
             var uri = _applicationOptions.GetClientLoginUrl(_tenantNameContainer.TenantName);
-            // TODO: export strings somewhere
-            return $"{QueryHelpers.AddQueryString(uri, "authType", externalLoginInfo.ProviderDisplayName)}#access_token={token}";
+
+            return $"{QueryHelpers.AddQueryString(uri, AuthTypeParameterName, externalLoginInfo.ProviderDisplayName)}#{AccessTokenQueryParameter}={token}";
         }
 
         public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
@@ -80,12 +89,53 @@ namespace Shrooms.Domain.Services.Tokens
             var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
             var user = await _userManager.FindByEmailAsync(email);
 
-            await _userManager.AddLoginAsync(user, externalLoginInfo);
-
             return (await CreateTokenAsync(user)).AccessToken;
         }
 
         private async Task<TokenResponseDto> CreateTokenAsync(ApplicationUser user)
+        {
+            var organization = await _organizationService.GetUserOrganizationAsync(user);
+
+            _organizationValidator.CheckIfFoundOrganizationMatchesRequestHeader(organization, _tenantNameContainer.TenantName);
+
+            var claims = await CreateRequiredTokenClaimsAsync(user, organization);
+            
+            var expirationDate = GetTokenExpirationDate();
+            var expirationInSeconds = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsInADay;
+
+            var accessToken = GenerateAccessToken(claims, expirationDate);
+
+            return new TokenResponseDto
+            {
+                Expires = expirationDate,
+                Issued = DateTime.UtcNow,
+                ClientId = _applicationOptions.ClientId,
+                ExpiresIn = expirationInSeconds,
+                TokenType = TokenType,
+                UserIndentifier = user.Id,
+                Persistent = string.Empty,
+                AccessToken = accessToken
+            };
+        }
+
+        private string GenerateAccessToken(IEnumerable<Claim> claims, DateTime expirationDate)
+        {
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationOptions.Authentication.Jwt.Key));
+            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+            var jwtSecurityToken = new JwtSecurityToken(
+                issuer: _applicationOptions.ApiUrl,
+                audience: _applicationOptions.ApiUrl,
+                claims: claims,
+                expires: expirationDate,
+                signingCredentials: signingCredentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        }
+
+        private DateTime GetTokenExpirationDate() => DateTime.UtcNow.AddDays(_applicationOptions.Authentication.Jwt.DurationInDays);
+
+        private async Task<IEnumerable<Claim>> CreateRequiredTokenClaimsAsync(ApplicationUser user, Organization organization)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -95,14 +145,7 @@ namespace Shrooms.Domain.Services.Tokens
             var roleClaims = MapToClaims(ClaimTypes.Role, userRoles);
             var permissionClaims = MapToClaims(WebApiConstants.ClaimPermission, permissions.ToList());
 
-            var organization = await _organizationService.GetUserOrganizationAsync(user);
-
-            if (_tenantNameContainer.TenantName.ToLowerInvariant() != organization.ShortName.ToLowerInvariant())
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            var claims = new[]
+            return new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -116,30 +159,6 @@ namespace Shrooms.Domain.Services.Tokens
             .Union(userClaims)
             .Union(roleClaims)
             .Union(permissionClaims);
-
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationOptions.Authentication.Jwt.Key));
-            var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-
-            var expirationDate = DateTime.UtcNow.AddDays(_applicationOptions.Authentication.Jwt.DurationInDays);
-
-            var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _applicationOptions.ApiUrl,
-                audience: _applicationOptions.ApiUrl,
-                claims: claims,
-                expires: expirationDate,
-                signingCredentials: signingCredentials);
-
-            return new TokenResponseDto
-            {
-                Expires = expirationDate,
-                Issued = DateTime.UtcNow,
-                ClientId = _applicationOptions.ClientId,
-                ExpiresIn = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsInADay,
-                TokenType = "Bearer",
-                UserIndentifier = user.Id,
-                Persistent = "",
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
-            };
         }
 
         private static List<Claim> MapToClaims(string type, IList<string> claimNames)

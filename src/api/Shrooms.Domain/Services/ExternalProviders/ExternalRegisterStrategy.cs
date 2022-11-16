@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
-using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Cookies;
-using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Domain.Services.Users;
 using System;
 using System.IO;
 using System.Net;
@@ -18,29 +15,22 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
-    /// <summary>
-    /// Strategy that registers user
-    /// </summary>
     public class ExternalRegisterStrategy : IExternalProviderStrategy
-    {//Q: get feedback on this and on ExternalResult
-        private readonly UserManager<ApplicationUser> _userManager;
+    {
+        private readonly IApplicationUserManager _userManager;
 
         private readonly ICookieService _cookieService;
         private readonly ExternalLoginInfo _externalLoginInfo;
         private readonly ITokenService _tokenService;
         private readonly IPictureService _pictureService;
-        private readonly IAdministrationUsersService _userAdministrationService;
-        private readonly IUnitOfWork2 _uow;
         private readonly ExternalLoginRequestDto _requestDto;
         private readonly Organization _organization;
 
         public ExternalRegisterStrategy(
             ITokenService tokenService,
-            UserManager<ApplicationUser> userManager,
+            IApplicationUserManager userManager,
             ICookieService cookieService,
             IPictureService pictureService,
-            IAdministrationUsersService userAdministrationService,
-            IUnitOfWork2 uow,
             ExternalLoginRequestDto requestDto,
             ExternalLoginInfo externalLoginInfo,
             Organization organization)
@@ -52,85 +42,90 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _tokenService = tokenService;
             _cookieService = cookieService;
             _pictureService = pictureService;
-            _userAdministrationService = userAdministrationService;
-            _uow = uow;
             _organization = organization;
         }
-
-        // TODO: Refactor
+        // TODO: see if it can be refactored further andn chekc if it works
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var claimsIdentity = _externalLoginInfo.Principal.Identity as ClaimsIdentity;
+            var userEmail = GetUserEmail(claimsIdentity);
+
+            if (await _userManager.IsUserSoftDeletedAsync(userEmail))
+            {
+                return await ExecuteExternalAccountLinkingStrategy();
+            }
+
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(userEmail);
+
+                if (user.EmailConfirmed)
+                {
+                    return await ExecuteExternalLoginStrategyAsync();
+                }
+
+                await RestoreUserAsync(user, claimsIdentity);
+            }
+            catch (ValidationException ex)
+            {
+                if (ex.ErrorCode != ErrorCodes.UserNotFound)
+                {
+                    throw;
+                }
+
+                await RegisterUserAsync(claimsIdentity, userEmail);
+            }
             
+            return await ExecuteExternalLoginStrategyAsync();
+        }
+
+        private async Task RegisterUserAsync(ClaimsIdentity claimsIdentity, string userEmail)
+        {
+            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, userEmail);
+
+            await _userManager.CreateAsync(newUser);
+            await _userManager.AddLoginAsync(newUser, _externalLoginInfo);
+        }
+
+        private async Task RestoreUserAsync(ApplicationUser user, ClaimsIdentity claimsIdentity)
+        {
+            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, user.Email);
+
+            await _userManager.RemoveLoginAsync(user, AuthenticationConstants.InternalLoginProvider, user.Id);
+            await _userManager.RemovePasswordAsync(user);
+
+            CopyUserValues(fromUser: newUser, toUser: user);
+
+            await _userManager.UpdateAsync(user);
+            await _userManager.AddLoginAsync(user, _externalLoginInfo);
+        }
+
+        private static void CopyUserValues(ApplicationUser fromUser, ApplicationUser toUser)
+        {
+            toUser.FirstName = fromUser.FirstName;
+            toUser.LastName = fromUser.LastName;
+            toUser.Email = fromUser.Email;
+            toUser.UserName = fromUser.UserName;
+            toUser.EmailConfirmed = fromUser.EmailConfirmed;
+            toUser.OrganizationId = fromUser.OrganizationId;
+            toUser.PictureId = fromUser.PictureId;
+        }
+
+        private static string GetUserEmail(ClaimsIdentity claimsIdentity)
+        {
             var userEmail = claimsIdentity.FindFirst(ClaimTypes.Email).Value;
 
             if (userEmail == null) // TODO: Test it with Facebook provider
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "External provider did not provide email");
             }
-            
-            if (await _userAdministrationService.IsUserSoftDeletedAsync(userEmail))
-            {
-                return await new ExternalProviderLinkAccountStrategy(
-                    _userManager,
-                    _uow,
-                    _requestDto,
-                    _externalLoginInfo,
-                    restoreUser: true)
-                    .ExecuteStrategyAsync();
-            }
 
-            var registeredUser = await _userManager.FindByEmailAsync(userEmail);
-
-            if (registeredUser != null && registeredUser.EmailConfirmed)
-            {
-                return await ExecuteExternalLoginStrategyAsync();
-            }
-
-            var unconfirmedInternalAccountFound = registeredUser != null && !registeredUser.EmailConfirmed;
-
-            // TODO: Fill in more, retrieve from claims and validate from another provider
-            // TODO: Make sure that the email will be filled in by another service call
-            var newUser = await CreateNewUserAsync(claimsIdentity, userEmail);
-
-            if (unconfirmedInternalAccountFound)
-            {
-                await _userManager.RemoveLoginAsync(registeredUser, AuthenticationConstants.InternalLoginProvider, registeredUser.Id);
-                await _userManager.RemovePasswordAsync(registeredUser);
-                
-                registeredUser.FirstName = newUser.FirstName;
-                registeredUser.LastName = newUser.LastName;
-                registeredUser.Email = newUser.Email;
-                registeredUser.UserName = newUser.UserName;
-                registeredUser.EmailConfirmed = newUser.EmailConfirmed;
-                registeredUser.OrganizationId = newUser.OrganizationId;
-                registeredUser.PictureId = newUser.PictureId;
-            }
-
-            var identityResult = unconfirmedInternalAccountFound ?
-                await _userManager.UpdateAsync(registeredUser) :
-                await _userManager.CreateAsync(newUser);
-
-            if (!identityResult.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
-            }
-
-            var user = unconfirmedInternalAccountFound ? registeredUser : newUser;
-
-            identityResult = await _userManager.AddLoginAsync(user, _externalLoginInfo);
-
-            if (!identityResult.Succeeded)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to add login");
-            }
-
-            return await ExecuteExternalLoginStrategyAsync();
+            return userEmail;
         }
 
-        private async Task<ApplicationUser> CreateNewUserAsync(ClaimsIdentity claimsIdentity, string email)
+        private async Task<ApplicationUser> CreateApplicationUserFromIdentityAsync(ClaimsIdentity claimsIdentity, string email)
         {
-            var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value;
+            var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value; // Q: export these somewhere?
             var userLastName = claimsIdentity.FindFirst(ClaimTypes.Surname).Value;
 
             var userPictureId = await UploadProviderImageAsync(claimsIdentity, _organization);
@@ -178,6 +173,16 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync()
         {
             return await new ExternalLoginStrategy(_cookieService, _tokenService, _externalLoginInfo).ExecuteStrategyAsync();
+        }
+
+        private async Task<ExternalProviderResult> ExecuteExternalAccountLinkingStrategy()
+        {
+            return await new ExternalProviderLinkAccountStrategy(
+                _userManager,
+                _requestDto,
+                _externalLoginInfo,
+                restoreUser: true)
+                .ExecuteStrategyAsync();
         }
     }
 }

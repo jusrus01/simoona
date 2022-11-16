@@ -18,6 +18,8 @@ namespace Shrooms.Domain.Services.Organizations
 {
     public class OrganizationService : IOrganizationService
     {
+        private const string ProviderSeparator = ";";
+
         private readonly DbSet<Organization> _organizationsDbSet;
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly IRoleService _roleService;
@@ -166,6 +168,19 @@ namespace Shrooms.Domain.Services.Organizations
         {
             var mailAddress = new MailAddress(email);
             return mailAddress.Host.ToLowerInvariant();
+        }
+
+        public bool HasProvider(Organization organization, string provider)
+        {
+            if (string.IsNullOrEmpty(provider))
+            {
+                return false;
+            }
+
+            var lowerCaseProvider = provider.ToLower();
+
+            return organization.AuthenticationProviders.Split(ProviderSeparator, StringSplitOptions.RemoveEmptyEntries)
+                .Any(availableProvider => availableProvider.ToLower() == lowerCaseProvider);
         }
     }
 }

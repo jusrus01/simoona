@@ -44,12 +44,5 @@ namespace Shrooms.Presentation.Api.Controllers
                 return BadRequestWithError(e);
             }
         }
-        
-        [Authorize]
-        [HttpPost("Test")]
-        public IActionResult TestAuthentication()
-        {
-            return Ok();
-        }
     }
 }

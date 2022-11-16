@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
-    /// <summary>
-    /// Strategy that redirects user to external provider to handle login
-    /// </summary>
     public class ExternalLoginRedirectToProviderStrategy : IExternalProviderStrategy
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -37,7 +34,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
-            var externalRegisterUri = ShroomsUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
+            var externalRegisterUri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
             var redirectUrl = QueryHelpers.AddQueryString(externalRegisterUri, ExternalProviderQueryParameterConstants.Organization, _tenantNameContainer.TenantName);
 
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(_requestDto.Provider, redirectUrl);

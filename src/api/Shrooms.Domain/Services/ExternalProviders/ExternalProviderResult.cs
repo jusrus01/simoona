@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Enums;
 using System;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
-    public class ExternalProviderResult//TODO: transform to generic?
+    public class ExternalProviderResult//Q: transform to generic?
     {
         public ExternalProviderResult()
         {
@@ -37,14 +38,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private static string GetAuthenticationSchemeByProvider(string provider)
         {
-            if (provider == null || provider == string.Empty)
+            if (string.IsNullOrEmpty(provider))
             {
                 throw new InvalidOperationException();
             }
-
+            
             return provider switch
             {
-                AuthenticationConstants.GoogleLoginProvider => "Google", // TODO: Change after full implementation (make decision)
+                AuthenticationConstants.GoogleLoginProvider =>  GoogleDefaults.AuthenticationScheme, // Q: installed package, just for one constant...
                 AuthenticationConstants.InternalLoginProvider => throw new InvalidOperationException(),
                 _ => throw new InvalidOperationException()
             };

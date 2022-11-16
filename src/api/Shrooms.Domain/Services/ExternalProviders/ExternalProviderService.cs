@@ -7,21 +7,20 @@ using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Extensions;
-using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
+using Shrooms.Domain.Services.Users;
 using Shrooms.Infrastructure.FireAndForget;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders
-{
+{//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user
     public class ExternalProviderService : IExternalProviderService
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IApplicationUserManager _userManager;
 
         private readonly IExternalProviderContext _externalProviderContext;
         private readonly ITenantNameContainer _tenantNameContainer;
@@ -30,7 +29,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly ICookieService _cookieService;
         private readonly IPictureService _pictureService;
-        private readonly IAdministrationUsersService _userAdministrationService;
         private readonly IUnitOfWork2 _uow;
 
         public ExternalProviderService(
@@ -38,12 +36,11 @@ namespace Shrooms.Domain.Services.ExternalProviders
             IOptions<ApplicationOptions> applicationOptions,
             IExternalProviderContext externalProviderContext,
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager,
+            IApplicationUserManager userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
             IPictureService pictureService,
-            IAdministrationUsersService userAdministrationService,
             IUnitOfWork2 uow)
         {
             _signInManager = signInManager;
@@ -54,7 +51,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _organizationService = organizationService;
             _cookieService = cookieService;
             _pictureService = pictureService;
-            _userAdministrationService = userAdministrationService;
             _uow = uow;
 
             _applicationOptions = applicationOptions.Value;
@@ -64,7 +60,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
 
-            if (requestDto.Provider != null && !organization.HasProvider(requestDto.Provider))
+            if (!_organizationService.HasProvider(organization, requestDto.Provider))
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "Invalid provider");
             }
@@ -83,12 +79,12 @@ namespace Shrooms.Domain.Services.ExternalProviders
             ControllerRouteDto routeDto,
             Organization organization)
         {
-            if (externalLoginInfo != null && requestDto.UserId != null)
+            if (CanLinkAccount(externalLoginInfo, requestDto))
             {
-                return new ExternalProviderLinkAccountStrategy(_userManager, _uow, requestDto, externalLoginInfo);
+                return new ExternalProviderLinkAccountStrategy(_userManager, requestDto, externalLoginInfo);
             }
 
-            if (externalLoginInfo != null)
+            if (HasCookieFromExternalProvider(externalLoginInfo))
             {
                 return requestDto.IsRegistration ? 
                     new ExternalRegisterStrategy(
@@ -96,8 +92,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
                         _userManager,
                         _cookieService,
                         _pictureService,
-                        _userAdministrationService,
-                        _uow,
                         requestDto,
                         externalLoginInfo,
                         organization) :
@@ -118,5 +112,10 @@ namespace Shrooms.Domain.Services.ExternalProviders
                     requestDto,
                     routeDto);
         }
+
+        private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo) => externalLoginInfo != null;
+
+        private static bool CanLinkAccount(ExternalLoginInfo externalLoginInfo, ExternalLoginRequestDto requestDto) =>
+            externalLoginInfo != null && requestDto.UserId != null;
     }
 }

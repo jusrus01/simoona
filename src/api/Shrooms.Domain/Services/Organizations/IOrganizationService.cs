@@ -28,6 +28,9 @@ namespace Shrooms.Domain.Services.Organizations
         Task<bool> HasOrganizationAsync(string organizationName);
 
         Task<UserDto> GetManagingDirectorAsync(int organizationId);
+
         Task SetManagingDirectorAsync(string userId, UserAndOrganizationDto userAndOrganizationDto);
+
+        bool HasProvider(Organization organization, string provider);
     }
 }

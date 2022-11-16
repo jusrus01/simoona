@@ -3,7 +3,7 @@ using Shrooms.Contracts.Options;
 
 namespace Shrooms.Domain.Helpers
 {
-    public static class ShroomsUrlHelper
+    public static class ApplicationUrlHelper
     {
         public static string GetActionUrl(ApplicationOptions applicationOptions, ControllerRouteDto routeDto)
         {
