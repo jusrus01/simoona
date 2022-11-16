@@ -67,7 +67,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
 
-            if (!_organizationService.HasProvider(organization, requestDto.Provider))
+            if (!string.IsNullOrEmpty(requestDto.Provider) && !_organizationService.HasProvider(organization, requestDto.Provider))
             {
                 throw new ValidationException(ErrorCodes.Unspecified, "Invalid provider");
             }

@@ -53,13 +53,21 @@ namespace Shrooms.IoC
             builder.RegisterModule(new ServicesModule());
             builder.RegisterModule(new AuthenticationModule());
             builder.RegisterModule(new UserModule());
+            
+            builder.RegisterModule(new EmailModule());
+            builder.RegisterModule(new MapperModule());
+
+            builder.RegisterType<InternalProviderNotificationService>()
+                .As<IInternalProviderNotificationService>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<InternalProviderService>()
+                .As<IInternalProviderService>()
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<TokenService>()
                 .As<ITokenService>()
                 .InstancePerLifetimeScope();
-
-            builder.RegisterModule(new EmailModule());
-            builder.RegisterModule(new MapperModule());
 
             builder.RegisterModule(new WallModule());
             builder.RegisterModule(new KudosModule());
