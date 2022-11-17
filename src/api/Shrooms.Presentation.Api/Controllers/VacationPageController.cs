@@ -9,7 +9,7 @@ namespace Shrooms.Presentation.Api.Controllers
 {
     //[Authorize]
     [Route("VacationPage")]
-    public class VacationPageController : ShroomsControllerBase
+    public class VacationPageController : ApplicationControllerBase
     {
         private readonly IVacationPageService _vacationPageService;
         private readonly IMapper _mapper;

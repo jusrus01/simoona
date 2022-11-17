@@ -2,7 +2,10 @@
 using AutoMapper;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Domain.Services.Cookies;
+using Shrooms.Domain.Services.Email.InternalProviders;
+using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Domain.Services.Tokens;
+using Shrooms.Domain.ServiceValidators.Validators.InternalProviders;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.Infrastructure.Storage;
@@ -59,6 +62,10 @@ namespace Shrooms.IoC
 
             builder.RegisterType<InternalProviderNotificationService>()
                 .As<IInternalProviderNotificationService>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<InternalProviderValidator>()
+                .As<IInternalProviderValidator>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<InternalProviderService>()

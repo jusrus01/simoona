@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Email.InternalProviders;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Users;
+using Shrooms.Domain.ServiceValidators.Validators.InternalProviders;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.InternalProviders
+namespace Shrooms.Domain.Services.InternalProviders//TODO: refactor what is left, refactor ioc container, implement async runner, refactor more, figure out why log off happens...(test?)
 {
     public class InternalProviderService : IInternalProviderService
     {
@@ -21,6 +20,7 @@ namespace Shrooms.Domain.Services.InternalProviders
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IOrganizationService _organizationService;
         private readonly IInternalProviderNotificationService _notificationService;
+        private readonly IInternalProviderValidator _validator;
         private readonly ICookieService _cookieService;
 
         public InternalProviderService(
@@ -28,13 +28,15 @@ namespace Shrooms.Domain.Services.InternalProviders
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
-            IInternalProviderNotificationService notificationService)
+            IInternalProviderNotificationService notificationService,
+            IInternalProviderValidator validator)
         {
             _userManager = userManager;
             _tenantNameContainer = tenantNameContainer;
             _organizationService = organizationService;
             _cookieService = cookieService;
             _notificationService = notificationService;
+            _validator = validator;
         }
 
         public async Task RegisterAsync(RegisterDto registerDto)
@@ -56,8 +58,14 @@ namespace Shrooms.Domain.Services.InternalProviders
         public async Task<IEnumerable<ExternalLoginDto>> GetLoginsAsync()
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            
-            return _organizationService.HasProvider(organization, AuthenticationConstants.InternalLoginProvider) ?
+            var hasProvider = _organizationService.HasProvider(organization, AuthenticationConstants.InternalLoginProvider);
+
+            return GetLogins(hasProvider);
+        }
+
+        private static IList<ExternalLoginDto> GetLogins(bool hasProvider)
+        {
+            return hasProvider ?
                 new List<ExternalLoginDto>
                 {
                     new ExternalLoginDto
@@ -65,7 +73,7 @@ namespace Shrooms.Domain.Services.InternalProviders
                         Name = AuthenticationConstants.InternalLoginProvider,
                     }
                 } :
-                Enumerable.Empty<ExternalLoginDto>();
+                new List<ExternalLoginDto>();
         }
 
         public async Task SetSignInCookieAsync()
@@ -118,10 +126,9 @@ namespace Shrooms.Domain.Services.InternalProviders
             // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
             var user = await _userManager.FindByEmailAsync(registerDto.Email);
 
-            if (user.EmailConfirmed || await _userManager.HasExternalLoginAsync(user))
-            {
-                throw new ValidationException(ErrorCodes.DuplicatesIntolerable, "User is already registered");
-            }
+            var hasExternalLogin = await _userManager.HasExternalLoginAsync(user);
+
+            _validator.CheckIfDoesNotContainValidLogin(user, hasExternalLogin);
 
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, registerDto.Password);

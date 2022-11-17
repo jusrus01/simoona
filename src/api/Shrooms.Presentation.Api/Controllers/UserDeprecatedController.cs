@@ -53,7 +53,7 @@ namespace Shrooms.Presentation.Api.Controllers
 {
     [Authorize]
     [Route("ApplicationUser")]
-    public partial class UserDeprecatedController : ShroomsControllerBase
+    public partial class UserDeprecatedController : ApplicationControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;

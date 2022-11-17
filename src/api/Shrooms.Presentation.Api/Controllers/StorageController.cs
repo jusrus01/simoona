@@ -6,7 +6,7 @@ namespace Shrooms.Presentation.Api.Controllers
 {
     [Authorize(Policy = PolicyConstants.StoragePolicy)]
     [Route("Storage")]
-    public class StorageController : ShroomsControllerBase
+    public class StorageController : ApplicationControllerBase
     {
         public IActionResult test()
         {

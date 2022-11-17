@@ -15,7 +15,7 @@ namespace Shrooms.Presentation.Api.Controllers
 {
     [Route("Notification")]
     [Authorize]
-    public class NotificationController : ShroomsControllerBase
+    public class NotificationController : ApplicationControllerBase
     {
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;

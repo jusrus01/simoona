@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Shrooms.Presentation.Api.Controllers
 {
     [Route("Token")]
-    public class TokenController : ShroomsControllerBase
+    public class TokenController : ApplicationControllerBase
     {
         private readonly ITokenService _tokenService;
         private readonly IMapper _mapper;

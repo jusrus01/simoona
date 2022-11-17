@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace Shrooms.Presentation.Api.Controllers
 {
     // TODO: Refactor
-    public class ShroomsControllerBase : ControllerBase
+    public class ApplicationControllerBase : ControllerBase
     {
         protected IActionResult BadRequestWithError(ValidationException ex)
         {

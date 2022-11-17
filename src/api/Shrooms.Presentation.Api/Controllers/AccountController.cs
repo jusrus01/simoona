@@ -18,7 +18,7 @@ namespace Shrooms.Presentation.Api
 {
     [Authorize]
     [Route("Account")]
-    public class AccountController : ShroomsControllerBase
+    public class AccountController : ApplicationControllerBase
     {
         private readonly IMapper _mapper;
 
@@ -162,12 +162,14 @@ namespace Shrooms.Presentation.Api
             var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(
                 ControllerContext.ActionDescriptor.ControllerName,
                 returnUrl,
-                isLinkable ? GetUserAndOrganization().UserId : null);
+                GetUserId(isLinkable));
 
             var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
 
             return Ok(externalLoginViewModels);
         }
+
+        private string? GetUserId(bool isLinkable) => isLinkable ? GetUserAndOrganization().UserId : null;
 
         /// <summary>
         /// Only responsible for providing a cookie that is used in StorageController
