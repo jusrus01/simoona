@@ -83,18 +83,24 @@ namespace Shrooms.Domain.Services.InternalProviders//TODO: refactor what is left
 
         private async Task RegisterNewUserAsync(RegisterDto registerDto)
         {
-            var tenantName = _tenantNameContainer.TenantName;
-            var organization = await _organizationService.GetOrganizationByNameAsync(tenantName);
-
-            var newUser = CreateNewApplicationUser(registerDto, organization);
-
-            await _userManager.CreateAsync(newUser, registerDto.Password);
+            var newUser = await RegisterUserAsync(registerDto);
 
             await AddInternalLoginAsync(newUser);
 
             await AddNewUserRolesAsync(newUser);
 
             await SendConfirmationEmailAsync(newUser);
+        }
+
+        private async Task<ApplicationUser> RegisterUserAsync(RegisterDto registerDto)
+        {
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
+            var newUser = CreateNewApplicationUser(registerDto, organization);
+
+            await _userManager.CreateAsync(newUser, registerDto.Password);
+
+            return newUser;
         }
 
         private async Task RestoreUserAsync(RegisterDto registerDto)
