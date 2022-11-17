@@ -27,7 +27,7 @@ namespace Shrooms.Domain.Services.Tokens
         private const string TokenType = "Bearer";
 
         private const string AccessTokenQueryParameter = "access_token";
-        private const string AuthTypeParameterName = "authType"; // Q: where to put this when I have the same constant in ExternalProviders?
+        private const string AuthTypeParameterName = "authType";
 
         private readonly ApplicationOptions _applicationOptions;
 

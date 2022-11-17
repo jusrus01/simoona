@@ -9,6 +9,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
     {
         Task<ExternalProviderResult> ExternalLoginOrRegisterAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto);
         
-        Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId);
+        Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto redirectRouteDto, string returnUrl, string userId);
     }
 }

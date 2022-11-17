@@ -159,10 +159,13 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
-            var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(
-                ControllerContext.ActionDescriptor.ControllerName,
-                returnUrl,
-                GetUserId(isLinkable));
+            var redirectRouteDto = new ControllerRouteDto
+            {
+                ControllerName = ControllerContext.ActionDescriptor.ControllerName,
+                ActionName = "ExternalLogin"
+            };
+
+            var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(redirectRouteDto, returnUrl, GetUserId(isLinkable));
 
             var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
 

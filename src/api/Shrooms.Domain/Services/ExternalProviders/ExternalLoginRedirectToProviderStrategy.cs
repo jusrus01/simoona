@@ -34,7 +34,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
         public Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var externalRegisterUri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
-            var redirectUrl = QueryHelpers.AddQueryString(externalRegisterUri, ExternalProviderQueryParameterConstants.Organization, _tenantNameContainer.TenantName);
+            var redirectUrl = QueryHelpers.AddQueryString(externalRegisterUri, ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName);
 
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(_requestDto.Provider, redirectUrl);
 

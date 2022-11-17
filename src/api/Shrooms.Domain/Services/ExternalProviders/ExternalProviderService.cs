@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Cookies;
@@ -14,17 +12,16 @@ using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Infrastructure.FireAndForget;
-using System.Security.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
+using Shrooms.Domain.Services.AuthenticationStates;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user
     public class ExternalProviderService : IExternalProviderService
     {
-        private const int StateStrengthInBits = 256;
-
         private readonly IApplicationSignInManager _signInManager;
         private readonly IApplicationUserManager _userManager;
 
@@ -35,6 +32,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly ICookieService _cookieService;
         private readonly IPictureService _pictureService;
+        private readonly IExternalProviderValidator _validator;
+        private readonly IAuthenticationStateService _stateService;
 
         private readonly AuthenticationService _authenticationService;
 
@@ -48,7 +47,9 @@ namespace Shrooms.Domain.Services.ExternalProviders
             IOrganizationService organizationService,
             ICookieService cookieService,
             IPictureService pictureService,
-            IAuthenticationService authenticationService)
+            IExternalProviderValidator validator,
+            IAuthenticationService authenticationService,
+            IAuthenticationStateService stateService)
         {
             _signInManager = signInManager;
             _externalProviderContext = externalProviderContext;
@@ -58,6 +59,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
             _organizationService = organizationService;
             _cookieService = cookieService;
             _pictureService = pictureService;
+            _validator = validator;
+            _stateService = stateService;
 
             _applicationOptions = applicationOptions.Value;
             _authenticationService = (AuthenticationService)authenticationService;
@@ -66,11 +69,9 @@ namespace Shrooms.Domain.Services.ExternalProviders
         public async Task<ExternalProviderResult> ExternalLoginOrRegisterAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var hasProvider = _organizationService.HasProvider(organization, requestDto.Provider);
 
-            if (!string.IsNullOrEmpty(requestDto.Provider) && !_organizationService.HasProvider(organization, requestDto.Provider))
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Invalid provider");
-            }
+            _validator.CheckIfValidProvider(requestDto, hasProvider);
 
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
             var strategy = GetStrategy(externalLoginInfo, requestDto, routeDto, organization);
@@ -80,15 +81,24 @@ namespace Shrooms.Domain.Services.ExternalProviders
             return await _externalProviderContext.ExecuteStrategyAsync();
         }
 
-        // TODO: Register scheme only if key exists (on start up, before adding facebook signin)
-        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(string controllerName, string returnUrl, string userId)
+        public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto routeDto, string returnUrl, string userId)
+        {
+            var authenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+
+            return CreateExternalLogins(organization, authenticationSchemes, routeDto, returnUrl, userId);
+        }
+
+        private IList<ExternalLoginDto> CreateExternalLogins(
+            Organization organization,
+            IEnumerable<AuthenticationScheme> authenticationSchemes,
+            ControllerRouteDto routeDto,
+            string returnUrl,
+            string userId)
         {
             var externalLogins = new List<ExternalLoginDto>();
 
-            var availableAuthenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-
-            foreach (var authenticationScheme in availableAuthenticationSchemes)
+            foreach (var authenticationScheme in authenticationSchemes)
             {
                 if (!_organizationService.HasProvider(organization, authenticationScheme.Name))
                 {
@@ -97,8 +107,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
                 externalLogins.AddRange(new List<ExternalLoginDto>
                 {
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: false),
-                    CreateExternalLogin(controllerName, authenticationScheme, returnUrl, userId, isRegistration: true),
+                    CreateExternalLogin(routeDto, authenticationScheme, returnUrl, userId, isRegistration: false),
+                    CreateExternalLogin(routeDto, authenticationScheme, returnUrl, userId, isRegistration: true),
                 });
             }
 
@@ -145,9 +155,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
                     routeDto);
         }
 
-        // TODO: Refactor
         private string CreateExternalLoginUrl(
-            string controllerName,
+            ControllerRouteDto routeDto,
             AuthenticationScheme authenticationScheme,
             string returnUrl,
             string state,
@@ -156,65 +165,43 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             var queryParams = new Dictionary<string, string>
             {
-                { "provider", authenticationScheme.Name },
-                { "organization", _tenantNameContainer.TenantName },
-                { "response_type", "token" },
-                { "client_id", _applicationOptions.ClientId },
-                { "redirect_url", new Uri($"{returnUrl}?authType={authenticationScheme.Name}").AbsoluteUri },
-                { "state", state }
+                { ExternalProviderConstants.ProviderParameter, authenticationScheme.Name },
+                { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
+                { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
+                { ExternalProviderConstants.ClientIdParameter, _applicationOptions.ClientId },
+                { ExternalProviderConstants.RedirectUrlParameter, new Uri($"{returnUrl}?{ExternalProviderConstants.AuthenticationTypeParameter}={authenticationScheme.Name}").AbsoluteUri },
+                { ExternalProviderConstants.StateParameter, state }
             };
 
             if (userId != null)
             {
-                queryParams["userId"] = userId;
+                queryParams[ExternalProviderConstants.UserIdParameter] = userId;
             }
 
             if (isRegistration)
             {
-                queryParams["isRegistration"] = "true";
+                queryParams[ExternalProviderConstants.IsRegistrationParamaeter] = ExternalProviderConstants.IsRegistration;
             }
 
-            return QueryHelpers.AddQueryString($"/{controllerName}/ExternalLogin", queryParams);
+            return QueryHelpers.AddQueryString($"/{routeDto.ControllerName}/{routeDto.ActionName}", queryParams);
         }
 
         private ExternalLoginDto CreateExternalLogin(
-            string controllerName,
+            ControllerRouteDto routeDto,
             AuthenticationScheme authenticationScheme,
             string returnUrl,
             string userId,
-            bool isRegistration)
+            bool isRegistration,
+            string registrationPrefix = "Registration")
         {
-            var state = GenerateExternalAuthenticationState();
+            var state = _stateService.GenerateExternalAuthenticationState();
 
             return new ExternalLoginDto
             {
-                Name = !isRegistration ? authenticationScheme.Name : $"{authenticationScheme.Name}Registration",
-                Url = CreateExternalLoginUrl(controllerName, authenticationScheme, returnUrl, state, userId, isRegistration),
+                Name = !isRegistration ? authenticationScheme.Name : $"{authenticationScheme.Name}{registrationPrefix}",
+                Url = CreateExternalLoginUrl(routeDto, authenticationScheme, returnUrl, state, userId, isRegistration),
                 State = state
             };
-        }
-
-        // TODO: Refactor
-        private string GenerateExternalAuthenticationState()
-        {
-            const int bitsPerByte = 8;
-
-            using var cryptoProvider = new RNGCryptoServiceProvider();
-
-            if (StateStrengthInBits % bitsPerByte != 0)
-            {
-                throw new ArgumentException("strengthInBits must be evenly divisible by 8.", "strengthInBits");
-            }
-
-            var strengthInBytes = StateStrengthInBits / bitsPerByte;
-
-            var data = new byte[strengthInBytes];
-
-            cryptoProvider.GetBytes(data);
-
-            var base64 = Convert.ToBase64String(data);
-
-            return base64[0..^1];
         }
 
         private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo) => externalLoginInfo != null;

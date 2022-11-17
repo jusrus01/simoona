@@ -12,9 +12,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
 {
     public class ExternalRegisterRedirectToProviderStrategy : IExternalProviderStrategy
     {
-        private const string ResponseType = "token";
-        private const string IsRegistration = "true";
-
         private readonly IApplicationSignInManager _signInManager;
         private readonly ITenantNameContainer _tenantNameContainer;
 
@@ -45,16 +42,16 @@ namespace Shrooms.Domain.Services.ExternalProviders
             
             var loginRedirectUrl = QueryHelpers.AddQueryString(
                 loginRedirectUri,
-                ExternalProviderQueryParameterConstants.AuthenticationType,
+                ExternalProviderConstants.AuthenticationTypeParameter,
                 _requestDto.Provider);
 
             var redirectUrlParameters = new Dictionary<string, string>
             {
-                { ExternalProviderQueryParameterConstants.Organization, _tenantNameContainer.TenantName },
-                { ExternalProviderQueryParameterConstants.Provider, _requestDto.Provider },
-                { ExternalProviderQueryParameterConstants.ResponseType, ResponseType },
-                { ExternalProviderQueryParameterConstants.RedirectUrl, loginRedirectUrl },
-                { ExternalProviderQueryParameterConstants.IsRegistration, IsRegistration }
+                { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
+                { ExternalProviderConstants.ProviderParameter, _requestDto.Provider },
+                { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
+                { ExternalProviderConstants.RedirectUrlParameter, loginRedirectUrl },
+                { ExternalProviderConstants.IsRegistrationParamaeter, ExternalProviderConstants.IsRegistration }
             };
 
             var redirectUrl = QueryHelpers.AddQueryString(uri, redirectUrlParameters);
