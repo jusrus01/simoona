@@ -36,8 +36,6 @@ namespace Shrooms.IoC
                 .InstancePerDependency()
                 .AsSelf();
             
-            builder.RegisterType<AsyncRunner>().As<IAsyncRunner>().SingleInstance();
-
             builder.Register(_ => new TelemetryLoggingInterceptor());
 
             builder.RegisterModule(new InfrastructureModule());

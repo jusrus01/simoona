@@ -3,6 +3,7 @@ using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Extensions;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
@@ -48,16 +49,18 @@ namespace Shrooms.Domain.Services.ExternalProviders
         public async Task<ExternalProviderResult> ExecuteStrategyAsync()
         {
             var claimsIdentity = _externalLoginInfo.Principal.Identity as ClaimsIdentity;
-            var userEmail = GetUserEmail(claimsIdentity);
+            var email = claimsIdentity.GetEmail();
 
-            if (await _userManager.IsUserSoftDeletedAsync(userEmail))
+            CheckIfEmailExists(email);
+
+            if (await _userManager.IsUserSoftDeletedAsync(email))
             {
                 return await ExecuteExternalAccountLinkingStrategy();
             }
 
             try
             {
-                var user = await _userManager.FindByEmailAsync(userEmail);
+                var user = await _userManager.FindByEmailAsync(email);
 
                 if (user.EmailConfirmed)
                 {
@@ -73,7 +76,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
                     throw;
                 }
 
-                await RegisterUserAsync(claimsIdentity, userEmail);
+                await RegisterUserAsync(claimsIdentity, email);
             }
             
             return await ExecuteExternalLoginStrategyAsync();
@@ -111,22 +114,10 @@ namespace Shrooms.Domain.Services.ExternalProviders
             toUser.PictureId = fromUser.PictureId;
         }
 
-        private static string GetUserEmail(ClaimsIdentity claimsIdentity)
-        {
-            var userEmail = claimsIdentity.FindFirst(ClaimTypes.Email).Value;
-
-            if (userEmail == null) // TODO: Test it with Facebook provider
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "External provider did not provide email");
-            }
-
-            return userEmail;
-        }
-
         private async Task<ApplicationUser> CreateApplicationUserFromIdentityAsync(ClaimsIdentity claimsIdentity, string email)
         {
-            var userFirstName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value; // Q: export these to service or something?
-            var userLastName = claimsIdentity.FindFirst(ClaimTypes.Surname).Value;
+            var userFirstName = claimsIdentity.GetFirstName();
+            var userLastName = claimsIdentity.GetLastName();
 
             var userPictureId = await UploadProviderImageAsync(claimsIdentity, _organization);
 
@@ -160,7 +151,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         private static async Task<byte[]> DownloadProviderImageAsync(ClaimsIdentity claimsIdentity)
         {
-            var imageUrl = claimsIdentity.FindFirst(WebApiConstants.ClaimPicture)?.Value;
+            var imageUrl = claimsIdentity.GetGooglePictureUrl();
 
             if (imageUrl == null)
             {
@@ -183,6 +174,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 _externalLoginInfo,
                 restoreUser: true)
                 .ExecuteStrategyAsync();
+        }
+
+        private static void CheckIfEmailExists(string email) // TODO: Test it with Facebook provider and export
+        {
+            if (email == null) 
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "External provider did not provide email");
+            }
         }
     }
 }

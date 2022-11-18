@@ -59,10 +59,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.IoC;
+using Shrooms.Presentation.Api.BackgroundServices;
 using Shrooms.Presentation.Api.Configurations;
 using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
 using Shrooms.Presentation.Api.Middlewares;
@@ -175,7 +178,6 @@ namespace Shrooms.Presentation.Api
                 options.ClientSecret = applicationOptions.Authentication.Google.ClientSecret;
                 options.SaveTokens = false;
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
-
                 options.Events.OnCreatingTicket = (context) =>
                 {
                     var picture = context.User.GetProperty(WebApiConstants.ClaimPicture).GetString();
@@ -190,6 +192,12 @@ namespace Shrooms.Presentation.Api
                     return Task.CompletedTask;
                 };
             });
+
+            // Some of the registration has to be done here,
+            // because Shrooms.IoC does not have reference to
+            // Shrooms.Presentation.Api services e.g. background jobs
+            services.AddSingleton<IFireAndForgetJobQueue, FireAndForgetJobQueue>();
+            services.AddHostedService<FireAndForgetBackgroundService>();
 
             services.AddAuthorization(options =>
             {

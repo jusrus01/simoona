@@ -15,10 +15,6 @@ namespace Shrooms.Domain.Services.Administration
 
         Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg);
 
-        Task<bool> HasExistingExternalLoginAsync(string email, string loginProvider);
-
-        //Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization);
-
         Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filter, string includeProperties);
 
         Task NotifyAboutNewUserAsync(ApplicationUser user, int orgId);
@@ -27,10 +23,10 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<bool> GetUserTutorialStatusAsync(string userId);
 
-        Task SendUserPasswordResetEmailAsync(string email);
+        Task SendUserPasswordResetEmailAsync(string email);//export?
 
-        Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
+        Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);//export?
 
-        Task VerifyEmailAsync(VerifyEmailDto verifyDto);
+        Task VerifyEmailAsync(VerifyEmailDto verifyDto);//export?
     }
 }

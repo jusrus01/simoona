@@ -16,7 +16,7 @@ using Shrooms.Contracts.DataTransferObjects.Models;
 using Shrooms.Contracts.DataTransferObjects.Models.Kudos;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Exceptions;
-using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Kudos;
 using Shrooms.Domain.Helpers;
@@ -35,7 +35,7 @@ namespace Shrooms.Domain.Services.Kudos
         private readonly IMapper _mapper;
         private readonly IPermissionService _permissionService;
         private readonly IKudosServiceValidator _kudosServiceValidator;
-        private readonly IAsyncRunner _asyncRunner;
+        private readonly IFireAndForgetScheduler _fireAndForgetScheduler;
         private readonly DbSet<KudosLog> _kudosLogsDbSet;
         private readonly DbSet<KudosType> _kudosTypesDbSet;
         private readonly DbSet<ApplicationUser> _usersDbSet;
@@ -54,15 +54,15 @@ namespace Shrooms.Domain.Services.Kudos
             IUnitOfWork2 uow,
             IUnitOfWork unitOfWork,
             IMapper mapper,
+            IFireAndForgetScheduler fireAndForgetScheduler,
             IPermissionService permissionService,
-            IKudosServiceValidator kudosServiceValidator,
-            IAsyncRunner asyncRunner)
+            IKudosServiceValidator kudosServiceValidator)
         {
             _uow = uow;
             _mapper = mapper;
             _permissionService = permissionService;
             _kudosServiceValidator = kudosServiceValidator;
-            _asyncRunner = asyncRunner;
+            _fireAndForgetScheduler = fireAndForgetScheduler;
             _kudosLogsDbSet = uow.GetDbSet<KudosLog>();
             _kudosTypesDbSet = uow.GetDbSet<KudosType>();
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
@@ -397,11 +397,11 @@ namespace Shrooms.Domain.Services.Kudos
             {
                 if (kudosLog.IsMinus())
                 {
-                    _asyncRunner.Run<IKudosNotificationService>(async notifier => await notifier.NotifyApprovedKudosDecreaseRecipientAsync(kudosLog), _uow.ConnectionName);
+                    _fireAndForgetScheduler.EnqueueJob<IKudosNotificationService>(async notifier => await notifier.NotifyApprovedKudosDecreaseRecipientAsync(kudosLog));
                 }
                 else
                 {
-                    _asyncRunner.Run<IKudosNotificationService>(async notifier => await notifier.NotifyApprovedKudosRecipientAsync(kudosLog), _uow.ConnectionName);
+                    _fireAndForgetScheduler.EnqueueJob<IKudosNotificationService>(async notifier => await notifier.NotifyApprovedKudosRecipientAsync(kudosLog));
                 }
             }
 
@@ -420,7 +420,7 @@ namespace Shrooms.Domain.Services.Kudos
 
             if (!kudosLog.IsRecipientDeleted())
             {
-                _asyncRunner.Run<IKudosNotificationService>(async notifier => await notifier.NotifyRejectedKudosLogSenderAsync(kudosLog), _uow.ConnectionName);
+                _fireAndForgetScheduler.EnqueueJob<IKudosNotificationService>(async notifier => await notifier.NotifyRejectedKudosLogSenderAsync(kudosLog));
             }
 
             await _uow.SaveChangesAsync(false);
@@ -534,7 +534,7 @@ namespace Shrooms.Domain.Services.Kudos
 
             foreach (var receivingUser in receivingUsers)
             {
-                _asyncRunner.Run<IKudosNotificationService>(async notifier => await notifier.NotifyAboutKudosSentAsync(kudosDto), _uow.ConnectionName);
+                _fireAndForgetScheduler.EnqueueJob<IKudosNotificationService>(async notifier => await notifier.NotifyAboutKudosSentAsync(kudosDto));
                 await UpdateProfileKudosAsync(receivingUser, kudosLog);
             }
 

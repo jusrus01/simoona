@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.Infrastructure.FireAndForget;
@@ -64,6 +65,10 @@ namespace Shrooms.IoC.Modules
 
             builder.RegisterType<EfUnitOfWork>()
                 .As<IUnitOfWork>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<FireAndForgetScheduler>()
+                .As<IFireAndForgetScheduler>()
                 .InstancePerLifetimeScope();
         }
     }

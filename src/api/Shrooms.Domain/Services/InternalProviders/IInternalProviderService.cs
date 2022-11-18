@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.InternalProviders
 {
-    public interface IInternalProviderService
+    public interface IInternalProviderService//todo: handle verification
     {
         Task RegisterAsync(RegisterDto registerDto);
 

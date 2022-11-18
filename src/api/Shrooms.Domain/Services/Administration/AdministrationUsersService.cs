@@ -277,23 +277,7 @@ namespace Shrooms.Domain.Services.Administration
         {
             return (await _usersDbSet.FirstAsync(user => user.Id == userId)).IsTutorialComplete;
         }
-
-        public async Task AddProviderEmailAsync(string userId, string provider, string email)
-        {
-            var user = await _usersDbSet.FirstAsync(u => u.Id == userId);
-            if (provider == AuthenticationConstants.GoogleLoginProvider)
-            {
-                user.GoogleEmail = email;
-            }
-
-            if (provider == AuthenticationConstants.FacebookLoginProvider)
-            {
-                user.FacebookEmail = email;
-            }
-
-            await _uow.SaveChangesAsync(userId);
-        }
-
+        
         private static Expression<Func<ApplicationUser, IExcelRow>> MapUserToExcelRow()
         {
             return user => new ExcelRow

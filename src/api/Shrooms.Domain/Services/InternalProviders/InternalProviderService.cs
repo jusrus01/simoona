@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Email.InternalProviders;
@@ -12,31 +13,32 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.InternalProviders//TODO: refactor what is left, refactor ioc container, implement async runner, refactor more, figure out why log off happens...(test?)
+namespace Shrooms.Domain.Services.InternalProviders
 {
     public class InternalProviderService : IInternalProviderService
     {
         private readonly IApplicationUserManager _userManager;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IOrganizationService _organizationService;
-        private readonly IInternalProviderNotificationService _notificationService;
         private readonly IInternalProviderValidator _validator;
         private readonly ICookieService _cookieService;
+        private readonly IFireAndForgetScheduler _fireAndForgetScheduler;
 
         public InternalProviderService(
             IApplicationUserManager userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
-            IInternalProviderNotificationService notificationService,
-            IInternalProviderValidator validator)
+            IInternalProviderValidator validator,
+            IFireAndForgetScheduler fireAndForgetService)
         {
             _userManager = userManager;
             _tenantNameContainer = tenantNameContainer;
             _organizationService = organizationService;
             _cookieService = cookieService;
-            _notificationService = notificationService;
             _validator = validator;
+
+            _fireAndForgetScheduler = fireAndForgetService;
         }
 
         public async Task RegisterAsync(RegisterDto registerDto)
@@ -89,7 +91,7 @@ namespace Shrooms.Domain.Services.InternalProviders//TODO: refactor what is left
 
             await AddNewUserRolesAsync(newUser);
 
-            await SendConfirmationEmailAsync(newUser);
+            SendConfirmationEmail(newUser);
         }
 
         private async Task<ApplicationUser> RegisterUserAsync(RegisterDto registerDto)
@@ -139,13 +141,12 @@ namespace Shrooms.Domain.Services.InternalProviders//TODO: refactor what is left
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, registerDto.Password);
 
-            await SendConfirmationEmailAsync(user);
+            SendConfirmationEmail(user);
         }
 
-        private async Task SendConfirmationEmailAsync(ApplicationUser user)
+        private void SendConfirmationEmail(ApplicationUser user)
         {
-            // TODO: use async runner
-            await _notificationService.SendConfirmationEmailAsync(user);
+            _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendConfirmationEmailAsync(user));
         }
 
         private static ApplicationUser CreateNewApplicationUser(RegisterDto registerDto, Organization organization)

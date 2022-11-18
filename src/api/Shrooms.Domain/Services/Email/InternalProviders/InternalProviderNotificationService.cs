@@ -5,6 +5,7 @@ using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
+using System;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Email.InternalProviders

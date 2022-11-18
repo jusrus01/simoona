@@ -6,7 +6,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
 {
     public class ApplicationSignInManagerValidator : IApplicationSignInManagerValidator
     {
-        public void CheckIfSuccessfulLogin(SignInResult signInResult) // Q: is it fine to depend on external types?
+        public void CheckIfSuccessfulLogin(SignInResult signInResult)
         {
             if (!signInResult.Succeeded)
             {
