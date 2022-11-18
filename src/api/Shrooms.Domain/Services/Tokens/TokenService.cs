@@ -9,6 +9,7 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Users;
+using Shrooms.Domain.Extensions;
 using Shrooms.Domain.ServiceValidators.Validators.Organizations;
 using Shrooms.Infrastructure.FireAndForget;
 using System;
@@ -80,7 +81,9 @@ namespace Shrooms.Domain.Services.Tokens
             await _signInManager.ExternalLoginSignInAsync(externalLoginInfo);
 
             var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
-            var email = claimsIdentity.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+
+            var email = claimsIdentity.GetEmail();
+
             var user = await _userManager.FindByEmailAsync(email);
 
             return (await CreateTokenAsync(user)).AccessToken;
