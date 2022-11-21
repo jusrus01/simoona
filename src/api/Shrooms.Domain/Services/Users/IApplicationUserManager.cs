@@ -28,13 +28,13 @@ namespace Shrooms.Domain.Services.Users
 
         Task<string> GenerateEmailConfirmationTokenAsync(ApplicationUser user);
 
+        Task ResetPasswordAsync(ApplicationUser user, string token, string newPassword);
+
         Task AddLoginAsync(ApplicationUser user, ExternalLoginInfo externalLoginInfo);
 
         Task AddLoginAsync(ApplicationUser user, UserLoginInfo userLoginInfo);
 
         Task ConfirmEmailAsync(ApplicationUser user, string code);
-
-        Task AddToRoleAsync(ApplicationUser user, string role);
 
         Task CreateAsync(ApplicationUser user, string password);
 

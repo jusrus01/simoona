@@ -18,6 +18,7 @@ namespace Shrooms.Domain.Services.InternalProviders
     public class InternalProviderService : IInternalProviderService
     {
         private readonly IApplicationUserManager _userManager;
+        private readonly IApplicationRoleManager _roleManager;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IOrganizationService _organizationService;
         private readonly IInternalProviderValidator _validator;
@@ -26,6 +27,7 @@ namespace Shrooms.Domain.Services.InternalProviders
 
         public InternalProviderService(
             IApplicationUserManager userManager,
+            IApplicationRoleManager roleManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
             ICookieService cookieService,
@@ -33,6 +35,7 @@ namespace Shrooms.Domain.Services.InternalProviders
             IFireAndForgetScheduler fireAndForgetService)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _tenantNameContainer = tenantNameContainer;
             _organizationService = organizationService;
             _cookieService = cookieService;
@@ -57,12 +60,35 @@ namespace Shrooms.Domain.Services.InternalProviders
             }
         }
 
+        public async Task ResetPasswordAsync(ResetPasswordDto resetDto)
+        {
+            var user = await _userManager.FindByEmailAsync(resetDto.Email);
+            await _userManager.ResetPasswordAsync(user, resetDto.Code, resetDto.Password);
+        }
+
+        public async Task VerifyAsync(VerifyEmailDto verifyDto)
+        {
+            var user = await _userManager.FindByEmailAsync(verifyDto.Email);
+            await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
+        }
+
         public async Task<IEnumerable<ExternalLoginDto>> GetLoginsAsync()
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
             var hasProvider = _organizationService.HasProvider(organization, AuthenticationConstants.InternalLoginProvider);
-
             return GetLogins(hasProvider);
+        }
+
+        public async Task SetSignInCookieAsync()
+        {
+            await _cookieService.SetExternalCookieAsync();
+        }
+
+        public async Task SendPasswordResetEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendResetPasswordEmailAsync(user, token));
         }
 
         private static IList<ExternalLoginDto> GetLogins(bool hasProvider)
@@ -78,20 +104,12 @@ namespace Shrooms.Domain.Services.InternalProviders
                 new List<ExternalLoginDto>();
         }
 
-        public async Task SetSignInCookieAsync()
-        {
-            await _cookieService.SetExternalCookieAsync();
-        }
-
         private async Task RegisterNewUserAsync(RegisterDto registerDto)
         {
             var newUser = await RegisterUserAsync(registerDto);
-
             await AddInternalLoginAsync(newUser);
-
             await AddNewUserRolesAsync(newUser);
-
-            SendConfirmationEmail(newUser);
+            await SendVerificationEmailAsync(newUser);
         }
 
         private async Task<ApplicationUser> RegisterUserAsync(RegisterDto registerDto)
@@ -99,7 +117,6 @@ namespace Shrooms.Domain.Services.InternalProviders
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
 
             var newUser = CreateNewApplicationUser(registerDto, organization);
-
             await _userManager.CreateAsync(newUser, registerDto.Password);
 
             return newUser;
@@ -114,8 +131,8 @@ namespace Shrooms.Domain.Services.InternalProviders
 
         private async Task AddNewUserRolesAsync(ApplicationUser user)
         {
-            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.NewUser);
-            await _userManager.AddToRoleAsync(user, Contracts.Constants.Roles.FirstLogin);
+            await _roleManager.AddToRoleAsync(user, Contracts.Constants.Roles.NewUser);
+            await _roleManager.AddToRoleAsync(user, Contracts.Constants.Roles.FirstLogin);
         }
 
         private async Task AddInternalLoginAsync(ApplicationUser newUser)
@@ -141,12 +158,13 @@ namespace Shrooms.Domain.Services.InternalProviders
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, registerDto.Password);
 
-            SendConfirmationEmail(user);
+            await SendVerificationEmailAsync(user);
         }
 
-        private void SendConfirmationEmail(ApplicationUser user)
+        private async Task SendVerificationEmailAsync(ApplicationUser user)
         {
-            _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendConfirmationEmailAsync(user));
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendUserVerificationEmailAsync(user, token));
         }
 
         private static ApplicationUser CreateNewApplicationUser(RegisterDto registerDto, Organization organization)
@@ -165,6 +183,5 @@ namespace Shrooms.Domain.Services.InternalProviders
                 OrganizationId = organization.Id,
             };
         }
-
     }
 }

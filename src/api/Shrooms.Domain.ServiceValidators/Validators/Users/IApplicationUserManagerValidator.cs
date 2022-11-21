@@ -15,5 +15,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
         void CheckIfUserWasCreated(IdentityResult result);
 
         Task CheckPasswordAsync(ApplicationUser user, string password);
+
+        void CheckIfPasswordResetWasSuccesfull(IdentityResult identityResult);
     }
 }

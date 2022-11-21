@@ -85,29 +85,5 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
             var emailDto = new EmailDto(userAdministrationEmails, subject, body);
             await _mailService.SendEmailAsync(emailDto);
         }
-
-        public async Task SendUserResetPasswordEmailAsync(ApplicationUser user, string token, string organizationName)
-        {
-            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
-            var resetUrl = _applicationOptions.ResetPasswordUrl(organizationName, user.UserName, token);
-
-            var resetPasswordTemplateViewModel = new ResetPasswordTemplateViewModel(user.FullName, userSettingsUrl, resetUrl);
-            var subject = string.Format(Resources.Common.UserResetPasswordEmailSubject);
-            var content = _mailTemplate.Generate(resetPasswordTemplateViewModel);
-
-            await _mailService.SendEmailAsync(new EmailDto(user.Email, subject, content));
-        }
-
-        public async Task SendUserVerificationEmailAsync(ApplicationUser user, string token, string organizationName)
-        {
-            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationName);
-            var verifyUrl = _applicationOptions.VerifyEmailUrl(organizationName, user.UserName, token);
-
-            var verifyEmailTemplateViewModel = new VerifyEmailTemplateViewModel(user.FullName, userSettingsUrl, verifyUrl);
-            var subject = string.Format(Resources.Common.UserVerifyEmailSubject);
-            var content = _mailTemplate.Generate(verifyEmailTemplateViewModel);
-
-            await _mailService.SendEmailAsync(new EmailDto(user.Email, subject, content));
-        }
     }
 }

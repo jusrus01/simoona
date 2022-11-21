@@ -17,6 +17,7 @@ namespace Shrooms.Presentation.Api.BackgroundServices
         private readonly ILifetimeScope _lifetimeScope;
         private readonly IFireAndForgetJobQueue _jobQueue;
         private readonly ILogger _logger;
+
         private readonly ApplicationOptions _applicationOptions;
 
         public FireAndForgetBackgroundService(

@@ -9,10 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Shrooms.Domain.Services.Users
 {
-    public class ApplicationUserManager : IApplicationUserManager// Q: strict user manager for exceptions?
+    public class ApplicationUserManager : IApplicationUserManager
     {//TODO: figure out wether or not to add exceptions on all Task functions
         private readonly IApplicationUserManagerValidator _validator;
 
@@ -53,15 +54,14 @@ namespace Shrooms.Domain.Services.Users
         private async Task<ApplicationUser> FindUserByAsync(Func<string, Task<ApplicationUser>> findFunction, string param)
         {
             var user = await findFunction(param);
-
             _validator.CheckIfUserExists(user);
-
             return user;
         }
 
-        public Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+        public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
         {
-            return _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            return HttpUtility.UrlEncode(token);
         }
 
         public async Task<IList<string>> GetRolesAsync(ApplicationUser user)
@@ -72,45 +72,37 @@ namespace Shrooms.Domain.Services.Users
         public async Task AddLoginAsync(ApplicationUser user, ExternalLoginInfo externalLoginInfo)
         {
             var result = await _userManager.AddLoginAsync(user, externalLoginInfo);
-
             _validator.CheckIfLoginWasAdded(result);
         }
 
         public async Task AddLoginAsync(ApplicationUser user, UserLoginInfo userLoginInfo)
         {
             var result = await _userManager.AddLoginAsync(user, userLoginInfo);
-
             _validator.CheckIfLoginWasAdded(result);
         }
 
         public async Task ConfirmEmailAsync(ApplicationUser user, string code)
         {
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-
+            var decodedToken = HttpUtility.UrlDecode(code);
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
             _validator.CheckIfEmailWasConfirmed(result);
-        }
-
-        public async Task AddToRoleAsync(ApplicationUser user, string role)
-        {
-            await _userManager.AddToRoleAsync(user, role);
         }
 
         public async Task<string> GenerateEmailConfirmationTokenAsync(ApplicationUser user)
         {
-            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            return HttpUtility.UrlEncode(token);
         }
 
         public async Task CreateAsync(ApplicationUser user, string password)
         {
             var identityResult = await _userManager.CreateAsync(user, password);
-
             _validator.CheckIfUserWasCreated(identityResult);
         }
 
         public async Task<bool> HasExternalLoginAsync(ApplicationUser user)
         {
             var logins = await _userManager.GetLoginsAsync(user);
-
             return logins.Any(login => login.ProviderDisplayName != AuthenticationConstants.InternalLoginProvider);
         }
 
@@ -132,8 +124,14 @@ namespace Shrooms.Domain.Services.Users
         public async Task CreateAsync(ApplicationUser user)
         {
             var identityResult = await _userManager.CreateAsync(user);
-
             _validator.CheckIfUserWasCreated(identityResult);
+        }
+
+        public async Task ResetPasswordAsync(ApplicationUser user, string token, string newPassword)
+        {
+            var decodedToken = HttpUtility.UrlDecode(token);
+            var identityResult = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+            _validator.CheckIfPasswordResetWasSuccesfull(identityResult);
         }
 
         public async Task RemoveLoginAsync(ApplicationUser user, string provider, string providerKey)//TODO: validation
@@ -156,7 +154,6 @@ namespace Shrooms.Domain.Services.Users
         {
             var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1") // TODO: Change implementation
                 .SingleOrDefaultAsync();
-
             return softDeleteUser != null;
         }
 
@@ -165,9 +162,7 @@ namespace Shrooms.Domain.Services.Users
         {
             var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Id = {id}") // TODO: Change implementation
                 .SingleOrDefaultAsync();
-
             _validator.CheckIfUserExists(user);
-
             return user;
         }
 
@@ -175,9 +170,7 @@ namespace Shrooms.Domain.Services.Users
         {
             var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {email}") // TODO: Change implementation
                 .SingleOrDefaultAsync();
-
             _validator.CheckIfUserExists(user);
-
             return user;
         }
     }

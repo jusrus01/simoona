@@ -368,18 +368,6 @@ namespace Shrooms.Domain.Services.Administration
             };
         }
 
-        public async Task VerifyEmailAsync(VerifyEmailDto verifyDto)
-        {
-            var user = await _userManager.FindByEmailAsync(verifyDto.Email);
-
-            if (user == null)
-            {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User not found");
-            }
-
-            await _userManager.ConfirmEmailAsync(user, verifyDto.Code);
-        }
-
         private async Task SetWelcomeKudosAsync(ApplicationUser applicationUser)
         {
             //var welcomeKudosDto = await _kudosService.GetWelcomeKudosAsync();

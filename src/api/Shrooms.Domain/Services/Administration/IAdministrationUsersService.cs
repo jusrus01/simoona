@@ -26,7 +26,5 @@ namespace Shrooms.Domain.Services.Administration
         Task SendUserPasswordResetEmailAsync(string email);//export?
 
         Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);//export?
-
-        Task VerifyEmailAsync(VerifyEmailDto verifyDto);//export?
     }
 }

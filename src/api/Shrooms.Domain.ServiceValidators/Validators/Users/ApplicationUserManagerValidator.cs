@@ -31,6 +31,14 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
             }
         }
 
+        public void CheckIfPasswordResetWasSuccesfull(IdentityResult identityResult)
+        {
+            if (!identityResult.Succeeded)
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Failed to reset password");
+            }
+        }
+
         public void CheckIfUserExists(ApplicationUser user)
         {
             if (user == null)
