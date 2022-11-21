@@ -173,5 +173,17 @@ namespace Shrooms.Domain.Services.Users
             _validator.CheckIfUserExists(user);
             return user;
         }
+
+        public async Task<ApplicationUser> FindInternalByEmailAsync(string email)//Q: Should shared functionality be implemented with
+        //the use of private methods and not public or that does not matter?
+        // e.g. FindUserByAsync(_userManager.FindByEmailAsync, email); instead of public method.
+        {
+            var user = await FindUserByAsync(_userManager.FindByEmailAsync, email);
+            var logins = await _userManager.GetLoginsAsync(user);
+
+            _validator.CheckIfUserLoginsContainInternalLogin(logins);
+
+            return user;
+        }
     }
 }

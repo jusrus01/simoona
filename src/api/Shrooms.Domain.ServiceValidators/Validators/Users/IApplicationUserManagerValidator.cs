@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.DataLayer.EntityModels.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.Users
@@ -17,5 +18,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
         Task CheckPasswordAsync(ApplicationUser user, string password);
 
         void CheckIfPasswordResetWasSuccesfull(IdentityResult identityResult);
+
+        void CheckIfUserLoginsContainInternalLogin(IList<UserLoginInfo> logins);
     }
 }

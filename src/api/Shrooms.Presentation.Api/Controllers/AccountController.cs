@@ -96,7 +96,6 @@ namespace Shrooms.Presentation.Api
             }
         }
 
-        // Q: why do we redirect to client instead of api?
         [AllowAnonymous]
         [HttpPost("VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailViewModel verifyViewModel)
@@ -110,7 +109,7 @@ namespace Shrooms.Presentation.Api
             {
                 var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
 
-                await _administrationUsersService.VerifyEmailAsync(verifyDto);
+                await _internalProviderService.VerifyAsync(verifyDto);
 
                 return Ok();
             }
@@ -138,7 +137,6 @@ namespace Shrooms.Presentation.Api
             try
             {
                 var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
-                
                 var routeDto = new ControllerRouteDto
                 {
                     ControllerName = ControllerContext.ActionDescriptor.ControllerName,
@@ -203,7 +201,8 @@ namespace Shrooms.Presentation.Api
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> RequestPasswordReset(ForgotPasswordViewModel model)
+        [HttpPost("RequestPasswordReset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] ForgotPasswordViewModel forgotViewModel)
         {
             if (!ModelState.IsValid)
             {
@@ -212,8 +211,30 @@ namespace Shrooms.Presentation.Api
 
             try
             {
-                await _administrationUsersService.SendUserPasswordResetEmailAsync(model.Email);
-             
+                await _internalProviderService.SendPasswordResetEmailAsync(forgotViewModel.Email);
+
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequestWithError(ex);
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel resetViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var resetDto = _mapper.Map<ResetPasswordDto>(resetViewModel);
+                await _internalProviderService.ResetPasswordAsync(resetDto);
+                
                 return Ok();
             }
             catch (ValidationException ex)

@@ -2,11 +2,13 @@
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.Users
 {
-    public class ApplicationUserManagerValidator : IApplicationUserManagerValidator
+    public class ApplicationUserManagerValidator : IApplicationUserManagerValidator//TODO: Refactor
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -47,11 +49,20 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
             }
         }
 
+        public void CheckIfUserLoginsContainInternalLogin(IList<UserLoginInfo> logins)//Q: discuss conditional encapsulation
+        {
+            if (!logins.Any(login => login.LoginProvider == AuthenticationConstants.InternalLoginProvider))
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Could not find a valid provider for the account");
+            }
+        }
+
         public void CheckIfUserWasCreated(IdentityResult result)
         {
             if (!result.Succeeded)
             {
-                throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");
+                throw new ValidationException(ErrorCodes.Unspecified, "Failed to create user");//Q: Should these kind of methods be refactored with a common function that throws?
+                // and if they do, should they be exported to specific validator e.g. IdentityResultValidator (shared usage...)?
             }
         }
 

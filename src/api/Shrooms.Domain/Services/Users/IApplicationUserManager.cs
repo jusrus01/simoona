@@ -12,6 +12,8 @@ namespace Shrooms.Domain.Services.Users
 
         Task<ApplicationUser> FindByEmailAsync(string email);
 
+        Task<ApplicationUser> FindInternalByEmailAsync(string email);
+
         Task<ApplicationUser> FindByNameAsync(string userName);
 
         Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id);

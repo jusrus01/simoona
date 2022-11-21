@@ -62,7 +62,7 @@ namespace Shrooms.Domain.Services.InternalProviders
 
         public async Task ResetPasswordAsync(ResetPasswordDto resetDto)
         {
-            var user = await _userManager.FindByEmailAsync(resetDto.Email);
+            var user = await _userManager.FindInternalByEmailAsync(resetDto.Email);
             await _userManager.ResetPasswordAsync(user, resetDto.Code, resetDto.Password);
         }
 
@@ -86,7 +86,7 @@ namespace Shrooms.Domain.Services.InternalProviders
 
         public async Task SendPasswordResetEmailAsync(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindInternalByEmailAsync(email);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendResetPasswordEmailAsync(user, token));
         }
