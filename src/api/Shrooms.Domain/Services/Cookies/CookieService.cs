@@ -16,6 +16,11 @@ namespace Shrooms.Domain.Services.Cookies
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public async Task RemoveExternalCookieAsync()
+        {
+            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
         public async Task SetExternalCookieAsync()
         {
             var claimsIdentity = new ClaimsIdentity(

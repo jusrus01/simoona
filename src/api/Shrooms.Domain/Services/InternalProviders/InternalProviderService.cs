@@ -79,9 +79,14 @@ namespace Shrooms.Domain.Services.InternalProviders
             return GetLogins(hasProvider);
         }
 
-        public async Task SetSignInCookieAsync()
+        public async Task CookieSignInAsync()
         {
             await _cookieService.SetExternalCookieAsync();
+        }
+
+        public async Task CookieSignOutAsync()
+        {
+            await _cookieService.RemoveExternalCookieAsync();
         }
 
         public async Task SendPasswordResetEmailAsync(string email)

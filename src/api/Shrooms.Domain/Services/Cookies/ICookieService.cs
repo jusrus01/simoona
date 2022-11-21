@@ -5,5 +5,7 @@ namespace Shrooms.Domain.Services.Cookies
     public interface ICookieService
     {
         Task SetExternalCookieAsync();
+
+        Task RemoveExternalCookieAsync();
     }
 }

@@ -170,8 +170,6 @@ namespace Shrooms.Presentation.Api
             return Ok(externalLoginViewModels);
         }
 
-        private string? GetUserId(bool isLinkable) => isLinkable ? GetUserAndOrganization().UserId : null;
-
         /// <summary>
         /// Only responsible for providing a cookie that is used in StorageController
         /// </summary>
@@ -190,11 +188,11 @@ namespace Shrooms.Presentation.Api
 
             try
             {
-                await _internalProviderService.SetSignInCookieAsync();
+                await _internalProviderService.CookieSignInAsync();
 
                 return Ok();
             }
-            catch (ValidationException e)
+            catch (ValidationException e)// Q: Should this be extracted to middleware or something?
             {
                 return BadRequestWithError(e);
             }
@@ -242,5 +240,15 @@ namespace Shrooms.Presentation.Api
                 return BadRequestWithError(ex);
             }
         }
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _internalProviderService.CookieSignOutAsync();
+
+            return Ok();
+        }
+
+        private string? GetUserId(bool isLinkable) => isLinkable ? GetUserAndOrganization().UserId : null;//Q: is this fine?
     }
 }

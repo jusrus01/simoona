@@ -16,6 +16,8 @@ namespace Shrooms.Domain.Services.InternalProviders
 
         Task<IEnumerable<ExternalLoginDto>> GetLoginsAsync();
 
-        Task SetSignInCookieAsync();
+        Task CookieSignInAsync();
+
+        Task CookieSignOutAsync();
     }
 }
