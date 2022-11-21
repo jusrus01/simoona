@@ -4,6 +4,6 @@
     {
         void EnqueueJob(IFireAndForgetJob job);
 
-        IFireAndForgetJob DequeueJob();
+        bool TryDequeueJob(out IFireAndForgetJob job);
     }
 }

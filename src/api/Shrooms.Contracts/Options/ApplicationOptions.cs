@@ -27,6 +27,8 @@ namespace Shrooms.Contracts.Options
 
         public string ContentRootPath { get; set; }
 
+        public int WaitBeforeEachBackgroundJobMilliseconds { get; set; }
+
         //public bool IsEmailEnabled => bool.Parse(ConfigurationManager.AppSettings["EmailEnabled"]);
 
         //public int DefaultOrganizationId => int.Parse(ConfigurationManager.AppSettings["DefaultOrganizationId"]);

@@ -6,10 +6,10 @@ namespace Shrooms.Infrastructure.FireAndForget
 {
     public class FireAndForgetScheduler : IFireAndForgetScheduler
     {
-        private readonly FireAndForgetJobQueue _jobQueue;
+        private readonly IFireAndForgetJobQueue _jobQueue;
         private readonly ITenantNameContainer _tenantNameContainer;
 
-        public FireAndForgetScheduler(ITenantNameContainer tenantNameContainer, FireAndForgetJobQueue jobQueue)
+        public FireAndForgetScheduler(ITenantNameContainer tenantNameContainer, IFireAndForgetJobQueue jobQueue)
         {
             _tenantNameContainer = tenantNameContainer;
             _jobQueue = jobQueue;

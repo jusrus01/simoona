@@ -59,11 +59,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.Logger;
 using Shrooms.IoC;
 using Shrooms.Presentation.Api.BackgroundServices;
 using Shrooms.Presentation.Api.Configurations;
@@ -196,6 +198,7 @@ namespace Shrooms.Presentation.Api
             // Some of the registration has to be done here,
             // because Shrooms.IoC does not have reference to
             // Shrooms.Presentation.Api services e.g. background jobs
+            services.AddSingleton<ILogger, Logger>();
             services.AddSingleton<IFireAndForgetJobQueue, FireAndForgetJobQueue>();
             services.AddHostedService<FireAndForgetBackgroundService>();
 

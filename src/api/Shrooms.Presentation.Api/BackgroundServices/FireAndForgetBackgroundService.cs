@@ -2,6 +2,7 @@
 using Autofac.Core.Lifetime;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.Infrastructure.FireAndForget;
@@ -11,20 +12,21 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.BackgroundServices
 {
-    public class FireAndForgetBackgroundService : BackgroundService//TODO: read backgorund service
+    public class FireAndForgetBackgroundService : BackgroundService
     {
         private readonly ILifetimeScope _lifetimeScope;
         private readonly IFireAndForgetJobQueue _jobQueue;
-
+        private readonly ILogger _logger;
         private readonly ApplicationOptions _applicationOptions;
 
         public FireAndForgetBackgroundService(
             IOptions<ApplicationOptions> applicationOptions,
             ILifetimeScope lifetimeScope,
-            IFireAndForgetJobQueue jobQueue)
+            IFireAndForgetJobQueue jobQueue,
+            ILogger logger)
         {
             _applicationOptions = applicationOptions.Value;
-
+            _logger = logger;
             _lifetimeScope = lifetimeScope;
             _jobQueue = jobQueue;
         }
@@ -33,11 +35,9 @@ namespace Shrooms.Presentation.Api.BackgroundServices
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var job = _jobQueue.DequeueJob();
-
-                if (job == null)
+                if (!_jobQueue.TryDequeueJob(out var job))
                 {
-                    await Task.Delay(10000, stoppingToken);
+                    await Task.Delay(_applicationOptions.WaitBeforeEachBackgroundJobMilliseconds, stoppingToken);
 
                     continue;
                 }
@@ -48,7 +48,7 @@ namespace Shrooms.Presentation.Api.BackgroundServices
                 {
                     scope = _lifetimeScope.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag, builder =>
                     {
-                        builder.RegisterInstance(new TenantNameContainer(job.TenantName))// TODO: Test this
+                        builder.RegisterInstance(new TenantNameContainer(job.TenantName))
                             .As<ITenantNameContainer>()
                             .SingleInstance();
                     });
@@ -59,7 +59,7 @@ namespace Shrooms.Presentation.Api.BackgroundServices
                 }
                 catch (Exception e)
                 {
-                    // TODO: Log error
+                    _logger.Error(e);
                 }
                 finally
                 {

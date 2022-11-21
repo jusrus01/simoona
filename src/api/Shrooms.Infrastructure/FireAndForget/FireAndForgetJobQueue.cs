@@ -12,14 +12,9 @@ namespace Shrooms.Infrastructure.FireAndForget
             _jobs.Enqueue(job);
         }
 
-        public IFireAndForgetJob DequeueJob()//TODO: clean up before commit
+        public bool TryDequeueJob(out IFireAndForgetJob job)
         {
-            if (_jobs.TryDequeue(out IFireAndForgetJob job))
-            {
-                return job;
-            }
-
-            return null;
+            return _jobs.TryDequeue(out job);
         }
     }
 }
