@@ -1,123 +1,140 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Shrooms.Authentication.Constants;
 using Shrooms.Contracts.Constants;
-using Shrooms.Contracts.Options;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Infrastructure.FireAndForget;
-using System;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Shrooms.Authentication.Handlers.Validators;
+using Shrooms.Authentication.Handlers.Extractors;
 
 namespace Shrooms.Authentification.Handlers
 {
-    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        private readonly BasicAuthenticationOptions _basicOptions;
         private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IBasicAuhenticationValidator _validator;
 
         public BasicAuthenticationHandler(
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            IOptions<BasicAuthenticationOptions> basicOptions,
             IOrganizationService organizationService,
-            ITenantNameContainer tenantNameContainer)
+            ITenantNameContainer tenantNameContainer,
+            IBasicAuhenticationValidator validator)
             :
             base(options, logger, encoder, clock)
         {
-            _basicOptions = basicOptions.Value;
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
+            _validator = validator;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var endpoint = Context.GetEndpoint();
 
-            if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+            if (_validator.CheckIfEndpointIsAnonymous(endpoint))
             {
-                return AuthenticateResult.NoResult();
+                return NoAuthenticationWasMadeResult();
             }
 
-            if (!Request.Headers.ContainsKey("Authorization"))
+            if (!_validator.CheckIfRequestContainsAuthorizationHeader(Request))
             {
-                return AuthenticateResult.Fail("No authentication was attempted");
+                return NoAuthenticationAttemptedResult();
             }
 
-            if (!AuthenticationHeaderValue.TryParse(Request.Headers["Authorization"], out var authorizationHeader))
+            var authorizationHeader = ExtractAuthorizationHeaderValue();
+
+            if (!_validator.CheckIfAuthorizationHeaderIsValid(authorizationHeader))
             {
-                return AuthenticateResult.Fail("Invalid Authorization Header");
+                return InvalidAuthorizationHeaderResult();
             }
 
-            var basicSchemeName = AuthenticationSchemes.Basic.ToString();
-
-            if (authorizationHeader.Scheme != basicSchemeName)
+            if (!_validator.CheckIfSchemeIsBasic(authorizationHeader))
             {
-                return AuthenticateResult.Fail("No authentication was attempted");
+                return NoAuthenticationAttemptedResult();
             }
 
-            if (authorizationHeader.Parameter == null)
+            if (!_validator.CheckIfHeaderContainsCredentials(authorizationHeader))
             {
-                return AuthenticateResult.Fail("No authentication was attempted");
+                return NoAuthenticationAttemptedResult();
             }
 
-            var credentials = ExtractCredentials(authorizationHeader);
+            var credentials = BasicCredentialsExtractor.ExtractCredentials(authorizationHeader);
 
-            var username = credentials.Item1;
-            var password = credentials.Item2;
-
-            if (username == null || password == null)
+            if (!_validator.CheckIfAllCredentialsAreGiven(credentials))
             {
-                return AuthenticateResult.Fail("No authentication was attempted");
+                return NoAuthenticationAttemptedResult();
             }
 
-            if (!AreCredentialsValid(username, password) ||
-                !await _organizationService.HasOrganizationAsync(_tenantNameContainer.TenantName))
+            if (!_validator.CheckIfCredentialsAreValid(credentials) || !await RequiredOrganizationExists())
             {
-                return AuthenticateResult.Fail("Invalid credentials");
+                return InvalidCredentialsResult();
             }
 
-            return AuthenticateResult.Success(CreateTicket(basicSchemeName));
+            return SuccessResult(authorizationHeader);
+        }
+
+        private AuthenticateResult SuccessResult(AuthenticationHeaderValue header)
+        {
+            return AuthenticateResult.Success(CreateTicket(header.Scheme));
+        }
+
+        private Task<bool> RequiredOrganizationExists()
+        {
+            return _organizationService.HasOrganizationAsync(_tenantNameContainer.TenantName);
+        }
+
+        private static AuthenticateResult InvalidCredentialsResult()
+        {
+            return AuthenticateResult.Fail("Invalid credentials");
+        }
+
+        private static AuthenticateResult InvalidAuthorizationHeaderResult()
+        {
+            return AuthenticateResult.Fail("Invalid Authorization Header");
+        }
+
+        private static AuthenticateResult NoAuthenticationWasMadeResult()
+        {
+            return AuthenticateResult.NoResult();
+        }
+
+        private static AuthenticateResult NoAuthenticationAttemptedResult()
+        {
+            return AuthenticateResult.Fail("No authentication was attempted");
+        }
+
+        private AuthenticationHeaderValue ExtractAuthorizationHeaderValue()
+        {
+            if (AuthenticationHeaderValue.TryParse(Request.Headers["Authorization"], out var authorizationHeader))
+            {
+                return authorizationHeader;
+            }
+         
+            return null;
         }
 
         private AuthenticationTicket CreateTicket(string schemeName)
         {
             var claims = new[]
             {
-                new Claim("name", "app"),
-                new Claim("role", "scheduler-webhook"),
+                new Claim(ClaimTypes.Role, AuthenticationClaims.DefaultBasicAuthenticationRoleValue),
                 new Claim(WebApiConstants.ClaimOrganizationName, _tenantNameContainer.TenantName)
             };
 
-            var identity = new ClaimsIdentity(claims, "Basic", "name", "role");
+            var identity = new ClaimsIdentity(claims, AuthenticationConstants.BasicScheme);
             var principal = new ClaimsPrincipal(identity);
             
             return new AuthenticationTicket(principal, schemeName);
-        }
-
-        private static (string, string) ExtractCredentials(AuthenticationHeaderValue header)
-        {
-            var credentialBytes = Convert.FromBase64String(header.Parameter);
-            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(new[] { ':' }, 2);
-
-            var username = credentials[0];
-            var password = credentials[1];
-
-            return (username, password);
-        }
-
-        private bool AreCredentialsValid(string username, string password)
-        {
-            return username == _basicOptions.UserName && password == _basicOptions.Password;
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Shrooms.Presentation.Api.Configurations
         public static ApplicationOptions AddOptions(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
         {
             var applicationOptions = configuration.Get<ApplicationOptions>();
-
             applicationOptions.ApiUrl = configuration[WebApiConstants.ConfigurationApiUrlKey];
 
             services.Configure<ApplicationOptions>(configuration);
@@ -25,13 +24,12 @@ namespace Shrooms.Presentation.Api.Configurations
                 // Creating case-insensitive dictionary
                 options.ConnectionStrings = new ConcurrentDictionary<string, string>(options.ConnectionStrings, StringComparer.InvariantCultureIgnoreCase);
             });
-
-            services.Configure<BasicAuthenticationOptions>(options => options = applicationOptions.Authentication.Basic);
-            services.Configure<GoogleAuthenticationOptions>(options => options = applicationOptions.Authentication.Google);
-            services.Configure<JwtAuthenticationOptions>(options => options = applicationOptions.Authentication.Jwt);
-            services.Configure<ShroomsAuthenticationOptions>(options => options = applicationOptions.Authentication);
-            services.Configure<MailOptions>(options => options = applicationOptions.MailSettings);
-
+            services.Configure<BasicAuthenticationOptions>(configuration.GetSection("Authentication:Basic"));
+            services.Configure<GoogleAuthenticationOptions>(configuration.GetSection("Authentication:Google"));
+            services.Configure<JwtAuthenticationOptions>(configuration.GetSection("Authentication:Jwt"));
+            services.Configure<ShroomsAuthenticationOptions>(configuration.GetSection("Authentication"));
+            services.Configure<MailOptions>(configuration.GetSection("MailSettings"));
+            
             return applicationOptions;
         }
     }
