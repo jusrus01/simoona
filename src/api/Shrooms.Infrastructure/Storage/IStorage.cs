@@ -11,5 +11,7 @@ namespace Shrooms.Infrastructure.Storage
         Task UploadPictureAsync(Stream stream, string blobKey, string mimeType, string tenantPicturesContainer);
 
         Task RemovePictureAsync(string blobKey, string tenantPicturesContainer);
+
+        Task<byte[]> GetPictureAsync(string blobKey, string tenantPicturesContainer);
     }
 }

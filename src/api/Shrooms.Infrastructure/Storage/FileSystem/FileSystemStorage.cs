@@ -58,6 +58,12 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
             await stream.CopyToAsync(destinationStream);
         }
 
+        public async Task<byte[]> GetPictureAsync(string blobKey, string tenantPicturesContainer)
+        {
+            var filePath = GetStorageFilePath(GetStorageFolderPath(tenantPicturesContainer), blobKey);
+            return await File.ReadAllBytesAsync(filePath);
+        }
+
         private string GetStorageFolderPath(string tenantName) => $"{_applicationOptions.ContentRootPath}/{LocalPictureFolderName}/{tenantName}";
 
         private static string GetStorageFilePath(string storagePath, string blobKey) => $"{storagePath}/{blobKey}";

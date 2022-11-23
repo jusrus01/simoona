@@ -70,5 +70,9 @@
         public const int BasicNotAttemped = 1701;
         public const int BasicInvalidCredentials = 1702;
         public const int BasicInvalidHeader = 1703;
+
+        // Pictures, 18**
+        public const int PictureFileWithoutExtension = 1800;
+        public const int PictureInvalidExtensionProvided = 1801;
     }
 }
