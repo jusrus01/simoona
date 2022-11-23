@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.ExternalProviders;
 using Shrooms.Domain.Services.InternalProviders;
@@ -48,52 +47,27 @@ namespace Shrooms.Presentation.Api
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
-
-                await _internalProviderService.RegisterAsync(registerDto);
-
-                return Ok();
-            }
-            catch (ValidationException e)
-            {
-                return BadRequestWithError(e);
-            }
+            var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
+            await _internalProviderService.RegisterAsync(registerDto);
+            return Ok();
         }
 
         [Authorize]
         [HttpGet("UserInfo")]
         public async Task<IActionResult> GetUserInfo()
         {
-            try
-            {
-                var userInfoDto = await _administrationUsersService.GetUserInfoAsync(User.Identity);
-                var userInfoViewModel = _mapper.Map<LoggedInUserInfoViewModel>(userInfoDto);
-
-                return Ok(userInfoViewModel);
-            }
-            catch (ValidationException e)
-            {
-                return BadRequestWithError(e);
-            }
+            var userInfoDto = await _administrationUsersService.GetUserInfoAsync(User.Identity);
+            var userInfoViewModel = _mapper.Map<LoggedInUserInfoViewModel>(userInfoDto);
+            return Ok(userInfoViewModel);
         }
 
         [AllowAnonymous]
         [HttpGet("InternalLogins")]
         public async Task<IActionResult> GetInternalLogins()
         {
-            try
-            {
-                var loginDtos = await _internalProviderService.GetLoginsAsync();
-                var loginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(loginDtos);
-
-                return Ok(loginViewModels);
-            }
-            catch (ValidationException e)
-            {
-                return BadRequestWithError(e);
-            }
+            var loginDtos = await _internalProviderService.GetLoginsAsync();
+            var loginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(loginDtos);
+            return Ok(loginViewModels);
         }
 
         [AllowAnonymous]
@@ -105,18 +79,9 @@ namespace Shrooms.Presentation.Api
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
-
-                await _internalProviderService.VerifyAsync(verifyDto);
-
-                return Ok();
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequestWithError(ex);
-            }
+            var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
+            await _internalProviderService.VerifyAsync(verifyDto);
+            return Ok();
         }
 
         /// <summary>
@@ -134,23 +99,15 @@ namespace Shrooms.Presentation.Api
                 return BadRequest(ModelState);
             }
 
-            try
+            var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
+            var routeDto = new ControllerRouteDto
             {
-                var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
-                var routeDto = new ControllerRouteDto
-                {
-                    ControllerName = ControllerContext.ActionDescriptor.ControllerName,
-                    ActionName = ControllerContext.ActionDescriptor.ActionName
-                };
+                ControllerName = ControllerContext.ActionDescriptor.ControllerName,
+                ActionName = ControllerContext.ActionDescriptor.ActionName
+            };
 
-                var externalProviderResult = await _externalProviderService.ExternalLoginOrRegisterAsync(requestDto, routeDto);
-
-                return externalProviderResult.ToActionResult(this);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequestWithError(ex);
-            }
+            var externalProviderResult = await _externalProviderService.ExternalLoginOrRegisterAsync(requestDto, routeDto);
+            return externalProviderResult.ToActionResult(this);
         }
 
         [AllowAnonymous]
@@ -164,9 +121,7 @@ namespace Shrooms.Presentation.Api
             };
 
             var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(redirectRouteDto, returnUrl, GetUserId(isLinkable));
-
             var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
-
             return Ok(externalLoginViewModels);
         }
 
@@ -186,16 +141,8 @@ namespace Shrooms.Presentation.Api
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                await _internalProviderService.CookieSignInAsync();
-
-                return Ok();
-            }
-            catch (ValidationException e)// Q: Should this be extracted to middleware or something?
-            {
-                return BadRequestWithError(e);
-            }
+            await _internalProviderService.CookieSignInAsync();
+            return Ok();
         }
 
         [AllowAnonymous]
@@ -207,16 +154,8 @@ namespace Shrooms.Presentation.Api
                 return BadRequest();
             }
 
-            try
-            {
-                await _internalProviderService.SendPasswordResetEmailAsync(forgotViewModel.Email);
-
-                return Ok();
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequestWithError(ex);
-            }
+            await _internalProviderService.SendPasswordResetEmailAsync(forgotViewModel.Email);
+            return Ok();
         }
 
         [AllowAnonymous]
@@ -228,24 +167,15 @@ namespace Shrooms.Presentation.Api
                 return BadRequest();
             }
 
-            try
-            {
-                var resetDto = _mapper.Map<ResetPasswordDto>(resetViewModel);
-                await _internalProviderService.ResetPasswordAsync(resetDto);
-                
-                return Ok();
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequestWithError(ex);
-            }
+            var resetDto = _mapper.Map<ResetPasswordDto>(resetViewModel);
+            await _internalProviderService.ResetPasswordAsync(resetDto);
+            return Ok();
         }
 
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
             await _internalProviderService.CookieSignOutAsync();
-
             return Ok();
         }
 

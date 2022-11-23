@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shrooms.Contracts.DataTransferObjects.Models.Tokens;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Presentation.WebViewModels.Models.Tokens;
 using System.Threading.Tasks;
@@ -31,18 +30,11 @@ namespace Shrooms.Presentation.Api.Controllers
                 return BadRequest();
             }
 
-            try
-            {
-                var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
-                var reponseDto = await _tokenService.GetTokenAsync(requestDto);
-                var responseViewModel = _mapper.Map<TokenResponseViewModel>(reponseDto);
+            var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
+            var reponseDto = await _tokenService.GetTokenAsync(requestDto);
+            var responseViewModel = _mapper.Map<TokenResponseViewModel>(reponseDto);
 
-                return Ok(responseViewModel);
-            }
-            catch (ValidationException e)
-            {
-                return BadRequestWithError(e);
-            }
+            return Ok(responseViewModel);
         }
     }
 }
