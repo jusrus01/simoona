@@ -70,6 +70,7 @@ using Shrooms.IoC;
 using Shrooms.Presentation.Api.BackgroundServices;
 using Shrooms.Presentation.Api.Configurations;
 using Shrooms.Presentation.Api.GeneralCode.SerializationIgnorer;
+using Shrooms.Presentation.Api.GlobalFilters;
 using Shrooms.Presentation.Api.Middlewares;
 using System;
 using System.Security.Claims;
@@ -209,7 +210,10 @@ namespace Shrooms.Presentation.Api
                 options.AddStoragePolicy();
             });
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add<GlobalModelStateValidationFilter>();
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -25,11 +25,6 @@ namespace Shrooms.Presentation.Api.Controllers
         [Consumes("application/x-www-form-urlencoded")]
         public async Task<IActionResult> GetToken([FromForm] TokenRequestViewModel requestViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
             var reponseDto = await _tokenService.GetTokenAsync(requestDto);
             var responseViewModel = _mapper.Map<TokenResponseViewModel>(reponseDto);

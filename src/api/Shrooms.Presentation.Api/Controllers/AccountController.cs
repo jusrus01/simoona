@@ -42,11 +42,6 @@ namespace Shrooms.Presentation.Api
         [Route("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterViewModel registerViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
             await _internalProviderService.RegisterAsync(registerDto);
             return Ok();
@@ -74,11 +69,6 @@ namespace Shrooms.Presentation.Api
         [HttpPost("VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailViewModel verifyViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
             await _internalProviderService.VerifyAsync(verifyDto);
             return Ok();
@@ -94,11 +84,6 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogin")]
         public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
             var routeDto = new ControllerRouteDto
             {
@@ -136,11 +121,6 @@ namespace Shrooms.Presentation.Api
         public async Task<IActionResult> SetSignInCookie([FromBody] LoginViewModel loginViewModel)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             await _internalProviderService.CookieSignInAsync();
             return Ok();
         }
@@ -149,11 +129,6 @@ namespace Shrooms.Presentation.Api
         [HttpPost("RequestPasswordReset")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] ForgotPasswordViewModel forgotViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             await _internalProviderService.SendPasswordResetEmailAsync(forgotViewModel.Email);
             return Ok();
         }
@@ -162,11 +137,6 @@ namespace Shrooms.Presentation.Api
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel resetViewModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var resetDto = _mapper.Map<ResetPasswordDto>(resetViewModel);
             await _internalProviderService.ResetPasswordAsync(resetDto);
             return Ok();
