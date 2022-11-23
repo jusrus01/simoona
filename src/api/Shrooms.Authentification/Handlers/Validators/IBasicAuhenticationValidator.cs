@@ -5,18 +5,20 @@ namespace Shrooms.Authentication.Handlers.Validators
 {
     public interface IBasicAuhenticationValidator
     {
-        bool CheckIfAllCredentialsAreGiven((string, string) credentials);
-        
-        bool CheckIfCredentialsAreValid((string, string) credentials);
+        void CheckIfAllCredentialsAreGiven((string, string) credentials);
 
-        bool CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header);
+        void CheckIfCredentialsAreValid((string, string) credentials);
 
-        bool CheckIfEndpointIsAnonymous(Endpoint endpoint);
+        void CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header);
 
-        bool CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header);
-        
-        bool CheckIfRequestContainsAuthorizationHeader(HttpRequest request);
+        void CheckIfEndpointIsAuthorized(Endpoint endpoint);
 
-        bool CheckIfSchemeIsBasic(AuthenticationHeaderValue header);
+        void CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header);
+
+        void CheckIfRequestContainsAuthorizationHeader(HttpRequest request);
+
+        void CheckIfSchemeIsBasic(AuthenticationHeaderValue header);
+
+        void CheckIfRequiredOrganizationExists(bool exists);
     }
 }

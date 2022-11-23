@@ -64,5 +64,11 @@
 
         // Service requests, 16**
         public const int InvalidCategoryChange = 1600;
+
+        // Basic authentication, 17**
+        public const int BasicNoResult = 1700;
+        public const int BasicNotAttemped = 1701;
+        public const int BasicInvalidCredentials = 1702;
+        public const int BasicInvalidHeader = 1703;
     }
 }

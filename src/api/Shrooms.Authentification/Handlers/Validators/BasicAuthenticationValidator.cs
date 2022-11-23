@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Options;
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace Shrooms.Authentication.Handlers.Validators//Q: Would it have been a better idea to create multiple Exceptions and then return result in try/catch block?
+namespace Shrooms.Authentication.Handlers.Validators
 {
     public class BasicAuthenticationValidator : IBasicAuhenticationValidator
     {
@@ -16,47 +18,70 @@ namespace Shrooms.Authentication.Handlers.Validators//Q: Would it have been a be
             _basicOptions = basicOptions.Value;
         }
 
-        public bool CheckIfEndpointIsAnonymous(Endpoint endpoint)
+        public void CheckIfEndpointIsAuthorized(Endpoint endpoint)
         {
-            return endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null;
+            if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+            {
+                throw new ValidationException(ErrorCodes.BasicNoResult);
+            }
         }
 
-        public bool CheckIfRequestContainsAuthorizationHeader(HttpRequest request)
+        public void CheckIfRequestContainsAuthorizationHeader(HttpRequest request)
         {
-            return request.Headers.ContainsKey("Authorization");
+            if (!request.Headers.ContainsKey("Authorization"))
+            {
+                throw new ValidationException(ErrorCodes.BasicNotAttemped);
+            }
         }
 
-        public bool CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header)
+        public void CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header)
         {
-            return header != null;
+            if (header == null)
+            {
+                throw new ValidationException(ErrorCodes.BasicInvalidHeader);
+            }
         }
 
-        public bool CheckIfSchemeIsBasic(AuthenticationHeaderValue header)
+        public void CheckIfSchemeIsBasic(AuthenticationHeaderValue header)
         {
             var basicSchemeName = AuthenticationSchemes.Basic.ToString();
 
-            return header.Scheme == basicSchemeName;
+            if (header.Scheme != basicSchemeName)
+            {
+                throw new ValidationException(ErrorCodes.BasicNotAttemped);
+            }
         }
 
-        public bool CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header)
+        public void CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header)
         {
-            return header.Parameter != null;
+            if (header.Parameter == null)
+            {
+                throw new ValidationException(ErrorCodes.BasicNotAttemped);
+            }
         }
 
-        public bool CheckIfAllCredentialsAreGiven((string, string) credentials)
+        public void CheckIfAllCredentialsAreGiven((string, string) credentials)
         {
-            var username = credentials.Item1;
-            var password = credentials.Item2;
-
-            return username != null && password != null;
+            if (credentials.Item1 == null || credentials.Item2 == null)
+            {
+                throw new ValidationException(ErrorCodes.BasicNotAttemped);
+            }
         }
 
-        public bool CheckIfCredentialsAreValid((string, string) credentials)
+        public void CheckIfCredentialsAreValid((string, string) credentials)
         {
-            var username = credentials.Item1;
-            var password = credentials.Item2;
+            if (credentials.Item1 != _basicOptions.UserName || credentials.Item2 != _basicOptions.Password)
+            {
+                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
+            }
+        }
 
-            return username == _basicOptions.UserName && password == _basicOptions.Password;
+        public void CheckIfRequiredOrganizationExists(bool exists)
+        {
+            if (!exists)
+            {
+                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
+            }
         }
     }
 }

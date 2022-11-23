@@ -12,6 +12,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Shrooms.Authentication.Handlers.Validators;
 using Shrooms.Authentication.Handlers.Extractors;
+using Shrooms.Contracts.Exceptions;
 
 namespace Shrooms.Authentification.Handlers
 {
@@ -39,58 +40,66 @@ namespace Shrooms.Authentification.Handlers
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            var endpoint = Context.GetEndpoint();
-
-            if (_validator.CheckIfEndpointIsAnonymous(endpoint))
+            try
             {
-                return NoAuthenticationWasMadeResult();
-            }
+                ValidateEndpoint();
 
-            if (!_validator.CheckIfRequestContainsAuthorizationHeader(Request))
+                var authorizationHeader = ExtractAuthorizationHeaderValue();
+                ValidateAuthorizationHeader(authorizationHeader);
+
+                var credentials = BasicCredentialsExtractor.ExtractCredentials(authorizationHeader);
+                ValidateCredentials(credentials);
+
+                await ValidateRequiredOrganizationAsync();
+
+                return SuccessResult(authorizationHeader);
+            }
+            catch (ValidationException ex)
             {
-                return NoAuthenticationAttemptedResult();
+                return GetValidationErrorResult(ex);
             }
+        }
 
-            var authorizationHeader = ExtractAuthorizationHeaderValue();
+        private async Task ValidateRequiredOrganizationAsync()
+        {
+            var exists = await _organizationService.HasOrganizationAsync(_tenantNameContainer.TenantName);
+            _validator.CheckIfRequiredOrganizationExists(exists);
+        }
 
-            if (!_validator.CheckIfAuthorizationHeaderIsValid(authorizationHeader))
+        private void ValidateCredentials((string, string) credentials)
+        {
+            _validator.CheckIfAllCredentialsAreGiven(credentials);
+            _validator.CheckIfCredentialsAreValid(credentials);
+        }
+
+        private void ValidateEndpoint()
+        {
+            _validator.CheckIfEndpointIsAuthorized(Context.GetEndpoint());
+            _validator.CheckIfRequestContainsAuthorizationHeader(Request);
+        }
+
+        private void ValidateAuthorizationHeader(AuthenticationHeaderValue header)
+        {
+            _validator.CheckIfAuthorizationHeaderIsValid(header);
+            _validator.CheckIfSchemeIsBasic(header);
+            _validator.CheckIfHeaderContainsCredentials(header);
+        }
+
+        private static AuthenticateResult GetValidationErrorResult(ValidationException ex)
+        {
+            return ex.ErrorCode switch
             {
-                return InvalidAuthorizationHeaderResult();
-            }
-
-            if (!_validator.CheckIfSchemeIsBasic(authorizationHeader))
-            {
-                return NoAuthenticationAttemptedResult();
-            }
-
-            if (!_validator.CheckIfHeaderContainsCredentials(authorizationHeader))
-            {
-                return NoAuthenticationAttemptedResult();
-            }
-
-            var credentials = BasicCredentialsExtractor.ExtractCredentials(authorizationHeader);
-
-            if (!_validator.CheckIfAllCredentialsAreGiven(credentials))
-            {
-                return NoAuthenticationAttemptedResult();
-            }
-
-            if (!_validator.CheckIfCredentialsAreValid(credentials) || !await RequiredOrganizationExists())
-            {
-                return InvalidCredentialsResult();
-            }
-
-            return SuccessResult(authorizationHeader);
+                ErrorCodes.BasicInvalidCredentials => InvalidCredentialsResult(),
+                ErrorCodes.BasicNoResult => NoAuthenticationWasMadeResult(),
+                ErrorCodes.BasicInvalidHeader => InvalidAuthorizationHeaderResult(),
+                ErrorCodes.BasicNotAttemped => NoAuthenticationAttemptedResult(),
+                _ => NoAuthenticationAttemptedResult()
+            };
         }
 
         private AuthenticateResult SuccessResult(AuthenticationHeaderValue header)
         {
             return AuthenticateResult.Success(CreateTicket(header.Scheme));
-        }
-
-        private Task<bool> RequiredOrganizationExists()
-        {
-            return _organizationService.HasOrganizationAsync(_tenantNameContainer.TenantName);
         }
 
         private static AuthenticateResult InvalidCredentialsResult()
@@ -130,7 +139,6 @@ namespace Shrooms.Authentification.Handlers
                 new Claim(ClaimTypes.Role, AuthenticationClaims.DefaultBasicAuthenticationRoleValue),
                 new Claim(WebApiConstants.ClaimOrganizationName, _tenantNameContainer.TenantName)
             };
-
             var identity = new ClaimsIdentity(claims, AuthenticationConstants.BasicScheme);
             var principal = new ClaimsPrincipal(identity);
             

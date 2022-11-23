@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Shrooms.Authentication.Handlers.Extractors
 {
-    public static class BasicCredentialsExtractor//Q: should i use DI for these kind of classes as well? (if there were instance members used...)
+    public static class BasicCredentialsExtractor
     {
         private const int CredentialsSplitCount = 2;
         private const char CredentialsSeparator = ':';
