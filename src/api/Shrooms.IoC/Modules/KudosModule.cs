@@ -11,7 +11,7 @@ namespace Shrooms.IoC.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<KudosServiceValidator>().As<IKudosServiceValidator>().InstancePerLifetimeScope();
-            builder.RegisterType<KudosService>().As<IKudosService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
+            //builder.RegisterType<KudosService>().As<IKudosService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<KudosExportService>().As<IKudosExportService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<KudosNotificationService>().As<IKudosNotificationService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
         }

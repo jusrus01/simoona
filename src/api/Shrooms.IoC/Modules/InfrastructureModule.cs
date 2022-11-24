@@ -7,9 +7,6 @@ using Shrooms.Infrastructure.Email.Templates;
 using Shrooms.Infrastructure.ExcelGenerator;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
-using Shrooms.Infrastructure.Storage;
-using Shrooms.Infrastructure.Storage.AzureBlob;
-using Shrooms.Infrastructure.Storage.FileSystem;
 using Shrooms.Infrastructure.SystemClock;
 
 namespace Shrooms.IoC.Modules
@@ -18,7 +15,7 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            //builder.RegisterType<Logger>().As<ILogger>().InstancePerMatchingLifetimeScope(AutofacJobActivator.LifetimeScopeTag, MatchingScopeLifetimeTags.RequestLifetimeScopeTag);
+            //builder.RegisterType<Logger>().As<ILogger>().InstancePerMatchingLifetimeScope();
 
             //builder.RegisterType<MailingService>().As<IMailingService>()
             //    .InstancePerMatchingLifetimeScope(AutofacJobActivator.LifetimeScopeTag, MatchingScopeLifetimeTags.RequestLifetimeScopeTag)
