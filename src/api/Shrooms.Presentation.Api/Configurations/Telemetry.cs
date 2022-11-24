@@ -8,7 +8,7 @@ namespace Shrooms.Presentation.Api.Configurations
     {
         public static void Configure(IConfiguration configuration)
         {
-            var isEnabled = configuration.GetSection("EnableAITelemetry").Get<bool>();
+            var isEnabled = configuration.GetEnableAITelemtry().Get<bool>();
             TelemetryConfiguration.Active.DisableTelemetry = !isEnabled;
 
             if (!isEnabled)
@@ -16,7 +16,7 @@ namespace Shrooms.Presentation.Api.Configurations
                 return;
             }
 
-            TelemetryConfiguration.Active.InstrumentationKey = configuration.GetSection("AIInstrumentationKey").Get<string>();
+            TelemetryConfiguration.Active.InstrumentationKey = configuration.GetAIInstrumentationKey().Get<string>();
 
             var builder = TelemetryConfiguration.Active.TelemetryProcessorChainBuilder;
 

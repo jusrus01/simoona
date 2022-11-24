@@ -24,10 +24,10 @@ namespace Shrooms.Presentation.Api.Configurations
                 // Creating case-insensitive dictionary
                 options.ConnectionStrings = new ConcurrentDictionary<string, string>(options.ConnectionStrings, StringComparer.InvariantCultureIgnoreCase);
             });
-            services.Configure<BasicAuthenticationOptions>(configuration.GetBasicAuthenticationSection());
-            services.Configure<GoogleAuthenticationOptions>(configuration.GetGoogleAuthenticationSection());
-            services.Configure<JwtAuthenticationOptions>(configuration.GetJwtAuthenticationSection());
-            services.Configure<ApplicationAuthenticationOptions>(configuration.GetAuthenticationSection());
+            services.Configure<BasicAuthenticationOptions>(configuration.GetBasicAuthentication());
+            services.Configure<GoogleAuthenticationOptions>(configuration.GetGoogleAuthentication());
+            services.Configure<JwtAuthenticationOptions>(configuration.GetJwtAuthentication());
+            services.Configure<ApplicationAuthenticationOptions>(configuration.GetAuthentication());
             services.Configure<MailOptions>(configuration.GetMailOptions());
 
             return applicationOptions;

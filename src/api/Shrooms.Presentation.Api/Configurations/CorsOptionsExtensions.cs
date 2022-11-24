@@ -6,10 +6,10 @@ namespace Shrooms.Presentation.Api.Configurations
 {
     public static class CorsOptionsExtensions
     {
-        public static void ConfigureDefinedOrigins(this CorsOptions options, IConfiguration configuration)
+        public static void AddDefinedOrigins(this CorsOptions options, IConfiguration configuration)
         {
             var origins = configuration.GetAllowedOrigins();
-            var policy = GetPolicy(origins);
+            var policy = GetPolicy(origins.Get<string[]>());
             options.AddDefaultPolicy(policy);
         }
 
