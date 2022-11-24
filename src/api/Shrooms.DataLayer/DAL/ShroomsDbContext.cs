@@ -151,7 +151,7 @@ namespace Shrooms.DataLayer.DAL
 
         public virtual DbSet<ExternalLink> ExternalLinks { get; set; }
 
-        public virtual DbSet<JobPosition> JobPosition { get; set; }
+        public virtual DbSet<JobPosition> JobPositions { get; set; }
 
         public virtual DbSet<Project> Projects { get; set; }
 
