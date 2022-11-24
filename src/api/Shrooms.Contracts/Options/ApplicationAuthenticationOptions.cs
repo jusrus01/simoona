@@ -1,6 +1,6 @@
 ﻿namespace Shrooms.Contracts.Options
 {
-    public class ShroomsAuthenticationOptions
+    public class ApplicationAuthenticationOptions
     {
         public JwtAuthenticationOptions Jwt { get; set; }
 

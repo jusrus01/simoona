@@ -8,7 +8,7 @@ namespace Shrooms.Presentation.Api.Configurations
     {
         public static void ConfigureDefinedOrigins(this CorsOptions options, IConfiguration configuration)
         {
-            var origins = configuration.GetSection("AllowedCorsOrigins").Get<string[]>();
+            var origins = configuration.GetAllowedOrigins();
             var policy = GetPolicy(origins);
             options.AddDefaultPolicy(policy);
         }
@@ -16,7 +16,6 @@ namespace Shrooms.Presentation.Api.Configurations
         private static CorsPolicy GetPolicy(string[] origins)
         {
             var builder = new CorsPolicyBuilder(origins);
-
             builder.AllowCredentials()
                 .AllowAnyHeader()
                 .AllowAnyMethod();

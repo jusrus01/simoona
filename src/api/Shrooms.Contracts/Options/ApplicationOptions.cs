@@ -17,7 +17,7 @@ namespace Shrooms.Contracts.Options
 
         public string AIInstrumentationKey { get; set; }
 
-        public ShroomsAuthenticationOptions Authentication { get; set; }
+        public ApplicationAuthenticationOptions Authentication { get; set; }
 
         public string StorageConnectionString { get; set; }
 
