@@ -56,6 +56,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Shrooms.Authentification.Handlers;
 using Shrooms.Contracts.Constants;
@@ -113,33 +114,12 @@ namespace Shrooms.Presentation.Api
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
 
-            // Need to auth... with roles
-
-            // TODO: figure out google login
-            // and using it along side bearer
-
-
-            //decisions that need to be made:
-            //signing key jwt
-            //refresh token
-
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
-                // Temporary settings, for development
-                // TODO: Remove before PR
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequiredLength = 1;
-                options.Password.RequiredUniqueChars = 1;
-
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
-                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = true;
+                if (Environment.IsDevelopment())
+                {
+                    options.AddDevelopmentOptions();
+                }
 
                 // Activate email confirmation
                 options.SignIn.RequireConfirmedEmail = true;
@@ -156,8 +136,7 @@ namespace Shrooms.Presentation.Api
             .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null)
             .AddCookie(options =>
             {
-                options.Cookie.Name = ".AspNet.Cookies";
-                // TODO: Match cookie expiration date to bearer token
+                options.Cookie.Name = ".AspNet.Cookies"; // TODO: Match cookie expiration date to bearer token
             })
             .AddJwtBearer(options =>
             {
