@@ -103,13 +103,7 @@ namespace Shrooms.Presentation.Api
         {
             var applicationOptions = services.AddOptions(Configuration, Environment);
 
-            // TODO: change this
-            services.AddCors(options => 
-                options.AddDefaultPolicy(builder => 
-                    builder.AllowCredentials()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .SetIsOriginAllowed(s => true)));
+            services.AddCors(options => options.ConfigureDefinedOrigins(Configuration));
 
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
@@ -200,6 +194,7 @@ namespace Shrooms.Presentation.Api
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseCors();
 
             app.UseMiddleware<MultiTenancyMiddleware>();
