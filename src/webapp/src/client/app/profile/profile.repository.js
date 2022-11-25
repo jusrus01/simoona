@@ -128,10 +128,6 @@
         }
 
         function putPersonalInfo(personalInfo, isConfirm) {
-            if (personalInfo.birthDay !== null && typeof (personalInfo.birthDay) === 'object') {
-                personalInfo.birthDay = personalInfo.birthDay.getFullYear() + '-' + (personalInfo.birthDay.getMonth() + 1) + '-' + personalInfo.birthDay.getDate();
-            }
-
             return $resource(applicationUserUrl + 'PutPersonalInfo', null, { 'update': { method: 'PUT' }, params: { confirm: isConfirm } }).update(personalInfo).$promise;
         }
 
