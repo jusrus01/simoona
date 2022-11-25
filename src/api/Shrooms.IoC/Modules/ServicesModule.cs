@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Notifications;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
@@ -14,6 +15,8 @@ namespace Shrooms.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<CookieService>().As<ICookieService>().InstancePerLifetimeScope();
+
             builder.RegisterType<OrganizationService>().As<IOrganizationService>().InstancePerLifetimeScope().EnableClassTelemetryInterceptor();
             builder.RegisterType<OrganizationValidator>().As<IOrganizationValidator>().InstancePerLifetimeScope();
 

@@ -42,6 +42,7 @@ namespace Shrooms.IoC.Modules
             //    return new FileSystemStorage();
             //})
             //.InstancePerLifetimeScope();
+            builder.RegisterType<FileSystemStorage>().As<IStorage>().InstancePerLifetimeScope();
         }
     }
 }
