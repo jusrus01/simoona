@@ -7,6 +7,8 @@ using Shrooms.Infrastructure.Email.Templates;
 using Shrooms.Infrastructure.ExcelGenerator;
 using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Interceptors;
+using Shrooms.Infrastructure.Storage;
+using Shrooms.Infrastructure.Storage.FileSystem;
 using Shrooms.Infrastructure.SystemClock;
 
 namespace Shrooms.IoC.Modules
