@@ -32,26 +32,6 @@ namespace Shrooms.Domain.Services.Email.InternalProviders
             _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
         }
-
-        public async Task SendUserWasConfirmedEmailAsync(ApplicationUser user)
-        {
-            var organizationEmail = await _organizationService.GetWelcomeEmailAsync(user.OrganizationId);
-
-            if (organizationEmail == null)
-            {
-                return;
-            }
-
-            var mainPageUrl = _applicationOptions.ClientUrl;
-            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationEmail.ShortName);
-            var subject = string.Format(Resources.Common.NewUserConfirmedNotificationEmailSubject);
-
-            var emailTemplateViewModel = new UserConfirmationEmailTemplateViewModel(userSettingsUrl, mainPageUrl, organizationEmail.WelcomeEmail);
-
-            var body = _mailTemplate.Generate(emailTemplateViewModel);
-
-            await _mailService.SendEmailAsync(new EmailDto(user.Email, subject, body));
-        }
         
         public async Task SendResetPasswordEmailAsync(ApplicationUser user, string token)
         {

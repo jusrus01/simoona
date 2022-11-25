@@ -9,6 +9,7 @@ using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.UserService;
 
 namespace Shrooms.Domain.Services.Email.AdministrationUsers
@@ -20,9 +21,11 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
         private readonly ApplicationOptions _applicationOptions;
         private readonly IMailTemplate _mailTemplate;
         private readonly IUserService _userService;
+        private readonly IOrganizationService _organizationService;
 
         public AdministrationUsersNotificationService(
             IOptions<ApplicationOptions> applicationOptions,
+            IOrganizationService organizationService,
             IUnitOfWork2 uow,
             IMailService mailingService,
             IMailTemplate mailTemplate,
@@ -32,6 +35,7 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
             _organizationDbSet = uow.GetDbSet<Organization>();
 
+            _organizationService = organizationService;
             _mailService = mailingService;
             _mailTemplate = mailTemplate;
             _userService = permissionService;
@@ -39,21 +43,18 @@ namespace Shrooms.Domain.Services.Email.AdministrationUsers
 
         public async Task SendConfirmedNotificationEmailAsync(string userEmail, UserAndOrganizationDto userAndOrg)
         {
-            var organizationNameAndContent = await _organizationDbSet
-                .Where(organization => organization.Id == userAndOrg.OrganizationId)
-                .Select(organization => new { organization.ShortName, organization.WelcomeEmail })
-                .FirstOrDefaultAsync();
+            var organizationEmail = await _organizationService.GetWelcomeEmailAsync(userAndOrg.OrganizationId);
 
-            if (organizationNameAndContent == null)
+            if (organizationEmail == null)
             {
                 return;
             }
 
             var mainPageUrl = _applicationOptions.ClientUrl;
-            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationNameAndContent.ShortName);
+            var userSettingsUrl = _applicationOptions.UserNotificationSettingsUrl(organizationEmail.ShortName);
             var subject = string.Format(Resources.Common.NewUserConfirmedNotificationEmailSubject);
 
-            var emailTemplateViewModel = new UserConfirmationEmailTemplateViewModel(userSettingsUrl, mainPageUrl, organizationNameAndContent.WelcomeEmail);
+            var emailTemplateViewModel = new UserConfirmationEmailTemplateViewModel(userSettingsUrl, mainPageUrl, organizationEmail.WelcomeEmail);
 
             var body = _mailTemplate.Generate(emailTemplateViewModel);
 

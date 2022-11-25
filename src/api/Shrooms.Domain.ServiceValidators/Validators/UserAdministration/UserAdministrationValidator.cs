@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Shrooms.Domain.Exceptions.Exceptions.UserAdministration;
+using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Exceptions;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.UserAdministration
 {
@@ -11,7 +10,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.UserAdministration
         {
             if (!employmentDate.HasValue)
             {
-                throw new UserAdministrationException("Employment date is not valid");
+                throw new ValidationException(ErrorCodes.UserAdministrationInvalidEmploymentDate, "Employment date is not valid");
             }
         }
 
@@ -19,19 +18,8 @@ namespace Shrooms.Domain.ServiceValidators.Validators.UserAdministration
         {
             if (hasRole)
             {
-                throw new UserAdministrationException("User has not filled info yet");
+                throw new ValidationException(ErrorCodes.UserAdministrationInformationNotProvided, "User has not filled info yet");
             }
-        }
-
-        public void CheckForAddingRemovingRoleErrors(IList<string> addRoleErrors, IList<string> removeRoleErrors)
-        {
-            if (!addRoleErrors.Any() && !removeRoleErrors.Any())
-            {
-                return;
-            }
-
-            var errors = addRoleErrors.Concat(removeRoleErrors).Distinct();
-            throw new UserAdministrationException(errors);
         }
     }
 }

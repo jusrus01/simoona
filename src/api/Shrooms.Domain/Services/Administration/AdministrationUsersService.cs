@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.Models.Administration;
-using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Infrastructure.ExcelGenerator;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Multiwalls;
@@ -16,13 +13,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Users;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
+using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Exceptions;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -31,29 +32,34 @@ namespace Shrooms.Domain.Services.Administration
         private const string UsersExcelWorksheetName = "Users";
 
         private readonly IApplicationUserManager _userManager;
+        private readonly IApplicationRoleManager _roleManager;
         private readonly IPermissionService _permissionService;
+        private readonly IUserAdministrationValidator _validator;
+
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly DbSet<WallMember> _wallUsersDbSet;
-        private readonly IAdministrationNotificationService _userAdministrationNotificationService;
+
+        private readonly IFireAndForgetScheduler _fireAndForgetScheduler;
+
         private readonly IUnitOfWork2 _uow;
-        private readonly ICookieService _cookieService;
 
         public AdministrationUsersService(
-            ICookieService cookieService,
             IUnitOfWork2 uow,
-            IAdministrationNotificationService userAdministrationNotificationService,
             IPermissionService permissionService,
-            IApplicationUserManager userManager)
+            IApplicationUserManager userManager,
+            IApplicationRoleManager roleManager,
+            IUserAdministrationValidator validator,
+            IFireAndForgetScheduler fireAndForgetScheduler)
         {
             _uow = uow;
-            _cookieService = cookieService;
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
             _wallUsersDbSet = uow.GetDbSet<WallMember>();
 
+            _validator = validator;
             _userManager = userManager;
+            _roleManager = roleManager;
             _permissionService = permissionService;
-
-            _userAdministrationNotificationService = userAdministrationNotificationService;
+            _fireAndForgetScheduler = fireAndForgetScheduler;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -90,40 +96,9 @@ namespace Shrooms.Domain.Services.Administration
             //return content;
         }
 
-        public async Task RestoreUserAsync(string email)
+        public void NotifyAboutNewUser(ApplicationUser user, int orgId)
         {
-            throw new NotImplementedException();
-            //var shroomsContext = _context as ShroomsDbContext;
-
-            //if (shroomsContext == null)
-            //{
-            //    throw new ArgumentNullException(nameof(shroomsContext));
-            //}
-
-            //await shroomsContext.Database
-            //    .ExecuteSqlCommandAsync("UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = @email", new SqlParameter("@email", email));
-
-            //var user = await _userManager.FindByEmailAsync(email);
-            //await AddNewUserRolesAsync(user.Id);
-        }
-
-        public async Task AddProviderImageAsync(string userId, ClaimsIdentity externalIdentity)
-        {
-            throw new NotImplementedException();
-
-            //var user = await _usersDbSet.FirstAsync(u => u.Id == userId);
-            //if (user.PictureId == null && externalIdentity.FindFirst("picture") != null)
-            //{
-            //    byte[] data = data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
-            //    user.PictureId = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", Guid.NewGuid() + ".jpg", user.OrganizationId);
-            //    await _uow.SaveChangesAsync(userId);
-            //}
-        }
-
-        public async Task NotifyAboutNewUserAsync(ApplicationUser user, int orgId)
-        {
-            throw new NotImplementedException();
-            //await _notificationService.NotifyAboutNewUserAsync(user, orgId);
+            _fireAndForgetScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.NotifyAboutNewUserAsync(user, orgId));
         }
 
         public async Task SendUserPasswordResetEmailAsync(string email)
@@ -137,107 +112,23 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task ConfirmNewUserAsync(string userId, UserAndOrganizationDto userAndOrg)
         {
-            throw new NotImplementedException();
-            //var applicationUser = await _usersDbSet.FirstAsync(user => user.Id == userId);
-            //_userAdministrationValidator.CheckIfEmploymentDateIsSet(applicationUser.EmploymentDate);
+            var applicationUser = await _usersDbSet.FirstAsync(user => user.Id == userId);
+            _validator.CheckIfEmploymentDateIsSet(applicationUser.EmploymentDate);
 
-            //var hasRole = await _userManager.IsInRoleAsync(userId, Contracts.Constants.Roles.FirstLogin);
-            //_userAdministrationValidator.CheckIfUserHasFirstLoginRole(hasRole);
+            var hasRole = await _roleManager.IsInRoleAsync(applicationUser, Contracts.Constants.Roles.FirstLogin);
+            _validator.CheckIfUserHasFirstLoginRole(hasRole);
 
-            //var addRoleResult = await _userManager.AddToRoleAsync(userId, Contracts.Constants.Roles.User);
-            //var removeRoleResult = await _userManager.RemoveFromRoleAsync(userId, Contracts.Constants.Roles.NewUser);
+            await _roleManager.AddToRoleAsync(applicationUser, Contracts.Constants.Roles.User);
+            await _roleManager.RemoveFromRoleAsync(applicationUser, Contracts.Constants.Roles.NewUser);
 
-            //_userAdministrationValidator.CheckForAddingRemovingRoleErrors(addRoleResult.Errors.ToList(), removeRoleResult.Errors.ToList());
-            //await _notificationService.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg);
+            _fireAndForgetScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg));
 
-            //SetTutorialStatus(applicationUser, false);
+            SetTutorialStatus(applicationUser, false);
 
-            //await SetWelcomeKudosAsync(applicationUser);
+            await SetWelcomeKudosAsync(applicationUser);
 
-            //await AddWallsToNewUser(applicationUser, userAndOrg);
-            //await _uow.SaveChangesAsync(userAndOrg.UserId);
-        }
-
-        //public async Task<IdentityResult> CreateNewUserWithExternalLoginAsync(ExternalLoginInfo info, string requestedOrganization)
-        //{
-        //    var externalIdentity = info.ExternalIdentity;
-        //    var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
-        //        .Select(u => new { u.CultureCode, u.TimeZone })
-        //        .FirstAsync();
-
-        //    var user = new ApplicationUser
-        //    {
-        //        UserName = externalIdentity.FindFirst(ClaimTypes.Email).Value,
-        //        Email = externalIdentity.FindFirst(ClaimTypes.Email).Value,
-        //        FirstName = externalIdentity.FindFirst(ClaimTypes.GivenName).Value,
-        //        LastName = externalIdentity.FindFirst(ClaimTypes.Surname).Value,
-        //        OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id,
-        //        EmploymentDate = DateTime.UtcNow,
-        //        CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture,
-        //        TimeZone = userSettings.TimeZone,
-        //        NotificationsSettings = null
-        //    };
-
-        //    if (externalIdentity.FindFirst("picture") != null)
-        //    {
-        //        var data = await new WebClient().DownloadDataTaskAsync(externalIdentity.FindFirst("picture").Value);
-        //        var picture = await _pictureService.UploadFromStreamAsync(new MemoryStream(data), "image/jpeg", $"{Guid.NewGuid()}.jpg", user.OrganizationId);
-        //        user.PictureId = picture;
-        //    }
-
-        //    var result = _userManager.Create(user);
-        //    if (!result.Succeeded)
-        //    {
-        //        return result;
-        //    }
-
-        //    await AddNewUserRolesAsync(user.Id);
-        //    return result;
-        //}
-
-        public async Task<IdentityResult> CreateNewUserAsync(ApplicationUser user, string password, string requestedOrganization)
-        {
-            throw new NotImplementedException();
-            //var userSettings = await _organizationDbSet.Where(o => o.ShortName == requestedOrganization)
-            //    .Select(u => new { u.CultureCode, u.TimeZone })
-            //    .FirstAsync();
-
-            //user.OrganizationId = (await _organizationService.GetOrganizationByNameAsync(requestedOrganization)).Id;
-            //user.EmploymentDate = DateTime.UtcNow;
-            //user.CultureCode = userSettings.CultureCode ?? BusinessLayerConstants.DefaultCulture;
-            //user.TimeZone = userSettings.TimeZone;
-            //user.NotificationsSettings = null;
-
-            //var result = await _userManager.CreateAsync(user, password);
-            //if (!result.Succeeded)
-            //{
-            //    return result;
-            //}
-
-            //var userLoginInfo = new UserLoginInfo(AuthenticationConstants.InternalLoginProvider, user.Id);
-            //var addLoginResult = await _userManager.AddLoginAsync(user.Id, userLoginInfo);
-            //if (!addLoginResult.Succeeded)
-            //{
-            //    return addLoginResult;
-            //}
-
-            //await AddNewUserRolesAsync(user.Id);
-            //await SendUserVerificationEmailAsync(user, requestedOrganization);
-
-            //return result;
-        }
-
-        public async Task<bool> HasExistingExternalLoginAsync(string email, string loginProvider)
-        {
-            throw new NotImplementedException();
-            //var user = await _userManager.FindByEmailAsync(email);
-            //if (user == null)
-            //{
-            //    return false;
-            //}
-
-            //var hasLogin = user.Logins.Any(login => login.LoginProvider == loginProvider);
-            //return hasLogin;
+            await AddWallsToNewUser(applicationUser, userAndOrg);
+            await _uow.SaveChangesAsync(userAndOrg.UserId);
         }
 
         public async Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filterModel, string includeProperties)
@@ -323,14 +214,6 @@ namespace Shrooms.Domain.Services.Administration
             };
         }
 
-        public async Task SetSignInCookieAsync(LoginDto loginDto)
-        {
-            var user = await _userManager.FindByNameAsync(loginDto.UserName);
-            
-            await _userManager.CheckPasswordAsync(user, loginDto.Password);
-            
-            await _cookieService.SetExternalCookieAsync();
-        }
 
         public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
         {

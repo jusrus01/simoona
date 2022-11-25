@@ -166,7 +166,7 @@ namespace Shrooms.Domain.Services.InternalProviders
             await SendVerificationEmailAsync(user);
         }
 
-        private async Task SendVerificationEmailAsync(ApplicationUser user)
+        private async Task SendVerificationEmailAsync(ApplicationUser user)//Abstracting set up...
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendUserVerificationEmailAsync(user, token));

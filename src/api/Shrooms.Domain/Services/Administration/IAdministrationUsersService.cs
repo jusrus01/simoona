@@ -17,7 +17,7 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<IEnumerable<AdministrationUserDto>> GetAllUsersAsync(string sortQuery, string search, FilterDto[] filter, string includeProperties);
 
-        Task NotifyAboutNewUserAsync(ApplicationUser user, int orgId);
+        void NotifyAboutNewUser(ApplicationUser user, int orgId);
 
         Task SetUserTutorialStatusToCompleteAsync(string userId);
 

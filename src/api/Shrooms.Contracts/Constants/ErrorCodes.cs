@@ -74,5 +74,13 @@
         // Pictures, 18**
         public const int PictureFileWithoutExtension = 1800;
         public const int PictureInvalidExtensionProvided = 1801;
+
+        // User administration, 19**
+        public const int UserAdministrationInvalidEmploymentDate = 1900;
+        public const int UserAdministrationInformationNotProvided = 1901;
+
+        // Role manager, 20**
+        public const int RoleManagerFailedToAdd = 2000;
+        public const int RoleManagerFailedToRemove = 2001;
     }
 }

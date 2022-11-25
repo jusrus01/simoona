@@ -7,11 +7,18 @@ using Microsoft.EntityFrameworkCore;
 using Shrooms.Authentication.Attributes;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
+using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.Administration;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Permissions;
+using Shrooms.Domain.Services.Picture;
+using Shrooms.Domain.Services.Users;
+using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.Profile.JobPosition;
 using Shrooms.Presentation.WebViewModels.Models.User;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,29 +36,36 @@ namespace Shrooms.Presentation.Api.Controllers
         private readonly DbSet<JobPosition> _jobPositionsDbSet;
 
         private readonly IMapper _mapper;
-        //private readonly IAdministrationUsersService _administrationUsersService;
+        private readonly IAdministrationUsersService _administrationUsersService;
         private readonly IPermissionService _permissionService;
+        private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IApplicationUserManager _userManager;
+        private readonly IApplicationRoleManager _roleManager;
+
         //private readonly IUserService _userService;
-        //private readonly IOrganizationService _organizationService;
+        private readonly IOrganizationService _organizationService;
         //private readonly IRoleService _roleService;
         //private readonly ICustomCache<string, IEnumerable<string>> _permissionsCache;
         //private readonly IProjectsService _projectService;
         //private readonly IKudosService _kudosService;
-        //private readonly IPictureService _pictureService;
+        private readonly IPictureService _pictureService;
         //private readonly IBlacklistService _blacklistService;
 
         public UserDeprecatedController(
             IMapper mapper,
             IUnitOfWork2 uow,
-            //IAdministrationUsersService administrationUsersService,
-            IPermissionService permissionService
-            //IOrganizationService organizationService,
+            IAdministrationUsersService administrationUsersService,
+            IPermissionService permissionService,
+            IOrganizationService organizationService,
+            IApplicationUserManager userManager,
+            IApplicationRoleManager roleManager,
+            ITenantNameContainer tenantNameContainer,
             //IUserService userService,
             //ICustomCache<string, IEnumerable<string>> permissionsCache,
             //IRoleService roleService,
             //IProjectsService projectService,
             //IKudosService kudosService,
-            //IPictureService pictureService,
+            IPictureService pictureService
             //IBlacklistService blacklistService
             )
         {
@@ -61,8 +75,13 @@ namespace Shrooms.Presentation.Api.Controllers
             //_examsRepository = _unitOfWork.GetRepository<Exam>();
             //_skillsRepository = _unitOfWork.GetRepository<Skill>();
             //_qualificationLevelRepository = _unitOfWork.GetRepository<QualificationLevel>();
-            //_administrationUsersService = administrationUsersService;
+            _administrationUsersService = administrationUsersService;
             _permissionService = permissionService;
+            _organizationService = organizationService;
+            
+            _tenantNameContainer = tenantNameContainer;
+            _userManager = userManager;
+            _roleManager = roleManager;
             _uow = uow;
 
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
@@ -76,14 +95,14 @@ namespace Shrooms.Presentation.Api.Controllers
             //_roleService = roleService;
             //_projectService = projectService;
             //_kudosService = kudosService;
-            //_pictureService = pictureService;
+            _pictureService = pictureService;
             //_blacklistService = blacklistService;
         }
 
-        //        private async Task<bool> HasPermissionAsync(UserAndOrganizationDto userOrg, string permission)
-        //        {
-        //            return await _permissionService.UserHasPermissionAsync(userOrg, permission);
-        //        }
+        private async Task<bool> HasPermissionAsync(UserAndOrganizationDto userOrg, string permission)
+        {
+            return await _permissionService.UserHasPermissionAsync(userOrg, permission);
+        }
 
         //        [HttpDelete]
         //        [Route("Delete")]
@@ -630,93 +649,95 @@ namespace Shrooms.Presentation.Api.Controllers
         //        //    return Request.CreateResponse(HttpStatusCode.OK);
         //        //}
 
-        //[Route("PutPersonalInfo")]
-        //[ValidationFilter]
-        //[HttpPut]
-        //[PermissionAuthorize(Permission = BasicPermissions.ApplicationUser)]
-        //[InvalidateCacheOutput(nameof(WallWidgetsController.GetKudosBasketWidgetAsync), typeof(WallWidgetsController))]
-        //public async Task<HttpResponseMessage> PutPersonalInfo(ApplicationUserPutPersonalInfoViewModel model)
-        //{
-        //    var validatedModel = await ValidateModelAsync(model);
-        //    if (!validatedModel.IsSuccessStatusCode)
-        //    {
-        //        return validatedModel;
-        //    }
+        [HttpPut("PutPersonalInfo")]
+        [PermissionAuthorize(BasicPermissions.ApplicationUser)]
+        public async Task<IActionResult> PutPersonalInfo([FromBody] ApplicationUserPutPersonalInfoViewModel model)
+        {
+            var validatedModel = await ValidateModelAsync(model);
 
-        //    var userOrg = GetUserAndOrganization();
-        //    var user = await _applicationUserRepository.GetByIdAsync(model.Id);
+            if (validatedModel is not OkResult)
+            {
+                return validatedModel;
+            }
 
-        //    if (user == null)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.NotFound, new[] { string.Format(Resources.Common.DoesNotExist, Resources.Models.ApplicationUser.ApplicationUser.EntityName) });
-        //    }
+            var userOrg = GetUserAndOrganization();
+            var user = await _userManager.FindByIdAsync(model.Id);
 
-        //    if ((user.FirstName != model.FirstName || user.LastName != model.LastName) && !await HasPermissionAsync(userOrg, AdministrationPermissions.ApplicationUser))
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.Forbidden);
-        //    }
+            if (user == null)
+            {
+                return NotFound(new[] { string.Format(Resources.Common.DoesNotExist, Resources.Models.ApplicationUser.ApplicationUser.EntityName) });
+            }
 
-        //    if (await _applicationUserRepository.Get(u => u.Email == model.Email && u.Id != user.Id).AnyAsync())
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.BadRequest, new[] { string.Format(Resources.Models.ApplicationUser.ApplicationUser.EmailAlreadyExsists) });
-        //    }
+            if ((user.FirstName != model.FirstName || user.LastName != model.LastName) && !await HasPermissionAsync(userOrg, AdministrationPermissions.ApplicationUser))
+            {
+                return Forbid();
+            }
 
-        //    if (user.PictureId != model.PictureId && !string.IsNullOrEmpty(user.PictureId))
-        //    {
-        //        await _pictureService.RemoveImageAsync(user.PictureId, userOrg.OrganizationId);
-        //    }
+            if (await _usersDbSet.AnyAsync(u => u.Email == model.Email && u.Id != user.Id))
+            {
+                return BadRequest(new[] { string.Format(Resources.Models.ApplicationUser.ApplicationUser.EmailAlreadyExsists) });
+            }
 
-        //    _mapper.Map(model, user);
-        //    _applicationUserRepository.Update(user);
-        //    await _unitOfWork.SaveAsync();
+            if (user.PictureId != model.PictureId && !string.IsNullOrEmpty(user.PictureId))
+            {
+                await _pictureService.RemoveImageAsync(user.PictureId, userOrg.OrganizationId);//TODO: Make this work
+            }
 
-        //    if (!User.IsInRole(Roles.NewUser) || !await _userManager.IsInRoleAsync(user.Id, Roles.FirstLogin))
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.OK);
-        //    }
+            _mapper.Map(model, user);
+            await _uow.SaveChangesAsync(false);
 
-        //    await _userManager.RemoveFromRoleAsync(User.Identity.GetUserId(), Roles.FirstLogin);
+            if (!await IsProvidingConfirmationPersonalDataAsync(user))
+            {
+                return Ok();
+            }
 
-        //    await _administrationUsersService.NotifyAboutNewUserAsync(user, userOrg.OrganizationId);
-        //    var requiresConfirmation = await _organizationService.RequiresUserConfirmationAsync(userOrg.OrganizationId);
+            await _roleManager.RemoveFromRoleAsync(user, Roles.FirstLogin);
 
-        //    if (!requiresConfirmation)
-        //    {
-        //        await _administrationUsersService.ConfirmNewUserAsync(userOrg.UserId, userOrg);
-        //    }
+            _administrationUsersService.NotifyAboutNewUser(user, userOrg.OrganizationId);
+            var requiresConfirmation = await _organizationService.RequiresUserConfirmationAsync(userOrg.OrganizationId);
 
-        //    var response = new { requiresConfirmation };
+            if (!requiresConfirmation)
+            {
+                await _administrationUsersService.ConfirmNewUserAsync(userOrg.UserId, userOrg);
+            }
 
-        //    return Request.CreateResponse(HttpStatusCode.OK, response);
-        //}
+            var response = new { requiresConfirmation };
 
-        //        //private async Task<HttpResponseMessage> ValidateModelAsync(ApplicationUserPutPersonalInfoViewModel model)
-        //        //{
-        //        //    if (!await CanAccessAsync(model))
-        //        //    {
-        //        //        return Request.CreateResponse(HttpStatusCode.Forbidden);
-        //        //    }
+            return Ok(response);
+        }
 
-        //        //    if (model.BirthDay != null)
-        //        //    {
-        //        //        if (model.BirthDay.Value.Year < WebApiConstants.LowestBirthdayYear)
-        //        //        {
-        //        //            return Request.CreateResponse(HttpStatusCode.BadRequest, new[] { string.Format(Resources.Common.BirthdayDateIsTooOld) });
-        //        //        }
+        private async Task<bool> IsProvidingConfirmationPersonalDataAsync(ApplicationUser user)
+        {
+            return await _roleManager.IsInAllRolesAsync(user, Roles.NewUser, Roles.FirstLogin);
+        }
 
-        //        //        if (model.BirthDay > DateTime.UtcNow)
-        //        //        {
-        //        //            return Request.CreateResponse(HttpStatusCode.BadRequest, new[] { string.Format(Resources.Common.BirthdayDateValidationError) });
-        //        //        }
-        //        //    }
+        private async Task<IActionResult> ValidateModelAsync(ApplicationUserPutPersonalInfoViewModel model)
+        {
+            if (!await CanAccessAsync(model))
+            {
+                return Forbid();
+            }
 
-        //        //    if (!await _organizationService.IsOrganizationHostValidAsync(model.Email, Request.GetRequestedTenant()))
-        //        //    {
-        //        //        return Request.CreateResponse(HttpStatusCode.BadRequest, new[] { string.Format(Resources.Models.ApplicationUser.ApplicationUser.WrongEmailDomain) });
-        //        //    }
+            if (model.BirthDay != null)
+            {
+                if (model.BirthDay.Value.Year < WebApiConstants.LowestBirthdayYear)
+                {
+                    return BadRequest(new[] { string.Format(Resources.Common.BirthdayDateIsTooOld) });
+                }
 
-        //        //    return Request.CreateResponse(HttpStatusCode.OK);
-        //        //}
+                if (model.BirthDay > DateTime.UtcNow)
+                {
+                    return BadRequest(new[] { string.Format(Resources.Common.BirthdayDateValidationError) });
+                }
+            }
+
+            if (!await _organizationService.IsOrganizationHostValidAsync(model.Email, _tenantNameContainer.TenantName))
+            {
+                return BadRequest(new[] { string.Format(Resources.Models.ApplicationUser.ApplicationUser.WrongEmailDomain) });
+            }
+
+            return Ok();
+        }
 
         //        //[Route("PutOfficeInfo")]
         //        //[ValidationFilter]
@@ -913,9 +934,10 @@ namespace Shrooms.Presentation.Api.Controllers
             return _mapper.Map<ApplicationUserShroomsInfoViewModel>(user);
         }
 
-        //        //private async Task<bool> CanAccessAsync(ApplicationUserBaseViewModel model)
-        //        //{
-        //        //    return User.Identity.GetUserId() == model.Id || await _permissionService.UserHasPermissionAsync(GetUserAndOrganization(), AdministrationPermissions.ApplicationUser);
-        //        //}
+        private async Task<bool> CanAccessAsync(ApplicationUserBaseViewModel model)
+        {
+            var userOrg = GetUserAndOrganization();
+            return userOrg.UserId == model.Id || await _permissionService.UserHasPermissionAsync(userOrg, AdministrationPermissions.ApplicationUser);
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace Shrooms.Domain.Services.Tokens
         private const int SecondsInADay = 86400;
         private const string TokenType = "Bearer";
 
-        private const string AccessTokenQueryParameter = "access_token";
+        private const string AccessTokenQueryParameter = "access_token";//TODO: add specific auth schemes
         private const string AuthTypeParameterName = "authType";
 
         private readonly ApplicationOptions _applicationOptions;

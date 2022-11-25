@@ -24,6 +24,10 @@ namespace Shrooms.IoC.Modules
                 .As<IApplicationUserManager>()
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<ApplicationRoleManagerValidator>()
+                .As<IApplicationRoleManagerValidator>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<ApplicationRoleManager>()
                 .As<IApplicationRoleManager>()
                 .InstancePerLifetimeScope();
