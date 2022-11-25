@@ -17,10 +17,10 @@ namespace Shrooms.IoC.Modules
             builder.RegisterType<OrganizationService>().As<IOrganizationService>().InstancePerLifetimeScope().EnableClassTelemetryInterceptor();
             builder.RegisterType<OrganizationValidator>().As<IOrganizationValidator>().InstancePerLifetimeScope();
 
-            builder.RegisterType<PictureExtensionService>().As<IPictureExtensionService>().InstancePerLifetimeScope();
             builder.RegisterType<PictureValidator>().As<IPictureValidator>().InstancePerLifetimeScope();
+            builder.RegisterType<PictureContentTypeService>().As<IPictureContentTypeService>().InstancePerLifetimeScope();
             builder.RegisterType<PictureService>().As<IPictureService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
-            
+
             builder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<NotificationService>().As<INotificationService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<VacationPageService>().As<IVacationPageService>().InstancePerLifetimeScope().EnableInterfaceTelemetryInterceptor();

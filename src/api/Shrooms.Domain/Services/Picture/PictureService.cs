@@ -6,28 +6,22 @@ using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects.Models.Pictures;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.ServiceValidators.Validators.Pictures;
 using Shrooms.Infrastructure.Storage;
 
 namespace Shrooms.Domain.Services.Picture
 {
     public class PictureService : IPictureService
     {
-        private readonly IPictureExtensionService _extensionService;
-        private readonly IPictureValidator _pictureValidator;
-
+        private readonly IPictureContentTypeService _pictureContentTypeService;
         private readonly IStorage _storage;
         private readonly DbSet<Organization> _organizationsDbSet;
 
         public PictureService(
             IStorage storage,
-            IPictureExtensionService extensionService,
-            IPictureValidator pictureValidator,
+            IPictureContentTypeService pictureContentTypeService,
             IUnitOfWork2 uow)
         {
-            _extensionService = extensionService;
-            _pictureValidator = pictureValidator;
-
+            _pictureContentTypeService = pictureContentTypeService;
             _storage = storage;
             _organizationsDbSet = uow.GetDbSet<Organization>();
         }
@@ -61,8 +55,7 @@ namespace Shrooms.Domain.Services.Picture
 
         public async Task<PictureDto> GetPictureAsync(string organizationName, string pictureName)
         {
-            var pictureExtension = ExtractPictureExtension(pictureName);
-            var contentType = _extensionService.GetContentTypeFromExtension(pictureExtension);
+            var contentType = _pictureContentTypeService.GetPictureContentType(pictureName);
             var pictureBytes = await _storage.GetPictureAsync(pictureName, organizationName);
             return MapToPictureDto(pictureBytes, contentType);
         }
@@ -74,13 +67,6 @@ namespace Shrooms.Domain.Services.Picture
                 Content = content,
                 ContentType = contentType,
             };
-        }
-
-        private string ExtractPictureExtension(string pictureName)
-        {
-            var extension = Path.GetExtension(pictureName);
-            _pictureValidator.CheckIfPictureNameHasExtension(extension);
-            return extension;
         }
 
         private static string GetNewPictureName(string fileName)
