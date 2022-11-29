@@ -684,7 +684,7 @@ namespace Shrooms.Presentation.Api.Controllers
             }
 
             _mapper.Map(model, user);
-            await _uow.SaveChangesAsync(false);
+            await _userManager.UpdateAsync(user);
 
             if (!await IsProvidingConfirmationPersonalDataAsync(user))
             {
