@@ -15,10 +15,10 @@ namespace Shrooms.DataLayer.DAL
 
         public string ConnectionName => _context.ConnectionName;
 
-        public DbSet<T> GetDbSet<T>()
-            where T : class
+        public DbSet<TEntity> GetDbSet<TEntity>()
+            where TEntity : class
         {
-            return _context.Set<T>();
+            return _context.Set<TEntity>();
         }
 
         public async Task<int> SaveChangesAsync(string userId)
