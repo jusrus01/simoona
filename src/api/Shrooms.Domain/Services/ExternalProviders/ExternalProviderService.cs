@@ -11,7 +11,6 @@ using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
-using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

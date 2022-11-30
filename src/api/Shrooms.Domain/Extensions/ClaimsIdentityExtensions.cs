@@ -8,7 +8,7 @@ namespace Shrooms.Domain.Extensions
     {
         public static int GetOrganizationId(this ClaimsIdentity claimsIdentity)
         {
-            return Convert.ToInt32(claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId));
+            return Convert.ToInt32(claimsIdentity.FindFirstValue(WebApiConstants.ClaimOrganizationId));
         }
 
         public static string GetOrganizationName(this ClaimsIdentity claimsIdentity)
