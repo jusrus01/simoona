@@ -28,7 +28,7 @@ namespace Shrooms.Presentation.Api.Middlewares
             {
                 await HandleExceptionAsync(httpContext, errorMessage: "Unauthorized", StatusCodes.Status401Unauthorized);
             }
-            catch (Exception ex)
+            catch
             {
                 await HandleExceptionAsync(httpContext, "Internal server error", StatusCodes.Status500InternalServerError);
             }
