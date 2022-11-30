@@ -1,32 +1,31 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Tokens;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
-    public class ExternalLoginStrategy : IExternalProviderStrategy
+    public class ExternalLoginStrategy : ExternalProviderStrategyBase
     {
         private readonly ITokenService _tokenService;
-        private readonly ExternalLoginInfo _externalLoginInfo;
         private readonly ICookieService _cookieService;
 
-        public ExternalLoginStrategy(
-            ICookieService cookieService,
-            ITokenService tokenService,
-            ExternalLoginInfo externalLoginInfo)
+        public ExternalLoginStrategy(ICookieService cookieService, ITokenService tokenService)
         {
             _tokenService = tokenService;
-            _externalLoginInfo = externalLoginInfo;
             _cookieService = cookieService;
         }
 
-        public async Task<ExternalProviderResult> ExecuteStrategyAsync()
+        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
         {
-            var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(_externalLoginInfo);
+            EnsureParametersAreSet(loginInfo);
+        }
 
+        public override async Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        {
+            var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(loginInfo);
             await _cookieService.SetExternalCookieAsync();
-            
             return new ExternalProviderResult(tokenRedirectUrl);
         }
     }

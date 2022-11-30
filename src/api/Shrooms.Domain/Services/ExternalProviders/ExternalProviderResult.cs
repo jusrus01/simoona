@@ -45,7 +45,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             
             return provider switch
             {
-                AuthenticationConstants.GoogleLoginProvider =>  GoogleDefaults.AuthenticationScheme, // Q: installed package, just for one constant...
+                AuthenticationConstants.GoogleLoginProvider =>  GoogleDefaults.AuthenticationScheme,
                 AuthenticationConstants.InternalLoginProvider => throw new InvalidOperationException(),
                 _ => throw new InvalidOperationException()
             };

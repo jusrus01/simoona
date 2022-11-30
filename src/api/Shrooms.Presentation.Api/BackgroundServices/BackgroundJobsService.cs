@@ -39,12 +39,10 @@ namespace Shrooms.Presentation.Api.BackgroundServices
                 if (!_jobQueue.TryDequeueJob(out var job))
                 {
                     await Task.Delay(_applicationOptions.WaitBeforeEachBackgroundJobMilliseconds, stoppingToken);
-
                     continue;
                 }
 
                 ILifetimeScope? scope = null;
-
                 try
                 {
                     scope = _lifetimeScope.BeginLifetimeScope(MatchingScopeLifetimeTags.RequestLifetimeScopeTag, builder =>

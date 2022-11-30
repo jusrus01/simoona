@@ -6,7 +6,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.ExternalProviders
 {
     public class ExternalProviderValidator : IExternalProviderValidator
     {
-        public void CheckIfValidProvider(ExternalLoginRequestDto requestDto, bool hasProvider)
+        public void CheckIfIsValidProvider(ExternalLoginRequestDto requestDto, bool hasProvider)
         {
             if (!string.IsNullOrEmpty(requestDto.Provider) && !hasProvider)
             {

@@ -1,55 +1,52 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
-using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
-using Shrooms.Contracts.DataTransferObjects.Models.Users;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.Domain.Helpers;
 using Shrooms.Domain.Services.Users;
-using Shrooms.Infrastructure.BackgroundJobs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
-    public class ExternalRegisterRedirectToProviderStrategy : IExternalProviderStrategy
+    public class ExternalRegisterRedirectToProviderStrategy : ExternalProviderStrategyBase
     {
         private readonly IApplicationSignInManager _signInManager;
         private readonly ITenantNameContainer _tenantNameContainer;
-
-        private readonly ControllerRouteDto _routeDto;
-        private readonly ExternalLoginRequestDto _requestDto;
 
         private readonly ApplicationOptions _applicationOptions;
 
         public ExternalRegisterRedirectToProviderStrategy(
             ITenantNameContainer tenantNameContainer,
             IApplicationSignInManager signInManager,
-            ControllerRouteDto routeDto,
-            ExternalLoginRequestDto requestDto,
             ApplicationOptions applicationOptions)
         {
             _tenantNameContainer = tenantNameContainer;
-            _routeDto = routeDto;
             _signInManager = signInManager;
             _applicationOptions = applicationOptions;
-            _requestDto = requestDto;
         }
 
-        public Task<ExternalProviderResult> ExecuteStrategyAsync()
+        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
         {
-            var uri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, _routeDto);
+            EnsureParametersAreSet(parameters.Route, parameters.Request);
+        }
+
+        public override Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        {
+            var uri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, parameters.Route);
 
             var loginRedirectUri = _applicationOptions.GetClientLoginUrl(_tenantNameContainer.TenantName);
             
             var loginRedirectUrl = QueryHelpers.AddQueryString(
                 loginRedirectUri,
                 ExternalProviderConstants.AuthenticationTypeParameter,
-                _requestDto.Provider);
+                parameters.Request.Provider);
 
             var redirectUrlParameters = new Dictionary<string, string>
             {
                 { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
-                { ExternalProviderConstants.ProviderParameter, _requestDto.Provider },
+                { ExternalProviderConstants.ProviderParameter, parameters.Request.Provider },
                 { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
                 { ExternalProviderConstants.RedirectUrlParameter, loginRedirectUrl },
                 { ExternalProviderConstants.IsRegistrationParameter, ExternalProviderConstants.IsRegistration }
@@ -57,9 +54,9 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 
             var redirectUrl = QueryHelpers.AddQueryString(uri, redirectUrlParameters);
 
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(_requestDto.Provider, redirectUrl);
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(parameters.Request.Provider, redirectUrl);
 
-            return Task.FromResult(new ExternalProviderResult(properties, _requestDto.Provider));
+            return Task.FromResult(new ExternalProviderResult(properties, parameters.Request.Provider));
         }
     }
 }

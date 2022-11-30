@@ -19,9 +19,10 @@ using Shrooms.Domain.Services.AuthenticationStates;
 using Shrooms.Domain.Services.ExternalProviders.Contexts;
 using Shrooms.Domain.Services.ExternalProviders.Strategies;
 using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 
 namespace Shrooms.Domain.Services.ExternalProviders
-{//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user
+{
     public class ExternalProviderService : IExternalProviderService
     {
         private readonly IApplicationSignInManager _signInManager;
@@ -70,17 +71,13 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public async Task<ExternalProviderResult> ExternalLoginOrRegisterAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            var hasProvider = _organizationService.HasProvider(organization, requestDto.Provider);
-
-            _validator.CheckIfValidProvider(requestDto, hasProvider);
-
+            var organization = await GetOrganizationThatContainsProviderAsync(requestDto);
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-            var strategy = GetStrategy(externalLoginInfo, requestDto, routeDto, organization);
 
+            var strategy = FindStrategyBasedOnParameters(externalLoginInfo, requestDto, routeDto, organization, out var parameters);
             _externalProviderContext.SetStrategy(strategy);
 
-            return await _externalProviderContext.ExecuteStrategyAsync();
+            return await _externalProviderContext.ExecuteStrategyAsync(parameters, externalLoginInfo);
         }
 
         public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto routeDto, string returnUrl, string userId)
@@ -89,6 +86,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
 
             return CreateExternalLogins(organization, authenticationSchemes, routeDto, returnUrl, userId);
+        }
+
+        private async Task<Organization> GetOrganizationThatContainsProviderAsync(ExternalLoginRequestDto requestDto)
+        {
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var hasProvider = _organizationService.HasProvider(organization, requestDto.Provider);
+            _validator.CheckIfIsValidProvider(requestDto, hasProvider);
+            return organization;
         }
 
         private IList<ExternalLoginDto> CreateExternalLogins(
@@ -117,75 +122,49 @@ namespace Shrooms.Domain.Services.ExternalProviders
             return externalLogins;
         }
 
-        private IExternalProviderStrategy GetStrategy(
+        private IExternalProviderStrategy FindStrategyBasedOnParameters(
             ExternalLoginInfo externalLoginInfo,
             ExternalLoginRequestDto requestDto,
             ControllerRouteDto routeDto,
-            Organization organization)
+            Organization organization,
+            out ExternalProviderStrategyParametersDto parameters)
         {
             if (CanLinkAccount(externalLoginInfo, requestDto))
             {
-                return new ExternalProviderLinkAccountStrategy(_userManager, requestDto, externalLoginInfo);
+                parameters = new ExternalProviderStrategyParametersDto(requestDto);
+                return new ExternalProviderLinkAccountStrategy(_userManager);
             }
 
             if (HasCookieFromExternalProvider(externalLoginInfo))
             {
-                return requestDto.IsRegistration ?
-                    new ExternalRegisterStrategy(
+                if (requestDto.IsRegistration)
+                {
+                    parameters = new ExternalProviderStrategyParametersDto(requestDto, organization.Id);
+                    return new ExternalRegisterStrategy(
                         _tokenService,
                         _userManager,
                         _cookieService,
-                        _pictureService,
-                        requestDto,
-                        externalLoginInfo,
-                        organization) :
-                    new ExternalLoginStrategy(_cookieService, _tokenService, externalLoginInfo);
+                        _pictureService);
+                }
+
+                parameters = new ExternalProviderStrategyParametersDto();
+                return new ExternalLoginStrategy(_cookieService, _tokenService);
             }
 
-            return requestDto.IsRegistration ?
-                new ExternalRegisterRedirectToProviderStrategy(
+            if (requestDto.IsRegistration)
+            {
+                parameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
+                return new ExternalRegisterRedirectToProviderStrategy(
                     _tenantNameContainer,
                     _signInManager,
-                    routeDto,
-                    requestDto,
-                    _applicationOptions) :
-                new ExternalLoginRedirectToProviderStrategy(
+                    _applicationOptions);
+            }
+
+            parameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
+            return new ExternalLoginRedirectToProviderStrategy(
                     _applicationOptions,
                     _tenantNameContainer,
-                    _signInManager,
-                    requestDto,
-                    routeDto);
-        }
-
-        private string CreateExternalLoginUrl(
-            ControllerRouteDto routeDto,
-            AuthenticationScheme authenticationScheme,
-            string returnUrl,
-            string state,
-            string userId,
-            bool isRegistration)
-        {
-            var queryParams = new Dictionary<string, string>
-            {
-                { ExternalProviderConstants.ProviderParameter, authenticationScheme.Name },
-                { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
-                { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
-                { ExternalProviderConstants.ClientIdParameter, _applicationOptions.ClientId },
-                { ExternalProviderConstants.RedirectUrlParameter, new Uri($"{returnUrl}?{ExternalProviderConstants.AuthenticationTypeParameter}={authenticationScheme.Name}").AbsoluteUri },
-                { ExternalProviderConstants.StateParameter, state }
-            };
-
-            if (userId != null)
-            {
-                queryParams[ExternalProviderConstants.UserIdParameter] = userId;
-            }
-
-            if (isRegistration)
-            {
-                queryParams[ExternalProviderConstants.IsRegistrationParameter] = ExternalProviderConstants.IsRegistration;
-            }
-
-            return QueryHelpers.AddQueryString($"/{routeDto.ControllerName}/{routeDto.ActionName}", queryParams);
+                    _signInManager);
         }
 
         private ExternalLoginDto CreateExternalLogin(
@@ -204,6 +183,38 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 Url = CreateExternalLoginUrl(routeDto, authenticationScheme, returnUrl, state, userId, isRegistration),
                 State = state
             };
+        }
+
+        private string CreateExternalLoginUrl(
+            ControllerRouteDto routeDto,
+            AuthenticationScheme authenticationScheme,
+            string returnUrl,
+            string state,
+            string userId,
+            bool isRegistration)
+        {
+            var redirectUri = new Uri($"{returnUrl}?{ExternalProviderConstants.AuthenticationTypeParameter}={authenticationScheme.Name}").AbsoluteUri;
+            var queryParams = new Dictionary<string, string>
+            {
+                { ExternalProviderConstants.ProviderParameter, authenticationScheme.Name },
+                { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
+                { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
+                { ExternalProviderConstants.ClientIdParameter, _applicationOptions.ClientId },
+                { ExternalProviderConstants.RedirectUrlParameter, redirectUri },
+                { ExternalProviderConstants.StateParameter, state }
+            };
+
+            if (userId != null)
+            {
+                queryParams[ExternalProviderConstants.UserIdParameter] = userId;
+            }
+
+            if (isRegistration)
+            {
+                queryParams[ExternalProviderConstants.IsRegistrationParameter] = ExternalProviderConstants.IsRegistration;
+            }
+
+            return QueryHelpers.AddQueryString($"/{routeDto.ControllerName}/{routeDto.ActionName}", queryParams);
         }
 
         private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo)

@@ -18,9 +18,9 @@ namespace Shrooms.Presentation.Api.Controllers
         }
 
         [HttpGet("{organizationName}/{pictureName}")]
-        public async Task<IActionResult> GetPicture(string pictureName) // TODO: Add width, height and mode parameters
+        public async Task<IActionResult> GetPicture(string pictureName) // TODO: Add width, height and mode parameters when image processing library is decided
         {
-            var pictureDto = await _pictureService.GetPictureAsync(pictureName); // TODO: Fix this method
+            var pictureDto = await _pictureService.GetPictureAsync(pictureName);
             return File(pictureDto.Content, pictureDto.ContentType);
         }
     }
