@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.ExternalProviders;
@@ -38,8 +37,7 @@ namespace Shrooms.Presentation.Api
             _internalProviderService = internalProviderService;
         }
 
-        [AllowAnonymous]
-        [Route("Register")]
+        [Route("Register"), AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterViewModel registerViewModel)
         {
             var registerDto = _mapper.Map<RegisterViewModel, RegisterDto>(registerViewModel);
@@ -47,7 +45,6 @@ namespace Shrooms.Presentation.Api
             return Ok();
         }
 
-        [Authorize]
         [HttpGet("UserInfo")]
         public async Task<IActionResult> GetUserInfo()
         {
@@ -56,8 +53,7 @@ namespace Shrooms.Presentation.Api
             return Ok(userInfoViewModel);
         }
 
-        [AllowAnonymous]
-        [HttpGet("InternalLogins")]
+        [HttpGet("InternalLogins"), AllowAnonymous]
         public async Task<IActionResult> GetInternalLogins()
         {
             var loginDtos = await _internalProviderService.GetLoginsAsync();
@@ -65,8 +61,7 @@ namespace Shrooms.Presentation.Api
             return Ok(loginViewModels);
         }
 
-        [AllowAnonymous]
-        [HttpPost("VerifyEmail")]
+        [HttpPost("VerifyEmail"), AllowAnonymous]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailViewModel verifyViewModel)
         {
             var verifyDto = _mapper.Map<VerifyEmailDto>(verifyViewModel);
@@ -80,8 +75,7 @@ namespace Shrooms.Presentation.Api
         /// </summary>
         /// <param name="requestViewModel">Parameters</param>
         /// <returns>Redirects to an external provider or redirects to the client with an access token and set .AspNet.Cookies cookie</returns>
-        [AllowAnonymous]
-        [HttpGet("ExternalLogin")]
+        [HttpGet("ExternalLogin"), AllowAnonymous]
         public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
         {
             var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
@@ -90,8 +84,7 @@ namespace Shrooms.Presentation.Api
             return externalProviderResult.ToActionResult(this);
         }
 
-        [AllowAnonymous]
-        [HttpGet("ExternalLogins")]
+        [HttpGet("ExternalLogins"), AllowAnonymous]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
             var redirectRouteDto = GetControllerRoute(actionName: "ExternalLogin");
@@ -106,7 +99,6 @@ namespace Shrooms.Presentation.Api
         /// </summary>
         /// <param name="loginViewModel">Deprecated parameter (left for backwards compatibility)</param>
         /// <returns></returns>
-        [Authorize]
         [HttpPost("SignIn")]
 #pragma warning disable IDE0060 // Remove unused parameter
         public async Task<IActionResult> SetStorageCookie([FromBody] LoginViewModel loginViewModel)
@@ -116,16 +108,14 @@ namespace Shrooms.Presentation.Api
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpPost("RequestPasswordReset")]
+        [HttpPost("RequestPasswordReset"), AllowAnonymous]
         public async Task<IActionResult> RequestPasswordReset([FromBody] ForgotPasswordViewModel forgotViewModel)
         {
             await _internalProviderService.SendPasswordResetEmailAsync(forgotViewModel.Email);
             return Ok();
         }
 
-        [AllowAnonymous]
-        [HttpPost("ResetPassword")]
+        [HttpPost("ResetPassword"), AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel resetViewModel)
         {
             var resetDto = _mapper.Map<ResetPasswordDto>(resetViewModel);
