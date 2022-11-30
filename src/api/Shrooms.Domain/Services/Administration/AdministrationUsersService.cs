@@ -20,9 +20,9 @@ using Shrooms.Domain.Services.Users;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Contracts.Exceptions;
 using System.Security.Claims;
 using System.Security.Principal;
+using Shrooms.Domain.Extensions;
 
 namespace Shrooms.Domain.Services.Administration
 {
@@ -216,34 +216,34 @@ namespace Shrooms.Domain.Services.Administration
 
         public async Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity)
         {
-            if (identity is not ClaimsIdentity claimsIdentity)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Invalid identity");
-            }
-
-            if (!claimsIdentity.IsAuthenticated)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "User not authenticated");
-            }
-
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
+            _validator.CheckIfIsValidClaimsIdentity(identity);
+            
+            var claimsIdentity = identity as ClaimsIdentity;
+            var userId = claimsIdentity.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
             var roles = await _userManager.GetRolesAsync(user);
-
             var permissions = await _permissionService.GetUserPermissionsAsync(userId);
 
+            return CreateUserInfo(claimsIdentity, user, roles, permissions.ToList());
+        }
+
+        private static LoggedInUserInfoDto CreateUserInfo(
+            ClaimsIdentity claimsIdentity,
+            ApplicationUser user,
+            IList<string> roles,
+            IEnumerable<string> permissions)
+        {
             return new LoggedInUserInfoDto
             {
                 HasRegistered = true,
                 Roles = roles,
-                UserName = identity.Name,
-                UserId = userId,
-                OrganizationName = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationName).Value,
-                OrganizationId = claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId).Value,
-                FullName = claimsIdentity.FindFirst(ClaimTypes.GivenName).Value,
+                UserName = user.UserName,
+                UserId = user.Id,
+                OrganizationName = claimsIdentity.GetOrganizationName(),
+                OrganizationId = claimsIdentity.GetOrganizationId(),
+                FullName = user.FullName,
                 Permissions = permissions,
-                Impersonated = claimsIdentity.Claims.Any(c => c.Type == WebApiConstants.ClaimUserImpersonation && bool.Parse(c.Value)),
+                Impersonated = false, // Impersonation logic does not exist yet
                 CultureCode = user.CultureCode,
                 TimeZone = user.TimeZone,
                 PictureId = user.PictureId

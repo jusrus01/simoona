@@ -1,10 +1,26 @@
 ﻿using Shrooms.Contracts.Constants;
+using System;
 using System.Security.Claims;
 
 namespace Shrooms.Domain.Extensions
 {
     public static class ClaimsIdentityExtensions
     {
+        public static int GetOrganizationId(this ClaimsIdentity claimsIdentity)
+        {
+            return Convert.ToInt32(claimsIdentity.FindFirst(WebApiConstants.ClaimOrganizationId));
+        }
+
+        public static string GetOrganizationName(this ClaimsIdentity claimsIdentity)
+        {
+            return claimsIdentity.FindFirstValue(WebApiConstants.ClaimOrganizationName);
+        }
+
+        public static string GetUserId(this ClaimsIdentity claimsIdentity)
+        {
+            return claimsIdentity.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
         public static string GetEmail(this ClaimsIdentity claimsIdentity)
         {
             return claimsIdentity.FindFirstValue(ClaimTypes.Email);

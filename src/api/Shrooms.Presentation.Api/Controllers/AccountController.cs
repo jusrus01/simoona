@@ -114,7 +114,7 @@ namespace Shrooms.Presentation.Api
         /// <summary>
         /// Only responsible for providing a cookie that is used in StorageController
         /// </summary>
-        /// <param name="loginViewModel">Deprecated parameter</param>
+        /// <param name="loginViewModel">Deprecated parameter, left for backwards compatibility</param>
         /// <returns></returns>
         [Authorize]
         [HttpPost("SignIn")]

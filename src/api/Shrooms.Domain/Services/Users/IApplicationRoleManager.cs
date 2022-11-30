@@ -7,6 +7,8 @@ namespace Shrooms.Domain.Services.Users
     {
         Task AddToRoleAsync(ApplicationUser user, string role);
 
+        Task AddToRolesAsync(ApplicationUser user, params string[] roles);
+
         Task RemoveFromRoleAsync(ApplicationUser user, string role);
 
         Task<bool> IsInRoleAsync(ApplicationUser user, string role);

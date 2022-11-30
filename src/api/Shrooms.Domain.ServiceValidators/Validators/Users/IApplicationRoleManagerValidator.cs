@@ -4,8 +4,8 @@ namespace Shrooms.Domain.ServiceValidators.Validators.Users
 {
     public interface IApplicationRoleManagerValidator
     {
-        void CheckIfAddedToRole(IdentityResult identityResult, string role);
+        void CheckIfAddedToRole(IdentityResult identityResult);
 
-        void CheckIfRemovedFromRole(IdentityResult identityResult, string role);
+        void CheckIfRemovedFromRole(IdentityResult identityResult);
     }
 }

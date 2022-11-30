@@ -6,7 +6,7 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public interface ITokenService
     {
-        Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto);
+        Task<TokenResponseDto> CreateTokenAsync(TokenRequestDto requestDto);
 
         Task<string> GetTokenRedirectUrlForExternalAsync(ExternalLoginInfo externalLoginInfo);
     }

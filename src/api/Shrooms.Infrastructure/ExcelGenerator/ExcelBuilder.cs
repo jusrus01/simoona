@@ -20,7 +20,6 @@ namespace Shrooms.Infrastructure.ExcelGenerator
         public IExcelWorksheetBuilder AddWorksheet(string sheetName)
         {
             var worksheet = _package.Workbook.Worksheets.Add(sheetName);
-
             return new ExcelWorksheetBuilder(worksheet);
         }
     }

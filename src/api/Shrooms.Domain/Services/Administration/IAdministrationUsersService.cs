@@ -23,8 +23,8 @@ namespace Shrooms.Domain.Services.Administration
 
         Task<bool> GetUserTutorialStatusAsync(string userId);
 
-        Task SendUserPasswordResetEmailAsync(string email);//export?
+        Task SendUserPasswordResetEmailAsync(string email);
 
-        Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);//export?
+        Task<LoggedInUserInfoDto> GetUserInfoAsync(IIdentity identity);
     }
 }

@@ -23,10 +23,10 @@ namespace Shrooms.Presentation.Api.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Consumes("application/x-www-form-urlencoded")]
-        public async Task<IActionResult> GetToken([FromForm] TokenRequestViewModel requestViewModel)
+        public async Task<IActionResult> CreateToken([FromForm] TokenRequestViewModel requestViewModel)
         {
             var requestDto = _mapper.Map<TokenRequestDto>(requestViewModel);
-            var reponseDto = await _tokenService.GetTokenAsync(requestDto);
+            var reponseDto = await _tokenService.CreateTokenAsync(requestDto);
             var responseViewModel = _mapper.Map<TokenResponseViewModel>(reponseDto);
 
             return Ok(responseViewModel);

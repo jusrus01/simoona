@@ -82,9 +82,11 @@
         // User administration, 19**
         public const int UserAdministrationInvalidEmploymentDate = 1900;
         public const int UserAdministrationInformationNotProvided = 1901;
+        public const int UserAdministrationInvalidIdentity = 1902;
+        public const int UserAdministrationIdentityNotAuthenticated = 1903;
 
-        // Role manager, 20**
-        public const int RoleManagerFailedToAdd = 2000;
-        public const int RoleManagerFailedToRemove = 2001;
+        // Roles, 20**
+        public const int RoleFailedToAdd = 2000;
+        public const int RoleFailedToRemove = 2001;
     }
 }

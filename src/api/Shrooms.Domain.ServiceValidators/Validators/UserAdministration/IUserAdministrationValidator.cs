@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Principal;
 
 namespace Shrooms.Domain.ServiceValidators.Validators.UserAdministration
 {
@@ -7,5 +8,7 @@ namespace Shrooms.Domain.ServiceValidators.Validators.UserAdministration
         void CheckIfEmploymentDateIsSet(DateTime? employmentDate);
 
         void CheckIfUserHasFirstLoginRole(bool hasRole);
+
+        void CheckIfIsValidClaimsIdentity(IIdentity identity);
     }
 }

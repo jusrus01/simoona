@@ -66,7 +66,7 @@ namespace Shrooms.Domain.Services.Tokens
             return $"{QueryHelpers.AddQueryString(uri, AuthTypeParameterName, externalLoginInfo.ProviderDisplayName)}#{AccessTokenQueryParameter}={token}";
         }
 
-        public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
+        public async Task<TokenResponseDto> CreateTokenAsync(TokenRequestDto requestDto)
         {
             var user = await _userManager.FindByNameAsync(requestDto.Username);
             await _userManager.CheckPasswordAsync(user, requestDto.Password);

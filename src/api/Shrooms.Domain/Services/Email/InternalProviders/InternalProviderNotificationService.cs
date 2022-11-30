@@ -5,7 +5,6 @@ using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Organizations;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Email.InternalProviders
@@ -15,21 +14,18 @@ namespace Shrooms.Domain.Services.Email.InternalProviders
         private readonly ApplicationOptions _applicationOptions;
         private readonly IMailService _mailService;
         private readonly IMailTemplate _mailTemplate;
-        private readonly IOrganizationService _organizationService;
         private readonly ITenantNameContainer _tenantNameContainer;
 
         public InternalProviderNotificationService(
             IOptions<ApplicationOptions> applicationOptions,
             IMailTemplate mailTemplate,
             IMailService mailService,
-            IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer)
         {
             _applicationOptions = applicationOptions.Value;
             
             _mailService = mailService;
             _mailTemplate = mailTemplate;
-            _organizationService = organizationService;
             _tenantNameContainer = tenantNameContainer;
         }
         

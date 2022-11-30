@@ -9,7 +9,6 @@ using Shrooms.Domain.Services.Email.InternalProviders;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Domain.ServiceValidators.Validators.InternalProviders;
-using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -131,14 +130,12 @@ namespace Shrooms.Domain.Services.InternalProviders
         private async Task RestoreUserAsync(RegisterDto registerDto)
         {
             var user = await _userManager.RestoreSoftDeletedUserByEmailAsync(registerDto.Email);
-
             await AddNewUserRolesAsync(user);
         }
 
-        private async Task AddNewUserRolesAsync(ApplicationUser user)
+        private Task AddNewUserRolesAsync(ApplicationUser user)
         {
-            await _roleManager.AddToRoleAsync(user, Contracts.Constants.Roles.NewUser);
-            await _roleManager.AddToRoleAsync(user, Contracts.Constants.Roles.FirstLogin);
+            return _roleManager.AddToRolesAsync(user, Contracts.Constants.Roles.NewUser, Contracts.Constants.Roles.FirstLogin);
         }
 
         private async Task AddInternalLoginAsync(ApplicationUser newUser)
@@ -154,11 +151,10 @@ namespace Shrooms.Domain.Services.InternalProviders
         private async Task OverrideUnconfirmedUserAsync(RegisterDto registerDto)
         {
             // Possible unexpected behavior when a user tries to register for another organization with the same email address
-            // when organizations are hosted on the same database instance (at the moment we keep organization's databases instances separate)
+            // when organizations are hosted on the same database instance (at the moment we keep organization's database instances separate)
             var user = await _userManager.FindByEmailAsync(registerDto.Email);
 
             var hasExternalLogin = await _userManager.HasExternalLoginAsync(user);
-
             _validator.CheckIfDoesNotContainValidLogin(user, hasExternalLogin);
 
             await _userManager.RemovePasswordAsync(user);
