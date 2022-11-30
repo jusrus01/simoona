@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 
 namespace Shrooms.Presentation.Api.Configurations
 {
@@ -20,7 +21,7 @@ namespace Shrooms.Presentation.Api.Configurations
                 .AllowAnyHeader()
                 .AllowAnyMethod();
 
-            if (!HasOrigins(origins))
+            if (!origins.Any())
             {
                 builder.SetIsOriginAllowed(isAllowed => true);
             }
@@ -28,7 +29,5 @@ namespace Shrooms.Presentation.Api.Configurations
             return builder.SetPreflightMaxAge(TimeSpan.FromSeconds(short.MaxValue))
                 .Build();
         }
-
-        private static bool HasOrigins(string[] origins) => origins.Length != 0;
     }
 }
