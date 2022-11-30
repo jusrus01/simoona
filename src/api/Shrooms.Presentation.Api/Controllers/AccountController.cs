@@ -85,12 +85,7 @@ namespace Shrooms.Presentation.Api
         public async Task<IActionResult> ExternalLogin(ExternalLoginRequestViewModel requestViewModel)
         {
             var requestDto = _mapper.Map<ExternalLoginRequestDto>(requestViewModel);
-            var routeDto = new ControllerRouteDto
-            {
-                ControllerName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionName = ControllerContext.ActionDescriptor.ActionName
-            };
-
+            var routeDto = GetControllerRoute();
             var externalProviderResult = await _externalProviderService.ExternalLoginOrRegisterAsync(requestDto, routeDto);
             return externalProviderResult.ToActionResult(this);
         }
@@ -99,13 +94,8 @@ namespace Shrooms.Presentation.Api
         [HttpGet("ExternalLogins")]
         public async Task<ActionResult> GetExternalLogins(string returnUrl, bool isLinkable = false)
         {
-            var redirectRouteDto = new ControllerRouteDto
-            {
-                ControllerName = ControllerContext.ActionDescriptor.ControllerName,
-                ActionName = "ExternalLogin"
-            };
-
-            var userId = !isLinkable ? null : GetUserAndOrganization().UserId;
+            var redirectRouteDto = GetControllerRoute(actionName: "ExternalLogin");
+            var userId = !isLinkable ? null : GetUserId();
             var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(redirectRouteDto, returnUrl, userId);
             var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
             return Ok(externalLoginViewModels);
@@ -114,12 +104,12 @@ namespace Shrooms.Presentation.Api
         /// <summary>
         /// Only responsible for providing a cookie that is used in StorageController
         /// </summary>
-        /// <param name="loginViewModel">Deprecated parameter, left for backwards compatibility</param>
+        /// <param name="loginViewModel">Deprecated parameter (left for backwards compatibility)</param>
         /// <returns></returns>
         [Authorize]
         [HttpPost("SignIn")]
 #pragma warning disable IDE0060 // Remove unused parameter
-        public async Task<IActionResult> SetSignInCookie([FromBody] LoginViewModel loginViewModel)
+        public async Task<IActionResult> SetStorageCookie([FromBody] LoginViewModel loginViewModel)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             await _internalProviderService.CookieSignInAsync();

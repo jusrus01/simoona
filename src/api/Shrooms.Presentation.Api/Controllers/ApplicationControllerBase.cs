@@ -1,78 +1,53 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects;
-using Shrooms.Contracts.Exceptions;
-using Shrooms.Presentation.Api.Helpers;
+using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
+using Shrooms.Domain.Extensions;
+using System;
 using System.Security.Claims;
 
 namespace Shrooms.Presentation.Api.Controllers
 {
-    // TODO: Refactor
     public class ApplicationControllerBase : ControllerBase
     {
-        protected IActionResult BadRequestWithError(ValidationException ex)
-        {
-            return BadRequest(new { ErrorCode = ex.ErrorCode, ErrorMessage = ex.ErrorMessage });
-        }
-
         protected UserAndOrganizationDto GetUserAndOrganization()
         {
-            return User.Identity.GetUserAndOrganization();
+            var claimsIdentity = GetAuthenticatedClaimsIdentity();
+            return new UserAndOrganizationDto
+            {
+                OrganizationId = claimsIdentity.GetOrganizationId(),
+                UserId = claimsIdentity.GetUserId()
+            };
         }
 
-        protected UserAndOrganizationHubDto GetUserAndOrganizationHub()
+        protected string GetUserId()
         {
-            return new UserAndOrganizationHubDto
-            {
-                OrganizationId = User.Identity.GetOrganizationId(),
-                UserId = GetAuthenticatedUserId(),
-                OrganizationName = User.Identity.GetOrganizationName()
-            };
+            return GetAuthenticatedClaimsIdentity().GetUserId();
         }
 
         protected int GetOrganizationId()
         {
-            return User.Identity.GetOrganizationId();
+            return GetAuthenticatedClaimsIdentity().GetOrganizationId();
         }
 
-        protected void SetOrganizationAndUser(UserAndOrganizationDto obj)
+        protected ControllerRouteDto GetControllerRoute(string? controllerName = null, string? actionName = null)
         {
-            obj.OrganizationId = User.Identity.GetOrganizationId();
-            obj.UserId = GetAuthenticatedUserId();
-        }
-
-        protected string GetAuthenticatedUserFullName()
-        {
-            return GetAuthenticatedUserClaim(ClaimTypes.GivenName);
-        }
-
-        protected string GetAuthenticatedUserId()
-        {
-            return GetAuthenticatedUserClaim(ClaimTypes.NameIdentifier);
-        }
-
-        protected string GetAuthenticatedUserEmail()
-        {
-            return GetAuthenticatedUserClaim(ClaimTypes.Email);
-        }
-
-        private string GetAuthenticatedUserClaim(string claimType)
-        {
-            if (HttpContext.User == null || 
-                HttpContext.User.Identity == null ||
-                !HttpContext.User.Identity.IsAuthenticated)
+            return new ControllerRouteDto
             {
-                throw new ValidationException(ErrorCodes.UserNotFound, "User is not authenticated");
+                ControllerName = controllerName ?? ControllerContext.ActionDescriptor.ControllerName,
+                ActionName = actionName ?? ControllerContext.ActionDescriptor.ActionName
+            };
+        }
+
+        private ClaimsIdentity GetAuthenticatedClaimsIdentity()
+        {
+            if (User.Identity is ClaimsIdentity claimsIdentity && claimsIdentity.IsAuthenticated)
+            {
+                return claimsIdentity;
             }
 
-            var claim = User.FindFirstValue(claimType);
-
-            if (claim == null)
-            {
-                throw new ValidationException(ErrorCodes.InvalidClaim, $"Requested claim {claimType} does not exist");
-            }
-
-            return claim;
+            throw new InvalidOperationException(
+                "Incorrect function usage. " +
+                "Make sure that you are calling this method inside methods that use [Authorize] attribute");
         }
     }
 }

@@ -96,7 +96,7 @@ namespace Shrooms.Domain.Services.InternalProviders
             _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendResetPasswordEmailAsync(user, token));
         }
 
-        private static IList<ExternalLoginDto> GetLogins(bool hasProvider)
+        private static List<ExternalLoginDto> GetLogins(bool hasProvider)
         {
             return hasProvider ?
                 new List<ExternalLoginDto>
