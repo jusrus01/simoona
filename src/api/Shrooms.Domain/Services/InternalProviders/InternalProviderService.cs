@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Cookies;
@@ -8,7 +9,7 @@ using Shrooms.Domain.Services.Email.InternalProviders;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Domain.ServiceValidators.Validators.InternalProviders;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

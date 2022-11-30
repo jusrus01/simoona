@@ -5,7 +5,7 @@ using Shrooms.Domain.Services.DailyMailingService;
 using Shrooms.Infrastructure.CustomCache;
 using Shrooms.Infrastructure.Email.Templates;
 using Shrooms.Infrastructure.ExcelGenerator;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 using Shrooms.Infrastructure.Interceptors;
 using Shrooms.Infrastructure.Storage;
 using Shrooms.Infrastructure.Storage.FileSystem;

@@ -12,7 +12,7 @@ using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Exceptions.Exceptions.Organization;
 using Shrooms.Domain.Services.Roles;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 
 // Note: Name is used in claims, ShortName is used elsewhere
 namespace Shrooms.Domain.Services.Organizations

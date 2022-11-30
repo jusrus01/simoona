@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.Containers;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,8 +1,9 @@
-﻿using Shrooms.Contracts.Infrastructure.FireAndForget;
+﻿using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.Infrastructure.FireAndForget;
 using System;
 using System.Threading.Tasks;
 
-namespace Shrooms.Infrastructure.FireAndForget
+namespace Shrooms.Infrastructure.BackgroundJobs
 {
     public class BackgroundJobScheduler : IBackgroundJobScheduler
     {

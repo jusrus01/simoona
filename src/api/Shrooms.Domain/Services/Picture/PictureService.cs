@@ -4,10 +4,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Shrooms.Contracts.DataTransferObjects.Models.Pictures;
-using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Storage;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Contracts.Constants;
+using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Domain.Services.Picture
 {

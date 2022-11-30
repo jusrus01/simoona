@@ -1,7 +1,7 @@
 ﻿using Shrooms.Contracts.Infrastructure.FireAndForget;
 using System.Collections.Concurrent;
 
-namespace Shrooms.Infrastructure.FireAndForget
+namespace Shrooms.Infrastructure.BackgroundJobs
 {
     public class BackgroundJobQueue : IBackgroundJobQueue
     {

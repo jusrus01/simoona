@@ -15,7 +15,7 @@ using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 using Shrooms.Infrastructure.Logger;
 using Shrooms.Presentation.Api.BackgroundServices;
 using Shrooms.Presentation.Api.GlobalFilters;

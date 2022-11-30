@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.DAL;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
+using Shrooms.Infrastructure.Containers;
 using System;
 
 namespace Shrooms.IoC.Modules

@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Shrooms.Infrastructure.FireAndForget
+namespace Shrooms.Infrastructure.BackgroundJobs
 {
     public class BackgroundJob : IBackgroundJob
     {

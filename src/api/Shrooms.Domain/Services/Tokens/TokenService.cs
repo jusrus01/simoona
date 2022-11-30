@@ -11,7 +11,7 @@ using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Domain.Extensions;
 using Shrooms.Domain.ServiceValidators.Validators.Organizations;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,6 +19,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Domain.Services.Tokens
 {

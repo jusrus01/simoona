@@ -11,7 +11,7 @@ using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
-using Shrooms.Infrastructure.FireAndForget;
+using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +19,7 @@ using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 using Shrooms.Domain.Services.AuthenticationStates;
 using Shrooms.Domain.Services.ExternalProviders.Contexts;
 using Shrooms.Domain.Services.ExternalProviders.Strategies;
+using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user

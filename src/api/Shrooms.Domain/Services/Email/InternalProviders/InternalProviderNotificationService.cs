@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.Contracts.DataTransferObjects.EmailTemplateViewModels;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Infrastructure.Email;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
-using Shrooms.Infrastructure.FireAndForget;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.Email.InternalProviders

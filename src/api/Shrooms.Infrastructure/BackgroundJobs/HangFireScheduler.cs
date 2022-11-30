@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using Shrooms.Contracts.Infrastructure;
 
-namespace Shrooms.Infrastructure.FireAndForget
+namespace Shrooms.Infrastructure.BackgroundJobs
 {
     public class HangFireScheduler : IJobScheduler
     {

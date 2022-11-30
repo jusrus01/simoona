@@ -1,4 +1,6 @@
-﻿namespace Shrooms.Infrastructure.FireAndForget
+﻿using Shrooms.Contracts.Infrastructure;
+
+namespace Shrooms.Infrastructure.Containers
 {
     public class TenantNameContainer : ITenantNameContainer
     {
@@ -8,10 +10,5 @@
         {
             TenantName = tenantName;
         }
-    }
-
-    public interface ITenantNameContainer
-    {
-        string TenantName { get; }
     }
 }

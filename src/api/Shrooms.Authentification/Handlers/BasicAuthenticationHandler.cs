@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using Shrooms.Authentication.Constants;
 using Shrooms.Contracts.Constants;
 using Shrooms.Domain.Services.Organizations;
-using Shrooms.Infrastructure.FireAndForget;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -13,6 +12,7 @@ using System.Threading.Tasks;
 using Shrooms.Authentication.Handlers.Validators;
 using Shrooms.Authentication.Handlers.Extractors;
 using Shrooms.Contracts.Exceptions;
+using Shrooms.Contracts.Infrastructure;
 
 namespace Shrooms.Authentification.Handlers
 {
@@ -26,7 +26,7 @@ namespace Shrooms.Authentification.Handlers
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            ISystemClock clock,
+            Microsoft.AspNetCore.Authentication.ISystemClock clock,
             IOrganizationService organizationService,
             ITenantNameContainer tenantNameContainer,
             IBasicAuhenticationValidator validator)
