@@ -206,9 +206,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
             };
         }
 
-        private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo) => externalLoginInfo != null;
+        private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo)
+        {
+            return externalLoginInfo != null;
+        }
 
-        private static bool CanLinkAccount(ExternalLoginInfo externalLoginInfo, ExternalLoginRequestDto requestDto) =>
-            externalLoginInfo != null && requestDto.UserId != null;
+        private static bool CanLinkAccount(ExternalLoginInfo externalLoginInfo, ExternalLoginRequestDto requestDto)
+        {
+            return externalLoginInfo != null && requestDto.UserId != null;
+        }
     }
 }

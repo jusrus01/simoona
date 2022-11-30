@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shrooms.Authentication.Constants;
@@ -42,13 +41,13 @@ namespace Shrooms.Authentification.Handlers
         {
             try
             {
-                ValidateEndpoint();
+                _validator.CheckIfRequestIsValid(Context);
 
                 var authorizationHeader = ExtractAuthorizationHeaderValue();
-                ValidateAuthorizationHeader(authorizationHeader);
+                _validator.CheckIfAuthorizationHeaderIsValid(authorizationHeader);
 
                 var credentials = BasicCredentialsExtractor.ExtractCredentials(authorizationHeader);
-                ValidateCredentials(credentials);
+                _validator.CheckIfCredentialsAreValid(credentials);
 
                 await ValidateRequiredOrganizationAsync();
 
@@ -64,25 +63,6 @@ namespace Shrooms.Authentification.Handlers
         {
             var exists = await _organizationService.HasOrganizationAsync(_tenantNameContainer.TenantName);
             _validator.CheckIfRequiredOrganizationExists(exists);
-        }
-
-        private void ValidateCredentials((string, string) credentials)
-        {
-            _validator.CheckIfAllCredentialsAreGiven(credentials);
-            _validator.CheckIfCredentialsAreValid(credentials);
-        }
-
-        private void ValidateEndpoint()
-        {
-            _validator.CheckIfEndpointIsAuthorized(Context.GetEndpoint());
-            _validator.CheckIfRequestContainsAuthorizationHeader(Request);
-        }
-
-        private void ValidateAuthorizationHeader(AuthenticationHeaderValue header)
-        {
-            _validator.CheckIfAuthorizationHeaderIsValid(header);
-            _validator.CheckIfSchemeIsBasic(header);
-            _validator.CheckIfHeaderContainsCredentials(header);
         }
 
         private static AuthenticateResult GetValidationErrorResult(ValidationException ex)

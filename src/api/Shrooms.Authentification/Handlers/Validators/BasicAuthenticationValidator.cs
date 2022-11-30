@@ -11,6 +11,8 @@ namespace Shrooms.Authentication.Handlers.Validators
 {
     public class BasicAuthenticationValidator : IBasicAuhenticationValidator
     {
+        private const string AuthorizationHeader = "Authorization";
+
         private readonly BasicAuthenticationOptions _basicOptions;
 
         public BasicAuthenticationValidator(IOptions<BasicAuthenticationOptions> basicOptions)
@@ -18,7 +20,50 @@ namespace Shrooms.Authentication.Handlers.Validators
             _basicOptions = basicOptions.Value;
         }
 
-        public void CheckIfEndpointIsAuthorized(Endpoint endpoint)
+        public void CheckIfRequestIsValid(HttpContext httpContext)
+        {
+            CheckIfEndpointIsAuthorized(httpContext.GetEndpoint());
+            CheckIfRequestContainsAuthorizationHeader(httpContext.Request);
+        }
+
+        public void CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header)
+        {
+            CheckIfAuthorizationHeaderIsPresent(header);
+            CheckIfSchemeIsBasic(header);
+            CheckIfHeaderContainsCredentials(header);
+        }
+
+        public void CheckIfRequiredOrganizationExists(bool exists)
+        {
+            if (!exists)
+            {
+                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
+            }
+        }
+
+        public void CheckIfCredentialsAreValid((string, string) credentials)
+        {
+            CheckIfAllCredentialsAreGiven(credentials);
+            CheckIfCredentialsAreCorrect(credentials);
+        }
+
+        private static void CheckIfAllCredentialsAreGiven((string, string) credentials)
+        {
+            if (credentials.Item1 == null || credentials.Item2 == null)
+            {
+                throw new ValidationException(ErrorCodes.BasicNotAttemped);
+            }
+        }
+
+        private void CheckIfCredentialsAreCorrect((string, string) credentials)
+        {
+            if (credentials.Item1 != _basicOptions.UserName || credentials.Item2 != _basicOptions.Password)
+            {
+                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
+            }
+        }
+
+        private static void CheckIfEndpointIsAuthorized(Endpoint endpoint)
         {
             if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
             {
@@ -26,15 +71,15 @@ namespace Shrooms.Authentication.Handlers.Validators
             }
         }
 
-        public void CheckIfRequestContainsAuthorizationHeader(HttpRequest request)
+        private static void CheckIfRequestContainsAuthorizationHeader(HttpRequest request)
         {
-            if (!request.Headers.ContainsKey("Authorization"))
+            if (!request.Headers.ContainsKey(AuthorizationHeader))
             {
                 throw new ValidationException(ErrorCodes.BasicNotAttemped);
             }
         }
 
-        public void CheckIfAuthorizationHeaderIsValid(AuthenticationHeaderValue header)
+        private static void CheckIfAuthorizationHeaderIsPresent(AuthenticationHeaderValue header)
         {
             if (header == null)
             {
@@ -42,7 +87,7 @@ namespace Shrooms.Authentication.Handlers.Validators
             }
         }
 
-        public void CheckIfSchemeIsBasic(AuthenticationHeaderValue header)
+        private static void CheckIfSchemeIsBasic(AuthenticationHeaderValue header)
         {
             var basicSchemeName = AuthenticationSchemes.Basic.ToString();
 
@@ -52,35 +97,11 @@ namespace Shrooms.Authentication.Handlers.Validators
             }
         }
 
-        public void CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header)
+        private static void CheckIfHeaderContainsCredentials(AuthenticationHeaderValue header)
         {
             if (header.Parameter == null)
             {
                 throw new ValidationException(ErrorCodes.BasicNotAttemped);
-            }
-        }
-
-        public void CheckIfAllCredentialsAreGiven((string, string) credentials)
-        {
-            if (credentials.Item1 == null || credentials.Item2 == null)
-            {
-                throw new ValidationException(ErrorCodes.BasicNotAttemped);
-            }
-        }
-
-        public void CheckIfCredentialsAreValid((string, string) credentials)
-        {
-            if (credentials.Item1 != _basicOptions.UserName || credentials.Item2 != _basicOptions.Password)
-            {
-                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
-            }
-        }
-
-        public void CheckIfRequiredOrganizationExists(bool exists)
-        {
-            if (!exists)
-            {
-                throw new ValidationException(ErrorCodes.BasicInvalidCredentials);
             }
         }
     }
