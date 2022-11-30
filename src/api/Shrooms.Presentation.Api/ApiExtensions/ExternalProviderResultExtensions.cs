@@ -3,7 +3,7 @@ using Shrooms.Contracts.Enums;
 using Shrooms.Domain.Services.ExternalProviders;
 using System;
 
-namespace Shrooms.Presentation.Api.ShroomsExtensions
+namespace Shrooms.Presentation.Api.ApiExtensions
 {
     public static class ExternalProviderResultExtensions
     {
