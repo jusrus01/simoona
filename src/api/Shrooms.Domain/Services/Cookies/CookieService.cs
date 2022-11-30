@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Options;
+using Shrooms.Infrastructure.FireAndForget;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -13,36 +15,57 @@ namespace Shrooms.Domain.Services.Cookies
     public class CookieService : ICookieService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly JwtAuthenticationOptions _jwtOptions; // TODO: Create cookie
+        private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly JwtAuthenticationOptions _jwtOptions; // Only used to specify the same lifetime
 
-        public CookieService(IOptions<JwtAuthenticationOptions> jwtOptions, IHttpContextAccessor httpContextAccessor)
+        public CookieService(
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<JwtAuthenticationOptions> jwtOptions,
+            ITenantNameContainer tenantNameContainer)
         {
             _httpContextAccessor = httpContextAccessor;
+            _tenantNameContainer = tenantNameContainer;
             _jwtOptions = jwtOptions.Value;
         }
 
         public async Task RemoveExternalCookieAsync()
         {
-            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await ClearExternalCookieAsync();
         }
 
         public async Task SetExternalCookieAsync()
         {
-            var claimsIdentity = new ClaimsIdentity(
-              new List<Claim>(),
-              CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsIdentity = CreateClaimsIdentity();
+            var properties = CreateAuthenticationProperties();
+            await ClearExternalCookieAsync();
+            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), properties);
+        }
 
+        private Task ClearExternalCookieAsync()
+        {
+            return _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
+        private ClaimsIdentity CreateClaimsIdentity()
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(WebApiConstants.ClaimOrganizationName, _tenantNameContainer.TenantName)
+            };
+
+            return new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
+        private AuthenticationProperties CreateAuthenticationProperties()
+        {
             var timestamp = DateTime.UtcNow;
-            var properties = new AuthenticationProperties
+            return new AuthenticationProperties
             {
                 AllowRefresh = true,
                 ExpiresUtc = timestamp.AddDays(_jwtOptions.DurationInDays),
                 IsPersistent = true,
                 IssuedUtc = timestamp
             };
-
-            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), properties);
         }
     }
 }

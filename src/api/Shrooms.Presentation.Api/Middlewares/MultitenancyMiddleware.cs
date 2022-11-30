@@ -23,8 +23,8 @@ namespace Shrooms.Presentation.Api.Middlewares
         {
             try
             {
-                SetRequestOrganizationHeader(httpContext);
-                
+                SetCurrentRequestOrganizationHeader(httpContext);
+
                 await _next(httpContext);
             }
             catch (ValidationException ex)
@@ -33,51 +33,72 @@ namespace Shrooms.Presentation.Api.Middlewares
             }
         }
 
-        private void SetRequestOrganizationHeader(HttpContext httpContext)
+        private void SetCurrentRequestOrganizationHeader(HttpContext httpContext)
         {
             var tenantName = ExtractTenantName(httpContext);
+            ValidateTenant(tenantName);
+#pragma warning disable CS8604 // Possible null reference argument.
+            SetOrganizationHeader(httpContext, tenantName);
+#pragma warning restore CS8604 // Possible null reference argument.
+        }
 
-            if (tenantName == null)
-            {
-                throw new ValidationException(ErrorCodes.Unspecified, "Organization not provided");
-            }
-            else if (!_applicationOptions.ConnectionStrings.ContainsKey(tenantName))
-            {
-                throw new ValidationException(ErrorCodes.InvalidOrganization, "Invalid organization");
-            }
-            else
-            {
-                httpContext.Request.Headers[WebApiConstants.OrganizationHeader] = tenantName;
-            }
+        private static void SetOrganizationHeader(HttpContext httpContext, string tenantName)
+        {
+            httpContext.Request.Headers[WebApiConstants.OrganizationHeader] = tenantName;
         }
 
         private static string? ExtractTenantName(HttpContext httpContext)
         {
-            if (httpContext.User != null &&
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                httpContext.User.Identity.IsAuthenticated &&
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                httpContext.User.Claims.Any(x => x.Type == WebApiConstants.ClaimOrganizationName))
+            if (IsCallerAuthenticated(httpContext))
             {
                 return httpContext.User.Claims.First(x => x.Type == WebApiConstants.ClaimOrganizationName).Value;
             }
 
-            if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
+            if (httpContext.Request.Headers.TryGetValue(WebApiConstants.OrganizationHeader, out var organizationFromHeader))
             {
                 return organizationFromHeader;
             }
 
-            if (httpContext.Request.Query.TryGetValue("organization", out var organizationFromUri))
+            if (httpContext.Request.Query.TryGetValue(WebApiConstants.OrganizationHeader, out var organizationFromUri))
             {
                 return organizationFromUri;
             }
 
-            if (httpContext.Request.Path.ToString().StartsWith("/storage"))
-            {
-                return httpContext.Request.Path.ToString().Split('/')[2];
-            }
+            // TODO: Before deployment configure hosting service to
+            // allow StorageController to handle image retrieval.
 
             return null;
+        }
+
+        private static bool IsCallerAuthenticated(HttpContext httpContext)
+        {
+            return httpContext.User != null &&
+                httpContext.User.Identity != null &&
+                httpContext.User.Identity.IsAuthenticated;
+        }
+
+        private void ValidateTenant(string? tenantName)
+        {
+            CheckIfTenantExists(tenantName);
+#pragma warning disable CS8604 // Possible null reference argument.
+            CheckIfIsValidTenant(tenantName);
+#pragma warning restore CS8604 // Possible null reference argument.
+        }
+
+        private static void CheckIfTenantExists(string? tenantName)
+        {
+            if (string.IsNullOrEmpty(tenantName))
+            {
+                throw new ValidationException(ErrorCodes.Unspecified, "Organization not provided");
+            }
+        }
+
+        private void CheckIfIsValidTenant(string tenantName)
+        {
+            if (!_applicationOptions.ConnectionStrings.ContainsKey(tenantName))
+            {
+                throw new ValidationException(ErrorCodes.InvalidOrganization, "Invalid organization");
+            }
         }
     }
 }

@@ -139,6 +139,8 @@ namespace Shrooms.Presentation.Api.Configurations
 
         private static AuthenticationBuilder ConfigureCookieAuthentication(this AuthenticationBuilder builder, JwtAuthenticationOptions jwtOptions)
         {
+            // Cookie authentication is only used in StorageController and should not be used anywhere else.
+            // We use it, because current front-end implementation is not able to send Bearer tokens when retrieving images.
             return builder.AddCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(jwtOptions.DurationInDays);
