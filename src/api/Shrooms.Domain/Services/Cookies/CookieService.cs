@@ -35,9 +35,9 @@ namespace Shrooms.Domain.Services.Cookies
 
         public async Task SetExternalCookieAsync()
         {
+            await ClearExternalCookieAsync();
             var claimsIdentity = CreateClaimsIdentity();
             var properties = CreateAuthenticationProperties();
-            await ClearExternalCookieAsync();
             await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), properties);
         }
 
