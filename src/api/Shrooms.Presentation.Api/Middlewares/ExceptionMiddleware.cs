@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.Domain.Exceptions.Exceptions;
-using System;
 using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.Middlewares

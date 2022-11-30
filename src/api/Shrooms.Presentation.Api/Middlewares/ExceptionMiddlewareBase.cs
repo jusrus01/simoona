@@ -18,11 +18,13 @@ namespace Shrooms.Presentation.Api.Middlewares
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = errorStatusCode;
 
-            await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+            var responseContent = new
             {
                 ErrorCode = customStatusCode ?? errorStatusCode,
                 ErrorMessage = errorMessage
-            }));
+            };
+
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(responseContent));
         }
     }
 }

@@ -88,7 +88,6 @@ namespace Shrooms.Contracts.Options
         private string GetClientPath(string relativePath) => Path.Combine(ClientUrl, relativePath);
 
         // TODO: Refactor/export somewhere else
-        // Q: should this and other functions be exported elsewhere?
         public string GetClientLoginUrl(string organizationName)
         {
             if (ClientUrl == null)
