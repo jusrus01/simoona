@@ -7,7 +7,7 @@ using Shrooms.Domain.Services.Administration;
 using Shrooms.Domain.Services.ExternalProviders;
 using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Presentation.Api.Controllers;
-using Shrooms.Presentation.Api.ShroomsExtensions;
+using Shrooms.Presentation.Api.ApiExtensions;
 using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System.Collections.Generic;
