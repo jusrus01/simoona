@@ -42,13 +42,13 @@ namespace Shrooms.Authentification.Handlers
             try
             {
                 _validator.CheckIfRequestIsValid(Context);
-
+                
                 var authorizationHeader = ExtractAuthorizationHeaderValue();
                 _validator.CheckIfAuthorizationHeaderIsValid(authorizationHeader);
-
+                
                 var credentials = BasicCredentialsExtractor.ExtractCredentials(authorizationHeader);
                 _validator.CheckIfCredentialsAreValid(credentials);
-
+                
                 await ValidateRequiredOrganizationAsync();
 
                 return SuccessResult(authorizationHeader);
