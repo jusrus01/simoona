@@ -23,7 +23,7 @@ namespace Shrooms.Contracts.Options
 
         public ConcurrentDictionary<string, string> ConnectionStrings { get; set; }
 
-        public MailOptions MailSettings { get; set; }
+        public MailOptions MailOptions { get; set; }
 
         public string ContentRootPath { get; set; }
 
