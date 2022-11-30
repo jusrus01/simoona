@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -77,7 +78,6 @@ namespace Shrooms.Presentation.Api.Configurations
 
         public static void ConfigureAuthentication(this IServiceCollection services, ApplicationOptions applicationOptions)
         {
-            // TODO: Change redirects on authentication failure
             services.ConfigureDefaultAuthentication()
                 .ConfigureBasicAuthentication()
                 .ConfigureCookieAuthentication(applicationOptions.Authentication.Jwt)
@@ -98,24 +98,27 @@ namespace Shrooms.Presentation.Api.Configurations
                 options.ClientSecret = googleOptions.ClientSecret;
                 options.SaveTokens = false;
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
-                options.Events.OnCreatingTicket = (context) =>
-                {
-                    var picture = context.User.GetProperty(WebApiConstants.ClaimPicture).GetString();
-
-                    if (picture == null)
-                    {
-                        return Task.CompletedTask;
-                    }
-
-                    context.Identity.AddClaim(new Claim(WebApiConstants.ClaimPicture, picture));
-
-                    return Task.CompletedTask;
-                };
+                options.Events.OnCreatingTicket = ExtractGoogleProfilePictureClaim;
             });
+        }
+
+        private static Task ExtractGoogleProfilePictureClaim(OAuthCreatingTicketContext context)
+        {
+            var picture = context.User.GetProperty(WebApiConstants.ClaimPicture).GetString();
+
+            if (picture == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            context.Identity.AddClaim(new Claim(WebApiConstants.ClaimPicture, picture));
+
+            return Task.CompletedTask;
         }
 
         private static AuthenticationBuilder ConfigureJwtAuthentication(this AuthenticationBuilder builder, ApplicationOptions applicationOptions)
         {
+            // TODO: Add additional implementation that uses Azure Key Vault
             return builder.AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = true;
