@@ -47,6 +47,7 @@
 
         // Organization, 12**
         public const int UserIsNotAManager = 1200;
+        public const int OrganizationNotProvided = 1201;
 
         // Badges, 13**
         public const int BadgeTypeNotFound = 1300;

@@ -47,6 +47,10 @@
         public const string ClaimPicture = "picture";
         #endregion
 
+        #region ContentTypes
+        public const string ContentTypeJson = "application/json";
+        #endregion
+
         #region ApplicationUser
         public const int MaxPhoneNumberLength = 15;
         #endregion

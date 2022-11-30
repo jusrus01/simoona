@@ -89,7 +89,7 @@ namespace Shrooms.Presentation.Api.Middlewares
         {
             if (string.IsNullOrEmpty(tenantName))
             {
-                throw new ValidationException(ErrorCodes.Unspecified, "Organization not provided");
+                throw new ValidationException(ErrorCodes.OrganizationNotProvided, "Organization not provided");
             }
         }
 

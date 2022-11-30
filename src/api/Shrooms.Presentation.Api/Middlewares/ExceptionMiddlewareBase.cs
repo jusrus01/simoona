@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Shrooms.Contracts.Constants;
 using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.Middlewares
@@ -15,7 +16,7 @@ namespace Shrooms.Presentation.Api.Middlewares
 
         protected virtual async Task HandleExceptionAsync(HttpContext context, string errorMessage, int errorStatusCode, int? customStatusCode = null)
         {
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = WebApiConstants.ContentTypeJson;
             context.Response.StatusCode = errorStatusCode;
 
             var responseContent = new
