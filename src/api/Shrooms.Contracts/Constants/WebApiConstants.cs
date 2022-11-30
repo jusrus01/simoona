@@ -38,10 +38,6 @@
         public const int LowestBirthdayYear = 1900;
         #endregion
 
-        #region MimeTypes
-        public const string ImageMimeType = "image/jpeg";
-        #endregion
-
         #region Claims
         public const string ClaimOrganizationName = "OrganizationName";
         public const string ClaimOrganizationId = "OrganizationId";

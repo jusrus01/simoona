@@ -81,13 +81,13 @@ namespace Shrooms.Presentation.Api
             var applicationOptions = services.AddOptions(Configuration, Environment);
 
             services.ConfigureCors(Configuration);
-
+            
             Telemetry.Configure(Configuration);
             SerializationIgnoreConfigs.Configure();
-
+            
             services.ConfigureIdentity(Environment);
             services.ConfigureAuthentication(applicationOptions);
-            services.ConfigureBackgroundService();
+            services.ConfigureBackgroundJobService();
             services.ConfigureAuthorization();
             services.ConfigureControllers();
         }
@@ -100,7 +100,6 @@ namespace Shrooms.Presentation.Api
             app.UseCors();
             app.UseMiddleware<MultiTenancyMiddleware>();
             app.UseMiddleware<ExceptionMiddleware>();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoutes();

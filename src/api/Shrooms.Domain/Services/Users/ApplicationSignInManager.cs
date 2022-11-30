@@ -25,7 +25,6 @@ namespace Shrooms.Domain.Services.Users
         public async Task ExternalLoginSignInAsync(ExternalLoginInfo externalLoginInfo)
         {
             var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, false);
-            
             _validator.CheckIfSuccessfulLogin(result);
         }
 

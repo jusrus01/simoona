@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Shrooms.Contracts.DAL;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Picture;
+using Shrooms.Infrastructure.FireAndForget;
 
 namespace Shrooms.Domain.Services.WebHookCallbacks.UserAnonymization
 {
@@ -64,7 +65,7 @@ namespace Shrooms.Domain.Services.WebHookCallbacks.UserAnonymization
         {
             if (!string.IsNullOrEmpty(user.PictureId))
             {
-                await _pictureService.RemoveImageAsync(user.PictureId, organizationId);
+                await _pictureService.RemoveImageAsync(user.PictureId);
             }
 
             var randomString = Guid.NewGuid().ToString();

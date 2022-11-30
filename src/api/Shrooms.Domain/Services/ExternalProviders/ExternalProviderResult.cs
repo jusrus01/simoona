@@ -6,7 +6,7 @@ using System;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
-    public class ExternalProviderResult//Q: transform to generic?
+    public class ExternalProviderResult
     {
         public ExternalProviderResult()
         {

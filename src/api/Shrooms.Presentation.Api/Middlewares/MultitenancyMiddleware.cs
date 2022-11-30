@@ -62,7 +62,6 @@ namespace Shrooms.Presentation.Api.Middlewares
                 return httpContext.User.Claims.First(x => x.Type == WebApiConstants.ClaimOrganizationName).Value;
             }
 
-            // TODO: Change this to case-insensitive
             if (httpContext.Request.Headers.TryGetValue("Organization", out var organizationFromHeader))
             {
                 return organizationFromHeader;

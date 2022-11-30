@@ -2,10 +2,8 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
-using Shrooms.Contracts.Infrastructure;
+using Shrooms.Contracts.DataTransferObjects.Models.Pictures;
 
 namespace Shrooms.Infrastructure.Storage.AzureBlob
 {
@@ -25,6 +23,11 @@ namespace Shrooms.Infrastructure.Storage.AzureBlob
             //    RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(AzureSettings.ExponentialRetryDeltaBackoff), AzureSettings.ExponentialRetryMaxAttempts),
             //    MaximumExecutionTime = TimeSpan.FromSeconds(AzureSettings.MaximumExecutionTimeInSeconds)
             //};
+        }
+
+        public Task<byte[]> GetPictureAsync(string blobKey, string tenantPicturesContainer)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task RemovePictureAsync(string blobKey, string tenantPicturesContainer)

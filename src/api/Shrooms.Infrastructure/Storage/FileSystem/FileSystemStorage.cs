@@ -9,7 +9,7 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
 {
     public class FileSystemStorage : IStorage
     {
-        private const string LocalPictureFolderName = "storage";
+        private const string PictureContainerName = "storage";
 
         private readonly ApplicationOptions _applicationOptions;
 
@@ -20,18 +20,19 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
 
         public Task RemovePictureAsync(string blobKey, string tenantPicturesContainer)
         {
-            throw new NotImplementedException();
-            //var filePath = HostingEnvironment.MapPath($"~/storage/{tenantPicturesContainer}/{blobKey}");
-            //var fileInfo = new FileInfo(filePath);
-
-            //if (fileInfo.Exists)
-            //{
-            //    fileInfo.Delete();
-            //}
-
-            //return Task.FromResult<object>(null);
+            var filePath = GetStorageFilePathFromKey(blobKey, tenantPicturesContainer);
+            
+            if (!File.Exists(filePath))
+            {
+                return Task.CompletedTask;
+            }
+            File.Delete(filePath);
+            return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Should not be used for production. Does not perform signature validation or any kind of validation.
+        /// </summary>
         public Task UploadPictureAsync(Image image, string blobKey, string mimeType, string tenantPicturesContainer)
         {
             throw new NotImplementedException();
@@ -44,6 +45,15 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
             //return Task.CompletedTask;
         }
 
+        public async Task<byte[]> GetPictureAsync(string fileName, string tenantPicturesContainer)
+        {
+            var filePath = GetStorageFilePathFromKey(fileName, tenantPicturesContainer);
+            return await File.ReadAllBytesAsync(filePath);
+        }
+
+        /// <summary>
+        /// Should not be used for production. Does not perform signature validation or any kind of validation.
+        /// </summary>
         public async Task UploadPictureAsync(Stream stream, string blobKey, string mimeType, string tenantPicturesContainer)
         {
             var storagePath = GetStorageFolderPath(tenantPicturesContainer);
@@ -58,13 +68,9 @@ namespace Shrooms.Infrastructure.Storage.FileSystem
             await stream.CopyToAsync(destinationStream);
         }
 
-        public async Task<byte[]> GetPictureAsync(string blobKey, string tenantPicturesContainer)
-        {
-            var filePath = GetStorageFilePath(GetStorageFolderPath(tenantPicturesContainer), blobKey);
-            return await File.ReadAllBytesAsync(filePath);
-        }
-
-        private string GetStorageFolderPath(string tenantName) => $"{_applicationOptions.ContentRootPath}/{LocalPictureFolderName}/{tenantName}";
+        private string GetStorageFolderPath(string tenantPictureContainer) => $"{_applicationOptions.ContentRootPath}/{PictureContainerName}/{tenantPictureContainer}";
+        
+        private string GetStorageFilePathFromKey(string blobKey, string tenantName) => GetStorageFilePath(GetStorageFolderPath(tenantName), blobKey);
 
         private static string GetStorageFilePath(string storagePath, string blobKey) => $"{storagePath}/{blobKey}";
     }

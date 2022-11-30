@@ -31,7 +31,7 @@ namespace Shrooms.Presentation.Api
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            // TODO: Remove this but pass in api url in setting
+            // TODO: Change later
             var apiHostingUrl = ConfigurationManager.AppSettings[WebApiConstants.ConfigurationApiUrlKey];
 
             if (apiHostingUrl == null)

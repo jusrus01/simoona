@@ -680,7 +680,7 @@ namespace Shrooms.Presentation.Api.Controllers
 
             if (user.PictureId != model.PictureId && !string.IsNullOrEmpty(user.PictureId))
             {
-                await _pictureService.RemoveImageAsync(user.PictureId, userOrg.OrganizationId);//TODO: Make this work
+                await _pictureService.RemoveImageAsync(user.PictureId);
             }
 
             _mapper.Map(model, user);

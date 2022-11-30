@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 using Shrooms.Domain.Services.AuthenticationStates;
+using Shrooms.Domain.Services.ExternalProviders.Contexts;
+using Shrooms.Domain.Services.ExternalProviders.Strategies;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {//Q: figure out where to redirect user (or what to do) when sign in is pressed but there are is no user
@@ -180,7 +182,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
             if (isRegistration)
             {
-                queryParams[ExternalProviderConstants.IsRegistrationParamaeter] = ExternalProviderConstants.IsRegistration;
+                queryParams[ExternalProviderConstants.IsRegistrationParameter] = ExternalProviderConstants.IsRegistration;
             }
 
             return QueryHelpers.AddQueryString($"/{routeDto.ControllerName}/{routeDto.ActionName}", queryParams);

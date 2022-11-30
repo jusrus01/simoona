@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Contracts.Infrastructure.FireAndForget
 {
-    public interface IFireAndForgetJob
+    public interface IBackgroundJob
     {
         Type ServiceType { get; }
 

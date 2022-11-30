@@ -20,8 +20,6 @@ namespace Shrooms.Presentation.Api.Configurations
             {
                 options.ApiUrl = applicationOptions.ApiUrl;
                 options.ContentRootPath = environment.ContentRootPath;
-
-                // Creating case-insensitive dictionary
                 options.ConnectionStrings = new ConcurrentDictionary<string, string>(options.ConnectionStrings, StringComparer.InvariantCultureIgnoreCase);
             });
             services.Configure<BasicAuthenticationOptions>(configuration.GetBasicAuthentication());

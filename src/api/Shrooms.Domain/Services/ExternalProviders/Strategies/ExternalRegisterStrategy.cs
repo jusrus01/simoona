@@ -8,13 +8,12 @@ using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Picture;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
-using System;
 using System.IO;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
     public class ExternalRegisterStrategy : IExternalProviderStrategy
     {
@@ -119,7 +118,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
             var userFirstName = claimsIdentity.GetFirstName();
             var userLastName = claimsIdentity.GetLastName();
 
-            var userPictureId = await UploadProviderImageAsync(claimsIdentity, _organization);
+            var userPictureId = await UploadProviderImageAsync(claimsIdentity);
 
             return new ApplicationUser
             {
@@ -133,19 +132,19 @@ namespace Shrooms.Domain.Services.ExternalProviders
             };
         }
 
-        private async Task<string> UploadProviderImageAsync(ClaimsIdentity claimsIdentity, Organization organization)
+        private async Task<string> UploadProviderImageAsync(ClaimsIdentity claimsIdentity)
         {
             try
             {
                 var imageBytes = await DownloadProviderImageAsync(claimsIdentity);
                 var memoryStream = new MemoryStream(imageBytes);
-                var imageName = $"{Guid.NewGuid()}.jpg";
-
-                return await _pictureService.UploadFromStreamAsync(memoryStream, WebApiConstants.ImageMimeType, imageName, organization.Id);
+                return await _pictureService.UploadFromStreamAsync(memoryStream, MimeTypeConstants.Jpeg);
             }
             catch
             {
-                return null;
+                // Do not allow an exception to bubble up because failure to retrieve the provider image should not cancel the registration flow.
+                // Furthermore, a default image exists for a user, and in the user confirmation part, the user is required to set an image himself if one is not provided.
+                return null; 
             }
         }
 

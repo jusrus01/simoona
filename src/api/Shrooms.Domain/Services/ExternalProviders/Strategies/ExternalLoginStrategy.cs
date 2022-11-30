@@ -3,7 +3,7 @@ using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Tokens;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
     public class ExternalLoginStrategy : IExternalProviderStrategy
     {

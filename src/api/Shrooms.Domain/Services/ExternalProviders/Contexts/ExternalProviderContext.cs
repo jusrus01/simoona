@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using Shrooms.Domain.Services.ExternalProviders.Strategies;
+using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Contexts
 {
     public class ExternalProviderContext : IExternalProviderContext
     {

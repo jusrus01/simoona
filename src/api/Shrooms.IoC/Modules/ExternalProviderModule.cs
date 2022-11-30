@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Shrooms.Domain.Services.AuthenticationStates;
 using Shrooms.Domain.Services.ExternalProviders;
+using Shrooms.Domain.Services.ExternalProviders.Contexts;
 using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 
 namespace Shrooms.IoC.Modules

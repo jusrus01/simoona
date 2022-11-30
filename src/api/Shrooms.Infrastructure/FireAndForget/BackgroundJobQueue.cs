@@ -3,16 +3,16 @@ using System.Collections.Concurrent;
 
 namespace Shrooms.Infrastructure.FireAndForget
 {
-    public class FireAndForgetJobQueue : IFireAndForgetJobQueue
+    public class BackgroundJobQueue : IBackgroundJobQueue
     {
-        private readonly ConcurrentQueue<IFireAndForgetJob> _jobs = new();
+        private readonly ConcurrentQueue<IBackgroundJob> _jobs = new();
 
-        public void EnqueueJob(IFireAndForgetJob job)
+        public void EnqueueJob(IBackgroundJob job)
         {
             _jobs.Enqueue(job);
         }
 
-        public bool TryDequeueJob(out IFireAndForgetJob job)
+        public bool TryDequeueJob(out IBackgroundJob job)
         {
             return _jobs.TryDequeue(out job);
         }

@@ -63,8 +63,8 @@ namespace Shrooms.IoC.Modules
                 .As<IUnitOfWork2>()
                 .InstancePerLifetimeScope();
 
-            builder.RegisterType<FireAndForgetScheduler>()
-                .As<IFireAndForgetScheduler>()
+            builder.RegisterType<BackgroundJobScheduler>()
+                .As<IBackgroundJobScheduler>()
                 .InstancePerLifetimeScope();
         }
     }

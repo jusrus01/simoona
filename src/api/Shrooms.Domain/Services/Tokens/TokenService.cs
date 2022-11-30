@@ -24,9 +24,7 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public class TokenService : ITokenService
     {
-        private const int SecondsInADay = 86400;
         private const string TokenType = "Bearer";
-
         private const string AccessTokenQueryParameter = "access_token";//TODO: add specific auth schemes
         private const string AuthTypeParameterName = "authType";
 
@@ -70,9 +68,7 @@ namespace Shrooms.Domain.Services.Tokens
         public async Task<TokenResponseDto> GetTokenAsync(TokenRequestDto requestDto)
         {
             var user = await _userManager.FindByNameAsync(requestDto.Username);
-
             await _userManager.CheckPasswordAsync(user, requestDto.Password);
-
             return await CreateTokenAsync(user);
         }
 
@@ -81,11 +77,8 @@ namespace Shrooms.Domain.Services.Tokens
             await _signInManager.ExternalLoginSignInAsync(externalLoginInfo);
 
             var claimsIdentity = externalLoginInfo.Principal.Identity as ClaimsIdentity;
-
             var email = claimsIdentity.GetEmail();
-
             var user = await _userManager.FindByEmailAsync(email);
-
             return (await CreateTokenAsync(user)).AccessToken;
         }
 
@@ -96,10 +89,8 @@ namespace Shrooms.Domain.Services.Tokens
             _organizationValidator.CheckIfFoundOrganizationMatchesRequestHeader(organization, _tenantNameContainer.TenantName);
 
             var claims = await CreateRequiredTokenClaimsAsync(user, organization);
-            
-            var expirationDate = GetTokenExpirationDate();
-            var expirationInSeconds = _applicationOptions.Authentication.Jwt.DurationInDays * SecondsInADay;
-
+            var expirationSpan = TimeSpan.FromDays(_applicationOptions.Authentication.Jwt.DurationInDays);
+            var expirationDate = DateTime.UtcNow.Add(expirationSpan);
             var accessToken = GenerateAccessToken(claims, expirationDate);
 
             return new TokenResponseDto
@@ -107,7 +98,7 @@ namespace Shrooms.Domain.Services.Tokens
                 Expires = expirationDate,
                 Issued = DateTime.UtcNow,
                 ClientId = _applicationOptions.ClientId,
-                ExpiresIn = expirationInSeconds,
+                ExpiresIn = Convert.ToInt32(expirationSpan.TotalSeconds),
                 TokenType = TokenType,
                 UserIndentifier = user.Id,
                 Persistent = string.Empty,
@@ -129,8 +120,6 @@ namespace Shrooms.Domain.Services.Tokens
 
             return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         }
-
-        private DateTime GetTokenExpirationDate() => DateTime.UtcNow.AddDays(_applicationOptions.Authentication.Jwt.DurationInDays);
 
         private async Task<IEnumerable<Claim>> CreateRequiredTokenClaimsAsync(ApplicationUser user, Organization organization)
         {

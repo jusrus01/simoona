@@ -8,7 +8,7 @@ using Shrooms.Infrastructure.FireAndForget;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
     public class ExternalRegisterRedirectToProviderStrategy : IExternalProviderStrategy
     {
@@ -51,7 +51,7 @@ namespace Shrooms.Domain.Services.ExternalProviders
                 { ExternalProviderConstants.ProviderParameter, _requestDto.Provider },
                 { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
                 { ExternalProviderConstants.RedirectUrlParameter, loginRedirectUrl },
-                { ExternalProviderConstants.IsRegistrationParamaeter, ExternalProviderConstants.IsRegistration }
+                { ExternalProviderConstants.IsRegistrationParameter, ExternalProviderConstants.IsRegistration }
             };
 
             var redirectUrl = QueryHelpers.AddQueryString(uri, redirectUrlParameters);

@@ -29,8 +29,6 @@ namespace Shrooms.DataLayer.EntityModels.Models
             Modified = DateTime.UtcNow;
         }
 
-        //public string Id { get; set; } // Could cause problems
-
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
@@ -65,6 +63,9 @@ namespace Shrooms.DataLayer.EntityModels.Models
 
         public virtual Room Room { get; set; }
 
+        /// <summary>
+        /// Includes the full picture name as well as the extension
+        /// </summary>
         public string PictureId { get; set; }
 
         public int? QualificationLevelId { get; set; }

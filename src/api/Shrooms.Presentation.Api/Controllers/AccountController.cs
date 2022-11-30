@@ -105,7 +105,8 @@ namespace Shrooms.Presentation.Api
                 ActionName = "ExternalLogin"
             };
 
-            var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(redirectRouteDto, returnUrl, GetUserId(isLinkable));
+            var userId = !isLinkable ? null : GetUserAndOrganization().UserId;
+            var externalLoginDtos = await _externalProviderService.GetExternalLoginsAsync(redirectRouteDto, returnUrl, userId);
             var externalLoginViewModels = _mapper.Map<IEnumerable<ExternalLoginViewModel>>(externalLoginDtos);
             return Ok(externalLoginViewModels);
         }
@@ -148,7 +149,5 @@ namespace Shrooms.Presentation.Api
             await _internalProviderService.CookieSignOutAsync();
             return Ok();
         }
-
-        private string? GetUserId(bool isLinkable) => isLinkable ? GetUserAndOrganization().UserId : null;//Q: is this fine?
     }
 }

@@ -2,86 +2,92 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Shrooms.Contracts.DAL;
+using Microsoft.AspNetCore.Http;
 using Shrooms.Contracts.DataTransferObjects.Models.Pictures;
-using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Infrastructure.FireAndForget;
 using Shrooms.Infrastructure.Storage;
+using Shrooms.Contracts.Exceptions;
+using Shrooms.Contracts.Constants;
 
 namespace Shrooms.Domain.Services.Picture
 {
     public class PictureService : IPictureService
     {
-        private readonly IPictureContentTypeService _pictureContentTypeService;
+        private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IStorage _storage;
-        private readonly DbSet<Organization> _organizationsDbSet;
 
-        public PictureService(
-            IStorage storage,
-            IPictureContentTypeService pictureContentTypeService,
-            IUnitOfWork2 uow)
+        public PictureService(ITenantNameContainer tenantNameContainer, IStorage storage)
         {
-            _pictureContentTypeService = pictureContentTypeService;
             _storage = storage;
-            _organizationsDbSet = uow.GetDbSet<Organization>();
+            _tenantNameContainer = tenantNameContainer;
         }
 
-        public async Task<string> UploadFromImageAsync(Image image, string mimeType, string fileName, int orgId)
+        public async Task RemoveImageAsync(string fileName)
         {
-            var pictureName = GetNewPictureName(fileName);
-            var tenantPicturesContainer = await GetPictureContainerAsync(orgId);
+            await _storage.RemovePictureAsync(fileName, _tenantNameContainer.TenantName);
+        }
 
-            await _storage.UploadPictureAsync(image, pictureName, mimeType, tenantPicturesContainer);
+        public async Task<PictureDto> GetPictureAsync(string fileName)
+        {
+            var bytes = await _storage.GetPictureAsync(fileName, _tenantNameContainer.TenantName);
+            return MapToPictureDto(fileName, bytes);
+        }
 
+        public async Task<string> UploadFromFormFileAsync(IFormFile picture)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<string> UploadFromImageAsync(Image image, string mimeType)
+        {
+            var pictureName = GenerateUniquePictureName(mimeType);
+            await _storage.UploadPictureAsync(image, pictureName, mimeType, _tenantNameContainer.TenantName);
             return pictureName;
         }
 
-        public async Task<string> UploadFromStreamAsync(Stream stream, string mimeType, string fileName, int orgId)
+        public async Task<string> UploadFromStreamAsync(Stream stream, string mimeType)
         {
-            var pictureName = GetNewPictureName(fileName);
-            var tenantPicturesContainer = await GetPictureContainerAsync(orgId);
-
-            await _storage.UploadPictureAsync(stream, pictureName, mimeType, tenantPicturesContainer);
-
+            var pictureName = GenerateUniquePictureName(mimeType);
+            await _storage.UploadPictureAsync(stream, pictureName, mimeType, _tenantNameContainer.TenantName);
             return pictureName;
         }
 
-        public async Task RemoveImageAsync(string blobKey, int orgId)
-        {
-            var tenantPicturesContainer = await GetPictureContainerAsync(orgId);
-
-            await _storage.RemovePictureAsync(blobKey, tenantPicturesContainer);
-        }
-
-        public async Task<PictureDto> GetPictureAsync(string organizationName, string pictureName)
-        {
-            var contentType = _pictureContentTypeService.GetPictureContentType(pictureName);
-            var pictureBytes = await _storage.GetPictureAsync(pictureName, organizationName);
-            return MapToPictureDto(pictureBytes, contentType);
-        }
-
-        private static PictureDto MapToPictureDto(byte[] content, string contentType)
+        private static PictureDto MapToPictureDto(string fileName, byte[] bytes)
         {
             return new PictureDto
             {
-                Content = content,
-                ContentType = contentType,
+                Content = bytes,
+                ContentType = GetContentType(fileName)
             };
         }
 
-        private static string GetNewPictureName(string fileName)
+        private static string GenerateUniquePictureName(string contentType)
         {
-            var id = Guid.NewGuid().ToString();
-            var extension = Path.GetExtension(fileName)?.ToLowerInvariant();
-
-            return $"{id}{extension}";
+            return $"{Guid.NewGuid()}{GetPictureExtension(contentType)}";
         }
 
-        private async Task<string> GetPictureContainerAsync(int id)
+        private static string GetPictureExtension(string mimeType)
         {
-            var organization = await _organizationsDbSet.FirstAsync(x => x.Id == id);
+            return mimeType switch
+            {
+                MimeTypeConstants.Jpeg => FileExtensionConstants.Jpg,
+                MimeTypeConstants.Png => FileExtensionConstants.Png,
+                MimeTypeConstants.Gif => FileExtensionConstants.Gif,
+                _ => throw new ValidationException(ErrorCodes.PictureInvalidContentType, $"Mime type {mimeType} is not supported")
+            };
+        }
 
-            return organization.ShortName.ToLowerInvariant();
+        private static string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName);
+            return extension switch
+            {
+                FileExtensionConstants.Jpg => MimeTypeConstants.Jpeg,
+                FileExtensionConstants.Jpeg => MimeTypeConstants.Jpeg,
+                FileExtensionConstants.Png => MimeTypeConstants.Png,
+                FileExtensionConstants.Gif => MimeTypeConstants.Gif,
+                _ => throw new ValidationException(ErrorCodes.PictureCorruptName, $"Could not retrieve content type from {fileName} file")
+            };
         }
     }
 }

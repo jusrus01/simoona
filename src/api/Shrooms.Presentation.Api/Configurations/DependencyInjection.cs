@@ -40,8 +40,6 @@ namespace Shrooms.Presentation.Api.Configurations
                 {
                     options.AddDevelopmentOptions();
                 }
-
-                // Activate email confirmation
                 options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout.AllowedForNewUsers = false;
             })
@@ -57,14 +55,14 @@ namespace Shrooms.Presentation.Api.Configurations
             });
         }
 
-        public static void ConfigureBackgroundService(this IServiceCollection services)
+        public static void ConfigureBackgroundJobService(this IServiceCollection services)
         {
             // Some of the registration has to be done here,
             // because Shrooms.IoC does not have reference to
             // Shrooms.Presentation.Api services e.g. background jobs
             services.AddSingleton<ILogger, Logger>();
-            services.AddSingleton<IFireAndForgetJobQueue, FireAndForgetJobQueue>();
-            services.AddHostedService<FireAndForgetBackgroundService>();
+            services.AddSingleton<IBackgroundJobQueue, BackgroundJobQueue>();
+            services.AddHostedService<BackgroundJobsService>();
         }
 
         public static void ConfigureAuthorization(this IServiceCollection services)
@@ -79,11 +77,12 @@ namespace Shrooms.Presentation.Api.Configurations
 
         public static void ConfigureAuthentication(this IServiceCollection services, ApplicationOptions applicationOptions)
         {
+            // TODO: Change redirects on authentication failure
             services.ConfigureDefaultAuthentication()
                 .ConfigureBasicAuthentication()
-                .ConfigureCookieAuthentication()
+                .ConfigureCookieAuthentication(applicationOptions.Authentication.Jwt)
                 .ConfigureJwtAuthentication(applicationOptions)
-                .ConfigureGoogleAuthentication(applicationOptions);
+                .ConfigureGoogleAuthentication(applicationOptions.Authentication.Google);
         }
 
         private static AuthenticationBuilder ConfigureBasicAuthentication(this AuthenticationBuilder builder)
@@ -91,12 +90,12 @@ namespace Shrooms.Presentation.Api.Configurations
             return builder.AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationConstants.BasicScheme, null);
         }
 
-        private static AuthenticationBuilder ConfigureGoogleAuthentication(this AuthenticationBuilder builder, ApplicationOptions applicationOptions)
+        private static AuthenticationBuilder ConfigureGoogleAuthentication(this AuthenticationBuilder builder, GoogleAuthenticationOptions googleOptions)
         {
             return builder.AddGoogle(options =>
             {
-                options.ClientId = applicationOptions.Authentication.Google.ClientId;
-                options.ClientSecret = applicationOptions.Authentication.Google.ClientSecret;
+                options.ClientId = googleOptions.ClientId;
+                options.ClientSecret = googleOptions.ClientSecret;
                 options.SaveTokens = false;
                 options.CorrelationCookie.SameSite = SameSiteMode.Unspecified;
                 options.Events.OnCreatingTicket = (context) =>
@@ -135,11 +134,12 @@ namespace Shrooms.Presentation.Api.Configurations
             });
         }
 
-        private static AuthenticationBuilder ConfigureCookieAuthentication(this AuthenticationBuilder builder)
+        private static AuthenticationBuilder ConfigureCookieAuthentication(this AuthenticationBuilder builder, JwtAuthenticationOptions jwtOptions)
         {
             return builder.AddCookie(options =>
             {
-                options.Cookie.Name = ".AspNet.Cookies"; // TODO: Match cookie expiration date to bearer token
+                options.ExpireTimeSpan = TimeSpan.FromDays(jwtOptions.DurationInDays);
+                options.SlidingExpiration = true;
             });
         }
 

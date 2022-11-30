@@ -16,7 +16,6 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Shrooms.Domain.Services.Email.AdministrationUsers;
-using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Contracts.Infrastructure.FireAndForget;
 using Shrooms.Domain.ServiceValidators.Validators.UserAdministration;
@@ -39,7 +38,7 @@ namespace Shrooms.Domain.Services.Administration
         private readonly DbSet<ApplicationUser> _usersDbSet;
         private readonly DbSet<WallMember> _wallUsersDbSet;
 
-        private readonly IFireAndForgetScheduler _fireAndForgetScheduler;
+        private readonly IBackgroundJobScheduler _backgroundJobScheduler;
 
         private readonly IUnitOfWork2 _uow;
 
@@ -49,7 +48,7 @@ namespace Shrooms.Domain.Services.Administration
             IApplicationUserManager userManager,
             IApplicationRoleManager roleManager,
             IUserAdministrationValidator validator,
-            IFireAndForgetScheduler fireAndForgetScheduler)
+            IBackgroundJobScheduler backgroundJobScheduler)
         {
             _uow = uow;
             _usersDbSet = uow.GetDbSet<ApplicationUser>();
@@ -59,7 +58,7 @@ namespace Shrooms.Domain.Services.Administration
             _userManager = userManager;
             _roleManager = roleManager;
             _permissionService = permissionService;
-            _fireAndForgetScheduler = fireAndForgetScheduler;
+            _backgroundJobScheduler = backgroundJobScheduler;
         }
 
         public async Task<ByteArrayContent> GetAllUsersExcelAsync(string fileName, int organizationId)
@@ -98,7 +97,7 @@ namespace Shrooms.Domain.Services.Administration
 
         public void NotifyAboutNewUser(ApplicationUser user, int orgId)
         {
-            _fireAndForgetScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.NotifyAboutNewUserAsync(user, orgId));
+            _backgroundJobScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.NotifyAboutNewUserAsync(user, orgId));
         }
 
         public async Task SendUserPasswordResetEmailAsync(string email)
@@ -121,7 +120,7 @@ namespace Shrooms.Domain.Services.Administration
             await _roleManager.AddToRoleAsync(applicationUser, Contracts.Constants.Roles.User);
             await _roleManager.RemoveFromRoleAsync(applicationUser, Contracts.Constants.Roles.NewUser);
 
-            _fireAndForgetScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg));
+            _backgroundJobScheduler.EnqueueJob<IAdministrationNotificationService>(notifier => notifier.SendConfirmedNotificationEmailAsync(applicationUser.Email, userAndOrg));
 
             SetTutorialStatus(applicationUser, false);
 

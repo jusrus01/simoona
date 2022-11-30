@@ -12,7 +12,7 @@
 
         public const string RedirectUrlParameter = "redirect_url";
 
-        public const string IsRegistrationParamaeter = "isRegistration";
+        public const string IsRegistrationParameter = "isRegistration";
 
         public const string AuthenticationTypeParameter = "authType";
 

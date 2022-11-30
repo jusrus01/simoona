@@ -4,7 +4,7 @@ using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Users;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
     public class ExternalProviderLinkAccountStrategy : IExternalProviderStrategy
     {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
     public interface IExternalProviderStrategy
     {

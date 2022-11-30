@@ -10,7 +10,7 @@ namespace Shrooms.Presentation.Api.GlobalFilters
         {
             if (!context.ModelState.IsValid)
             {
-                context.Result = new BadRequestObjectResult(context.ModelState); // Q: Should I show specific validation errors?
+                context.Result = new BadRequestObjectResult(context.ModelState);
                 return;
             }
 

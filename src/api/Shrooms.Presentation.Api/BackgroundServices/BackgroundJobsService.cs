@@ -12,18 +12,18 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Presentation.Api.BackgroundServices
 {
-    public class FireAndForgetBackgroundService : BackgroundService
+    public class BackgroundJobsService : BackgroundService
     {
         private readonly ILifetimeScope _lifetimeScope;
-        private readonly IFireAndForgetJobQueue _jobQueue;
+        private readonly IBackgroundJobQueue _jobQueue;
         private readonly ILogger _logger;
 
         private readonly ApplicationOptions _applicationOptions;
 
-        public FireAndForgetBackgroundService(
+        public BackgroundJobsService(
             IOptions<ApplicationOptions> applicationOptions,
             ILifetimeScope lifetimeScope,
-            IFireAndForgetJobQueue jobQueue,
+            IBackgroundJobQueue jobQueue,
             ILogger logger)
         {
             _applicationOptions = applicationOptions.Value;

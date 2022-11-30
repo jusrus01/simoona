@@ -74,6 +74,9 @@
         // Pictures, 18**
         public const int PictureFileWithoutExtension = 1800;
         public const int PictureInvalidExtensionProvided = 1801;
+        public const int PictureNotProvided = 1802;
+        public const int PictureInvalidContentType = 1803;
+        public const int PictureCorruptName = 1804;
 
         // User administration, 19**
         public const int UserAdministrationInvalidEmploymentDate = 1900;

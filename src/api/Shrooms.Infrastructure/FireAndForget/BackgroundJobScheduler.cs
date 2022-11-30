@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Infrastructure.FireAndForget
 {
-    public class FireAndForgetScheduler : IFireAndForgetScheduler
+    public class BackgroundJobScheduler : IBackgroundJobScheduler
     {
-        private readonly IFireAndForgetJobQueue _jobQueue;
+        private readonly IBackgroundJobQueue _jobQueue;
         private readonly ITenantNameContainer _tenantNameContainer;
 
-        public FireAndForgetScheduler(ITenantNameContainer tenantNameContainer, IFireAndForgetJobQueue jobQueue)
+        public BackgroundJobScheduler(ITenantNameContainer tenantNameContainer, IBackgroundJobQueue jobQueue)
         {
             _tenantNameContainer = tenantNameContainer;
             _jobQueue = jobQueue;
@@ -17,7 +17,7 @@ namespace Shrooms.Infrastructure.FireAndForget
 
         public void EnqueueJob<TService>(Func<TService, Task> serviceMethod)
         {
-            var job = new FireAndForgetJob(typeof(TService), new Func<object, Task>(o => serviceMethod((TService)o)), _tenantNameContainer.TenantName);
+            var job = new BackgroundJob(typeof(TService), new Func<object, Task>(o => serviceMethod((TService)o)), _tenantNameContainer.TenantName);
 
             _jobQueue.EnqueueJob(job);
         }

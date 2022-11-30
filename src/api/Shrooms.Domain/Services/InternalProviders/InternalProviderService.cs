@@ -23,7 +23,7 @@ namespace Shrooms.Domain.Services.InternalProviders
         private readonly IOrganizationService _organizationService;
         private readonly IInternalProviderValidator _validator;
         private readonly ICookieService _cookieService;
-        private readonly IFireAndForgetScheduler _fireAndForgetScheduler;
+        private readonly IBackgroundJobScheduler _fireAndForgetScheduler;
 
         public InternalProviderService(
             IApplicationUserManager userManager,
@@ -32,7 +32,7 @@ namespace Shrooms.Domain.Services.InternalProviders
             IOrganizationService organizationService,
             ICookieService cookieService,
             IInternalProviderValidator validator,
-            IFireAndForgetScheduler fireAndForgetService)
+            IBackgroundJobScheduler fireAndForgetService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -166,7 +166,7 @@ namespace Shrooms.Domain.Services.InternalProviders
             await SendVerificationEmailAsync(user);
         }
 
-        private async Task SendVerificationEmailAsync(ApplicationUser user)//Abstracting set up...
+        private async Task SendVerificationEmailAsync(ApplicationUser user)
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             _fireAndForgetScheduler.EnqueueJob<IInternalProviderNotificationService>(async notifier => await notifier.SendUserVerificationEmailAsync(user, token));

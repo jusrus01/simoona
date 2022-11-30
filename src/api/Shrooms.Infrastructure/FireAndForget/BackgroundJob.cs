@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Shrooms.Infrastructure.FireAndForget
 {
-    public class FireAndForgetJob : IFireAndForgetJob
+    public class BackgroundJob : IBackgroundJob
     {
         public Type ServiceType { get; }
 
@@ -12,7 +12,7 @@ namespace Shrooms.Infrastructure.FireAndForget
 
         public string TenantName { get; }
 
-        public FireAndForgetJob(Type serviceType, Func<object, Task> serviceMethod, string tenantName)
+        public BackgroundJob(Type serviceType, Func<object, Task> serviceMethod, string tenantName)
         {
             ServiceType = serviceType;
             ServiceMethod = serviceMethod;
