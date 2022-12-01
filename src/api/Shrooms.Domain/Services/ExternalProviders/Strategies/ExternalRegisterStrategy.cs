@@ -4,9 +4,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Extensions;
-using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Picture;
-using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
 using System.IO;
 using System.Net;
@@ -18,19 +16,21 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
     public class ExternalRegisterStrategy : ExternalProviderStrategyBase
     {
         private readonly IApplicationUserManager _userManager;
-        private readonly ICookieService _cookieService;
-        private readonly ITokenService _tokenService;
         private readonly IPictureService _pictureService;
 
+        private readonly ExternalLoginStrategy _loginStrategy;
+        private readonly ExternalProviderLinkAccountStrategy _linkAccountStrategy;
+
         public ExternalRegisterStrategy(
-            ITokenService tokenService,
+            ExternalLoginStrategy loginStrategy,
+            ExternalProviderLinkAccountStrategy linkAccountStrategy,
             IApplicationUserManager userManager,
-            ICookieService cookieService,
             IPictureService pictureService)
         {
+            
+            _loginStrategy = loginStrategy;
+            _linkAccountStrategy = linkAccountStrategy;
             _userManager = userManager;
-            _tokenService = tokenService;
-            _cookieService = cookieService;
             _pictureService = pictureService;
         }
 
@@ -156,13 +156,13 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 
         private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync(ExternalLoginInfo loginInfo)
         {
-            return await new ExternalLoginStrategy(_cookieService, _tokenService).ExecuteStrategyAsync(null, loginInfo);
+            return await _loginStrategy.ExecuteStrategyAsync(null, loginInfo);
         }
 
         private async Task<ExternalProviderResult> ExecuteExternalAccountLinkingStrategy(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo)
         {
             var newParameters = new ExternalProviderStrategyParametersDto(parameters, true);
-            return await new ExternalProviderLinkAccountStrategy(_userManager).ExecuteStrategyAsync(newParameters, loginInfo);
+            return await _linkAccountStrategy.ExecuteStrategyAsync(newParameters, loginInfo);
         }
 
         private static void CheckIfEmailExists(string email) // TODO: Make sure this will work with facebook provider

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
@@ -17,12 +18,12 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
         private readonly ApplicationOptions _applicationOptions;
 
         public ExternalLoginRedirectToProviderStrategy(
-            ApplicationOptions applicationOptions,
+            IOptions<ApplicationOptions> applicationOptions,
             ITenantNameContainer tenantNameContainer,
             IApplicationSignInManager signInManager)
         {
             _signInManager = signInManager;
-            _applicationOptions = applicationOptions;
+            _applicationOptions = applicationOptions.Value;
             _tenantNameContainer = tenantNameContainer;
         }
 

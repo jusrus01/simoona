@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
@@ -18,13 +19,13 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
         private readonly ApplicationOptions _applicationOptions;
 
         public ExternalRegisterRedirectToProviderStrategy(
+            IOptions<ApplicationOptions> applicationOptions,
             ITenantNameContainer tenantNameContainer,
-            IApplicationSignInManager signInManager,
-            ApplicationOptions applicationOptions)
+            IApplicationSignInManager signInManager)
         {
             _tenantNameContainer = tenantNameContainer;
             _signInManager = signInManager;
-            _applicationOptions = applicationOptions;
+            _applicationOptions = applicationOptions.Value;
         }
 
         public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)

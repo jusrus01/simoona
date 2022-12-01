@@ -1,69 +1,49 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.Cookies;
 using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Picture;
-using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.Services.Users;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 using Shrooms.Domain.Services.AuthenticationStates;
-using Shrooms.Domain.Services.ExternalProviders.Contexts;
-using Shrooms.Domain.Services.ExternalProviders.Strategies;
 using Shrooms.Contracts.Infrastructure;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
     public class ExternalProviderService : IExternalProviderService
     {
         private readonly IApplicationSignInManager _signInManager;
-        private readonly IApplicationUserManager _userManager;
-
-        private readonly IExternalProviderContext _externalProviderContext;
         private readonly ITenantNameContainer _tenantNameContainer;
         private readonly ApplicationOptions _applicationOptions;
-        private readonly ITokenService _tokenService;
         private readonly IOrganizationService _organizationService;
-        private readonly ICookieService _cookieService;
-        private readonly IPictureService _pictureService;
         private readonly IExternalProviderValidator _validator;
         private readonly IAuthenticationStateService _stateService;
+        private readonly IExternalProviderStrategyFactory _strategyFactory;
 
         private readonly AuthenticationService _authenticationService;
 
         public ExternalProviderService(
-            ITokenService tokenService,
             IOptions<ApplicationOptions> applicationOptions,
-            IExternalProviderContext externalProviderContext,
             IApplicationSignInManager signInManager,
-            IApplicationUserManager userManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
-            ICookieService cookieService,
-            IPictureService pictureService,
             IExternalProviderValidator validator,
             IAuthenticationService authenticationService,
-            IAuthenticationStateService stateService)
+            IAuthenticationStateService stateService,
+            IExternalProviderStrategyFactory strategyFactory)
         {
             _signInManager = signInManager;
-            _externalProviderContext = externalProviderContext;
             _tenantNameContainer = tenantNameContainer;
-            _tokenService = tokenService;
-            _userManager = userManager;
             _organizationService = organizationService;
-            _cookieService = cookieService;
-            _pictureService = pictureService;
             _validator = validator;
             _stateService = stateService;
+            _strategyFactory = strategyFactory;
 
             _applicationOptions = applicationOptions.Value;
             _authenticationService = (AuthenticationService)authenticationService;
@@ -73,18 +53,14 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             var organization = await GetOrganizationThatContainsProviderAsync(requestDto);
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-
-            var strategy = FindStrategyBasedOnParameters(externalLoginInfo, requestDto, routeDto, organization, out var parameters);
-            _externalProviderContext.SetStrategy(strategy);
-
-            return await _externalProviderContext.ExecuteStrategyAsync(parameters, externalLoginInfo);
+            var strategy = _strategyFactory.GetStrategy(externalLoginInfo, requestDto, routeDto, organization, out var parameters);
+            return await strategy.ExecuteStrategyAsync(parameters, externalLoginInfo);
         }
 
         public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto routeDto, string returnUrl, string userId)
         {
             var authenticationSchemes = await _authenticationService.Schemes.GetAllSchemesAsync();
             var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-
             return CreateExternalLogins(organization, authenticationSchemes, routeDto, returnUrl, userId);
         }
 
@@ -120,51 +96,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
             }
 
             return externalLogins;
-        }
-
-        private IExternalProviderStrategy FindStrategyBasedOnParameters(
-            ExternalLoginInfo externalLoginInfo,
-            ExternalLoginRequestDto requestDto,
-            ControllerRouteDto routeDto,
-            Organization organization,
-            out ExternalProviderStrategyParametersDto parameters)
-        {
-            if (CanLinkAccount(externalLoginInfo, requestDto))
-            {
-                parameters = new ExternalProviderStrategyParametersDto(requestDto);
-                return new ExternalProviderLinkAccountStrategy(_userManager);
-            }
-
-            if (HasCookieFromExternalProvider(externalLoginInfo))
-            {
-                if (requestDto.IsRegistration)
-                {
-                    parameters = new ExternalProviderStrategyParametersDto(requestDto, organization.Id);
-                    return new ExternalRegisterStrategy(
-                        _tokenService,
-                        _userManager,
-                        _cookieService,
-                        _pictureService);
-                }
-
-                parameters = new ExternalProviderStrategyParametersDto();
-                return new ExternalLoginStrategy(_cookieService, _tokenService);
-            }
-
-            if (requestDto.IsRegistration)
-            {
-                parameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
-                return new ExternalRegisterRedirectToProviderStrategy(
-                    _tenantNameContainer,
-                    _signInManager,
-                    _applicationOptions);
-            }
-
-            parameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
-            return new ExternalLoginRedirectToProviderStrategy(
-                    _applicationOptions,
-                    _tenantNameContainer,
-                    _signInManager);
         }
 
         private ExternalLoginDto CreateExternalLogin(
@@ -215,16 +146,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
             }
 
             return QueryHelpers.AddQueryString($"/{routeDto.ControllerName}/{routeDto.ActionName}", queryParams);
-        }
-
-        private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo)
-        {
-            return externalLoginInfo != null;
-        }
-
-        private static bool CanLinkAccount(ExternalLoginInfo externalLoginInfo, ExternalLoginRequestDto requestDto)
-        {
-            return externalLoginInfo != null && requestDto.UserId != null;
         }
     }
 }
