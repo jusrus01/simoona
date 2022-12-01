@@ -3,8 +3,9 @@
     public static class WebApiConstants
     {
         public const string OrganizationHeader = "Organization";
-
         public const string ConfigurationApiUrlKey = "ApiUrl";
+
+        public const string DefaultTokenType = "Bearer";
 
         public const int DefaultPageSize = 10;
         public const int OneHour = 3600;

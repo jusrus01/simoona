@@ -11,7 +11,6 @@ using Shrooms.Domain.Services.Permissions;
 using Shrooms.Domain.Services.Users;
 using Shrooms.Domain.Extensions;
 using Shrooms.Domain.ServiceValidators.Validators.Organizations;
-using Shrooms.Infrastructure.BackgroundJobs;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -25,15 +24,13 @@ namespace Shrooms.Domain.Services.Tokens
 {
     public class TokenService : ITokenService
     {
-        private const string TokenType = "Bearer";
-        private const string AccessTokenQueryParameter = "access_token";//TODO: add specific auth schemes
+        private const string AccessTokenQueryParameter = "access_token";
         private const string AuthTypeParameterName = "authType";
 
         private readonly ApplicationOptions _applicationOptions;
 
         private readonly IApplicationUserManager _userManager;
         private readonly IApplicationSignInManager _signInManager;
-
         private readonly IPermissionService _permissionService;
         private readonly IOrganizationService _organizationService;
         private readonly IOrganizationValidator _organizationValidator;
@@ -100,7 +97,7 @@ namespace Shrooms.Domain.Services.Tokens
                 Issued = DateTime.UtcNow,
                 ClientId = _applicationOptions.ClientId,
                 ExpiresIn = Convert.ToInt32(expirationSpan.TotalSeconds),
-                TokenType = TokenType,
+                TokenType = WebApiConstants.DefaultTokenType,
                 UserIndentifier = user.Id,
                 Persistent = string.Empty,
                 AccessToken = accessToken
