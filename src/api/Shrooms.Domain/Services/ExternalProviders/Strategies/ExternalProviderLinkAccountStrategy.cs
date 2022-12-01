@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
-using Shrooms.DataLayer.EntityModels.Models;
+﻿using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Users;
 using System.Threading.Tasks;
 
@@ -15,23 +13,23 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             _userManager = userManager;
         }
 
-        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override void CheckIfRequiredParametersAreSet()
         {
-            EnsureParametersAreSet(loginInfo, parameters.RestoreUser, parameters.Request);
+            EnsureParametersAreSet(Parameters.LoginInfo, Parameters.RestoreUser, Parameters.Request);
         }
 
-        public override async Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override async Task<ExternalProviderResult> ExecuteAsync()
         {
-            var userToLink = await GetLinkableUserAsync(parameters);
-            await _userManager.AddLoginAsync(userToLink, loginInfo);
+            var userToLink = await GetLinkableUserAsync();
+            await _userManager.AddLoginAsync(userToLink, Parameters.LoginInfo);
             return new ExternalProviderResult();
         }
 
-        private async Task<ApplicationUser> GetLinkableUserAsync(ExternalProviderStrategyParametersDto parameters)
+        private async Task<ApplicationUser> GetLinkableUserAsync()
         {
-            return parameters.RestoreUser.Value ? 
-                await _userManager.RestoreSoftDeletedUserByIdAsync(parameters.Request.UserId) :
-                await _userManager.FindByIdAsync(parameters.Request.UserId);
+            return Parameters.RestoreUser.Value ? 
+                await _userManager.RestoreSoftDeletedUserByIdAsync(Parameters.Request.UserId) :
+                await _userManager.FindByIdAsync(Parameters.Request.UserId);
         }
     }
 }

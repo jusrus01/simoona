@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.ExternalProviders.Strategies;
@@ -33,59 +32,58 @@ namespace Shrooms.Domain.Services.ExternalProviders
             ExternalLoginInfo externalLoginInfo,
             ExternalLoginRequestDto requestDto,
             ControllerRouteDto routeDto,
-            Organization organization,
-            out ExternalProviderStrategyParametersDto strategyParameters)
+            Organization organization)
         {
             if (CanLinkAccount(externalLoginInfo, requestDto))
             {
-                return LinkStrategy(requestDto, out strategyParameters);
+                return LinkStrategy(requestDto, externalLoginInfo);
             }
 
             if (HasCookieFromExternalProvider(externalLoginInfo))
             {
                 if (requestDto.IsRegistration)
                 {
-                    return RegisterStrategy(requestDto, organization.Id, out strategyParameters);
+                    return RegisterStrategy(requestDto, organization.Id, externalLoginInfo);
                 }
 
-                return LoginStrategy(out strategyParameters);
+                return LoginStrategy(externalLoginInfo);
             }
 
             if (requestDto.IsRegistration)
             {
-                return RegisterRedirectStrategy(requestDto, routeDto, out strategyParameters);
+                return RegisterRedirectStrategy(requestDto, routeDto);
             }
 
-            return LoginRedirectStrategy(requestDto, routeDto, out strategyParameters);
+            return LoginRedirectStrategy(requestDto, routeDto);
         }
 
-        private IExternalProviderStrategy LinkStrategy(ExternalLoginRequestDto requestDto, out ExternalProviderStrategyParametersDto strategyParameters)
+        private IExternalProviderStrategy LinkStrategy(ExternalLoginRequestDto requestDto, ExternalLoginInfo loginInfo)
         {
-            strategyParameters = new ExternalProviderStrategyParametersDto(requestDto);
+            _linkAccountStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, loginInfo));
             return _linkAccountStrategy;
         }
 
-        private IExternalProviderStrategy RegisterStrategy(ExternalLoginRequestDto requestDto, int organizationId, out ExternalProviderStrategyParametersDto strategyParameters)
+        private IExternalProviderStrategy RegisterStrategy(ExternalLoginRequestDto requestDto, int organizationId, ExternalLoginInfo loginInfo)
         {
-            strategyParameters = new ExternalProviderStrategyParametersDto(requestDto, organizationId);
+            _registerStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, organizationId, loginInfo));
             return _registerStrategy;
         }
 
-        private IExternalProviderStrategy LoginStrategy(out ExternalProviderStrategyParametersDto strategyParameters)
+        private IExternalProviderStrategy LoginStrategy(ExternalLoginInfo loginInfo)
         {
-            strategyParameters = new ExternalProviderStrategyParametersDto();
+            _loginStrategy.SetParameters(new ExternalProviderStrategyParameters(loginInfo));
             return _loginStrategy;
         }
 
-        private IExternalProviderStrategy RegisterRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto, out ExternalProviderStrategyParametersDto strategyParameters)
+        private IExternalProviderStrategy RegisterRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            strategyParameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
+            _registerRedirectStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, routeDto));
             return _registerRedirectStrategy;
         }
 
-        private IExternalProviderStrategy LoginRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto, out ExternalProviderStrategyParametersDto strategyParameters)
+        private IExternalProviderStrategy LoginRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            strategyParameters = new ExternalProviderStrategyParametersDto(requestDto, routeDto);
+            _loginRedirectStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, routeDto));
             return _loginRedirectStrategy;
         }
 

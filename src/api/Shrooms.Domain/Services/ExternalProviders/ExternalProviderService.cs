@@ -53,8 +53,8 @@ namespace Shrooms.Domain.Services.ExternalProviders
         {
             var organization = await GetOrganizationThatContainsProviderAsync(requestDto);
             var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-            var strategy = _strategyFactory.GetStrategy(externalLoginInfo, requestDto, routeDto, organization, out var parameters);
-            return await strategy.ExecuteStrategyAsync(parameters, externalLoginInfo);
+            var strategy = _strategyFactory.GetStrategy(externalLoginInfo, requestDto, routeDto, organization);
+            return await strategy.ExecuteStrategyAsync();
         }
 
         public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto routeDto, string returnUrl, string userId)

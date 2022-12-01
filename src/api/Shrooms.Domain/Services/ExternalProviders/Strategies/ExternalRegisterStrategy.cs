@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Shrooms.Contracts.Constants;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
+﻿using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Exceptions;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Extensions;
@@ -27,28 +25,27 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             IApplicationUserManager userManager,
             IPictureService pictureService)
         {
-            
             _loginStrategy = loginStrategy;
             _linkAccountStrategy = linkAccountStrategy;
             _userManager = userManager;
             _pictureService = pictureService;
         }
 
-        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override void CheckIfRequiredParametersAreSet()
         {
-            EnsureParametersAreSet(loginInfo, parameters.OrganizationId, parameters.Request);
+            EnsureParametersAreSet(Parameters.LoginInfo, Parameters.OrganizationId, Parameters.Request);
         }
 
-        public override async Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override async Task<ExternalProviderResult> ExecuteAsync()
         {
-            var claimsIdentity = loginInfo.Principal.Identity as ClaimsIdentity;
+            var claimsIdentity = Parameters.LoginInfo.Principal.Identity as ClaimsIdentity;
             var email = claimsIdentity.GetEmail();
 
             CheckIfEmailExists(email);
 
             if (await _userManager.IsUserSoftDeletedAsync(email))
             {
-                return await ExecuteExternalAccountLinkingStrategy(parameters, loginInfo);
+                return await ExecuteExternalAccountLinkingStrategy();
             }
 
             try
@@ -57,10 +54,10 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 
                 if (user.EmailConfirmed)
                 {
-                    return await ExecuteExternalLoginStrategyAsync(loginInfo);
+                    return await ExecuteExternalLoginStrategyAsync();
                 }
 
-                await RestoreUserAsync(loginInfo, parameters, user, claimsIdentity);
+                await RestoreUserAsync(user, claimsIdentity);
             }
             catch (ValidationException ex)
             {
@@ -69,23 +66,23 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
                     throw;
                 }
 
-                await RegisterUserAsync(loginInfo, parameters, claimsIdentity, email);
+                await RegisterUserAsync(claimsIdentity, email);
             }
             
-            return await ExecuteExternalLoginStrategyAsync(loginInfo);
+            return await ExecuteExternalLoginStrategyAsync();
         }
 
-        private async Task RegisterUserAsync(ExternalLoginInfo loginInfo, ExternalProviderStrategyParametersDto parameters, ClaimsIdentity claimsIdentity, string userEmail)
+        private async Task RegisterUserAsync(ClaimsIdentity claimsIdentity, string userEmail)
         {
-            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, userEmail, parameters.OrganizationId.Value);
+            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, userEmail);
 
             await _userManager.CreateAsync(newUser);
-            await _userManager.AddLoginAsync(newUser, loginInfo);
+            await _userManager.AddLoginAsync(newUser, Parameters.LoginInfo);
         }
 
-        private async Task RestoreUserAsync(ExternalLoginInfo loginInfo, ExternalProviderStrategyParametersDto parameters, ApplicationUser user, ClaimsIdentity claimsIdentity)
+        private async Task RestoreUserAsync(ApplicationUser user, ClaimsIdentity claimsIdentity)
         {
-            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, user.Email, parameters.OrganizationId.Value);
+            var newUser = await CreateApplicationUserFromIdentityAsync(claimsIdentity, user.Email);
 
             await _userManager.RemoveLoginAsync(user, AuthenticationConstants.InternalLoginProvider, user.Id);
             await _userManager.RemovePasswordAsync(user);
@@ -93,7 +90,7 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             CopyUserValues(fromUser: newUser, toUser: user);
 
             await _userManager.UpdateAsync(user);
-            await _userManager.AddLoginAsync(user, loginInfo);
+            await _userManager.AddLoginAsync(user, Parameters.LoginInfo);
         }
 
         private static void CopyUserValues(ApplicationUser fromUser, ApplicationUser toUser)
@@ -107,7 +104,7 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             toUser.PictureId = fromUser.PictureId;
         }
 
-        private async Task<ApplicationUser> CreateApplicationUserFromIdentityAsync(ClaimsIdentity claimsIdentity, string email, int organizationId)
+        private async Task<ApplicationUser> CreateApplicationUserFromIdentityAsync(ClaimsIdentity claimsIdentity, string email)
         {
             var userFirstName = claimsIdentity.GetFirstName();
             var userLastName = claimsIdentity.GetLastName();
@@ -121,7 +118,7 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
                 Email = email,
                 UserName = email,
                 EmailConfirmed = true,
-                OrganizationId = organizationId,
+                OrganizationId = Parameters.OrganizationId.Value,
                 PictureId = userPictureId
             };
         }
@@ -154,15 +151,16 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             return await new WebClient().DownloadDataTaskAsync(imageUrl);
         }
 
-        private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync(ExternalLoginInfo loginInfo)
+        private async Task<ExternalProviderResult> ExecuteExternalLoginStrategyAsync()
         {
-            return await _loginStrategy.ExecuteStrategyAsync(null, loginInfo);
+            _loginStrategy.SetParameters(new ExternalProviderStrategyParameters(Parameters.LoginInfo));
+            return await _loginStrategy.ExecuteStrategyAsync();
         }
 
-        private async Task<ExternalProviderResult> ExecuteExternalAccountLinkingStrategy(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo)
+        private async Task<ExternalProviderResult> ExecuteExternalAccountLinkingStrategy()
         {
-            var newParameters = new ExternalProviderStrategyParametersDto(parameters, true);
-            return await _linkAccountStrategy.ExecuteStrategyAsync(newParameters, loginInfo);
+            _linkAccountStrategy.SetParameters(new ExternalProviderStrategyParameters(Parameters, true));
+            return await _linkAccountStrategy.ExecuteStrategyAsync();
         }
 
         private static void CheckIfEmailExists(string email) // TODO: Make sure this will work with facebook provider

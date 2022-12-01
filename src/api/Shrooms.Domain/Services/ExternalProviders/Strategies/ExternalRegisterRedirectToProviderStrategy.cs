@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.Domain.Helpers;
@@ -28,26 +26,26 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             _applicationOptions = applicationOptions.Value;
         }
 
-        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override void CheckIfRequiredParametersAreSet()
         {
-            EnsureParametersAreSet(parameters.Route, parameters.Request);
+            EnsureParametersAreSet(Parameters.Route, Parameters.Request);
         }
 
-        public override Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override Task<ExternalProviderResult> ExecuteAsync()
         {
-            var uri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, parameters.Route);
+            var uri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, Parameters.Route);
 
             var loginRedirectUri = _applicationOptions.GetClientLoginUrl(_tenantNameContainer.TenantName);
             
             var loginRedirectUrl = QueryHelpers.AddQueryString(
                 loginRedirectUri,
                 ExternalProviderConstants.AuthenticationTypeParameter,
-                parameters.Request.Provider);
+                Parameters.Request.Provider);
 
             var redirectUrlParameters = new Dictionary<string, string>
             {
                 { ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName },
-                { ExternalProviderConstants.ProviderParameter, parameters.Request.Provider },
+                { ExternalProviderConstants.ProviderParameter, Parameters.Request.Provider },
                 { ExternalProviderConstants.ResponseTypeParameter, ExternalProviderConstants.ResponseType },
                 { ExternalProviderConstants.RedirectUrlParameter, loginRedirectUrl },
                 { ExternalProviderConstants.IsRegistrationParameter, ExternalProviderConstants.IsRegistration }
@@ -55,9 +53,9 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 
             var redirectUrl = QueryHelpers.AddQueryString(uri, redirectUrlParameters);
 
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(parameters.Request.Provider, redirectUrl);
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(Parameters.Request.Provider, redirectUrl);
 
-            return Task.FromResult(new ExternalProviderResult(properties, parameters.Request.Provider));
+            return Task.FromResult(new ExternalProviderResult(properties, Parameters.Request.Provider));
         }
     }
 }

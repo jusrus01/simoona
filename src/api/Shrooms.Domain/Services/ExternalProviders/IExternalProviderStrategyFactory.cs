@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.ExternalProviders.Strategies;
@@ -13,7 +12,6 @@ namespace Shrooms.Domain.Services.ExternalProviders
             ExternalLoginInfo externalLoginInfo,
             ExternalLoginRequestDto requestDto,
             ControllerRouteDto routeDto,
-            Organization organization,
-            out ExternalProviderStrategyParametersDto strategyParameters);
+            Organization organization);
     }
 }

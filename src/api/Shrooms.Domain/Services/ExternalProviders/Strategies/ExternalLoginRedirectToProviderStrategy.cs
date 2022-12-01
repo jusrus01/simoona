@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
-using Shrooms.Contracts.DataTransferObjects.Models.ExternalProviders;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.Domain.Helpers;
@@ -27,17 +25,17 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             _tenantNameContainer = tenantNameContainer;
         }
 
-        public override void EnsureValidParameters(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override void CheckIfRequiredParametersAreSet()
         {
-            EnsureParametersAreSet(parameters.Route, parameters.Request);
+            EnsureParametersAreSet(Parameters.Route, Parameters.Request);
         }
 
-        public override Task<ExternalProviderResult> ExecuteAsync(ExternalProviderStrategyParametersDto parameters, ExternalLoginInfo loginInfo = null)
+        public override Task<ExternalProviderResult> ExecuteAsync()
         {
-            var externalRegisterUri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, parameters.Route);
+            var externalRegisterUri = ApplicationUrlHelper.GetActionUrl(_applicationOptions, Parameters.Route);
             var redirectUrl = QueryHelpers.AddQueryString(externalRegisterUri, ExternalProviderConstants.OrganizationParameter, _tenantNameContainer.TenantName);
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(parameters.Request.Provider, redirectUrl);
-            return Task.FromResult(new ExternalProviderResult(properties, parameters.Request.Provider));
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(Parameters.Request.Provider, redirectUrl);
+            return Task.FromResult(new ExternalProviderResult(properties, Parameters.Request.Provider));
         }
     }
 }
