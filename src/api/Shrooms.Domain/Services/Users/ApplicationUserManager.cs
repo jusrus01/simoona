@@ -14,7 +14,7 @@ using System.Web;
 namespace Shrooms.Domain.Services.Users
 {
     public class ApplicationUserManager : IApplicationUserManager
-    {//TODO: figure out wether or not to add exceptions on all Task functions
+    {
         private readonly IApplicationUserManagerValidator _validator;
 
         private readonly UserManager<ApplicationUser> _userManager;
@@ -134,7 +134,7 @@ namespace Shrooms.Domain.Services.Users
             _validator.CheckIfPasswordResetWasSuccesfull(identityResult);
         }
 
-        public async Task RemoveLoginAsync(ApplicationUser user, string provider, string providerKey)//TODO: validation
+        public async Task RemoveLoginAsync(ApplicationUser user, string provider, string providerKey)//TODO: Add validation
         {
             await _userManager.RemoveLoginAsync(user, provider, providerKey);
         }
@@ -149,34 +149,30 @@ namespace Shrooms.Domain.Services.Users
             return await _userManager.FindByEmailAsync(email) != null;
         }
 
-        // OO sql generation...
-        public async Task<bool> IsUserSoftDeletedAsync(string email)
+        public async Task<bool> IsUserSoftDeletedAsync(string email) // TODO: Change implementation after EF Core update
         {
-            var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1") // TODO: Change implementation
+            var softDeleteUser = await _usersDbSet.FromSql($"SELECT * FROM [dbo].[AspNetUsers] WHERE Email = {email} AND IsDeleted = 1")
                 .SingleOrDefaultAsync();
             return softDeleteUser != null;
         }
 
-        //TODO: refactor
-        public async Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id)
+        public async Task<ApplicationUser> RestoreSoftDeletedUserByIdAsync(string id) // TODO: Change implementation after EF Core update
         {
-            var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Id = {id}") // TODO: Change implementation
+            var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Id = {id}")
                 .SingleOrDefaultAsync();
             _validator.CheckIfUserExists(user);
             return user;
         }
 
-        public async Task<ApplicationUser> RestoreSoftDeletedUserByEmailAsync(string email)
+        public async Task<ApplicationUser> RestoreSoftDeletedUserByEmailAsync(string email) // TODO: Change implementation after EF Core update
         {
-            var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {email}") // TODO: Change implementation
+            var user = await _usersDbSet.FromSql($"UPDATE [dbo].[AspNetUsers] SET[IsDeleted] = '0' WHERE Email = {email}") 
                 .SingleOrDefaultAsync();
             _validator.CheckIfUserExists(user);
             return user;
         }
 
-        public async Task<ApplicationUser> FindInternalByEmailAsync(string email)//Q: Should shared functionality be implemented with
-        //the use of private methods and not public or that does not matter?
-        // e.g. FindUserByAsync(_userManager.FindByEmailAsync, email); instead of public method.
+        public async Task<ApplicationUser> FindInternalByEmailAsync(string email)
         {
             var user = await FindUserByAsync(_userManager.FindByEmailAsync, email);
             var logins = await _userManager.GetLoginsAsync(user);
