@@ -128,7 +128,7 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             try
             {
                 var imageBytes = await DownloadProviderImageAsync(claimsIdentity);
-                var memoryStream = new MemoryStream(imageBytes);
+                using var memoryStream = new MemoryStream(imageBytes);
                 return await _pictureService.UploadFromStreamAsync(memoryStream, MimeTypeConstants.Jpeg);
             }
             catch
