@@ -1,11 +1,16 @@
-﻿using Shrooms.Domain.Services.Cookies;
+﻿using Microsoft.AspNetCore.Identity;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Domain.Services.Cookies;
+using Shrooms.Domain.Services.ExternalProviders.Arguments;
 using Shrooms.Domain.Services.Tokens;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
-    public class ExternalLoginStrategy : ExternalProviderStrategyBase
+    public class ExternalLoginStrategy : ExternalProviderStrategyBase, IExternalProviderStrategy<LoginArgs>
     {
+        private LoginArgs _arguments;
+
         private readonly ITokenService _tokenService;
         private readonly ICookieService _cookieService;
 
@@ -15,16 +20,25 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             _cookieService = cookieService;
         }
 
-        public override void CheckIfRequiredParametersAreSet()
+        public bool CanBeUsed(ExternalLoginInfo loginInfo, ExternalLoginRequestDto requestDto) =>
+            loginInfo != null &&
+            !requestDto.IsRegistration &&
+            requestDto.UserId == null;
+
+        public async Task<ExternalProviderPartialResult> ExecuteAsync()
         {
-            EnsureParametersAreSet(Parameters.LoginInfo);
+            var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(_arguments.LoginInfo);
+            await _cookieService.SetExternalCookieAsync();
+            return Complete(new ExternalProviderResult(tokenRedirectUrl));
         }
 
-        public override async Task<ExternalProviderResult> ExecuteAsync()
-        {
-            var tokenRedirectUrl = await _tokenService.GetTokenRedirectUrlForExternalAsync(Parameters.LoginInfo);
-            await _cookieService.SetExternalCookieAsync();
-            return new ExternalProviderResult(tokenRedirectUrl);
-        }
+        public void SetArguments(params object[] arguments) =>
+            SetArguments(MapArgumentsToRequiredArgument<LoginArgs>(
+                arguments,
+                typeof(ExternalLoginInfo),
+                typeof(ExternalLoginRequestDto)));
+
+        public void SetArguments(LoginArgs arguments) =>
+            _arguments = arguments;
     }
 }

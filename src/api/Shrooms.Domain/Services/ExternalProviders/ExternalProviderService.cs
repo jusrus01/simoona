@@ -6,23 +6,21 @@ using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Options;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.Organizations;
-using Shrooms.Domain.Services.Users;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 using Shrooms.Domain.Services.AuthenticationStates;
 using Shrooms.Contracts.Infrastructure;
+using Shrooms.Domain.Services.ExternalProviders.Strategies;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
     public class ExternalProviderService : IExternalProviderService
     {
-        private readonly IApplicationSignInManager _signInManager;
-        private readonly ITenantNameContainer _tenantNameContainer;
         private readonly ApplicationOptions _applicationOptions;
+
+        private readonly ITenantNameContainer _tenantNameContainer;
         private readonly IOrganizationService _organizationService;
-        private readonly IExternalProviderValidator _validator;
         private readonly IAuthenticationStateService _stateService;
         private readonly IExternalProviderStrategyFactory _strategyFactory;
 
@@ -30,31 +28,26 @@ namespace Shrooms.Domain.Services.ExternalProviders
 
         public ExternalProviderService(
             IOptions<ApplicationOptions> applicationOptions,
-            IApplicationSignInManager signInManager,
             ITenantNameContainer tenantNameContainer,
             IOrganizationService organizationService,
-            IExternalProviderValidator validator,
             IAuthenticationService authenticationService,
             IAuthenticationStateService stateService,
             IExternalProviderStrategyFactory strategyFactory)
         {
-            _signInManager = signInManager;
+            _applicationOptions = applicationOptions.Value;
+
             _tenantNameContainer = tenantNameContainer;
             _organizationService = organizationService;
-            _validator = validator;
             _stateService = stateService;
             _strategyFactory = strategyFactory;
 
-            _applicationOptions = applicationOptions.Value;
             _authenticationService = (AuthenticationService)authenticationService;
         }
 
         public async Task<ExternalProviderResult> ExternalLoginOrRegisterAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            var organization = await GetOrganizationThatContainsProviderAsync(requestDto);
-            var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
-            var strategy = _strategyFactory.GetStrategy(externalLoginInfo, requestDto, routeDto, organization);
-            return await strategy.ExecuteStrategyAsync();
+            var strategy = await _strategyFactory.GetStrategyAsync(requestDto, routeDto);
+            return await ResolveStrategyAsync(strategy);
         }
 
         public async Task<IEnumerable<ExternalLoginDto>> GetExternalLoginsAsync(ControllerRouteDto routeDto, string returnUrl, string userId)
@@ -64,12 +57,17 @@ namespace Shrooms.Domain.Services.ExternalProviders
             return CreateExternalLogins(organization, authenticationSchemes, routeDto, returnUrl, userId);
         }
 
-        private async Task<Organization> GetOrganizationThatContainsProviderAsync(ExternalLoginRequestDto requestDto)
+        private async Task<ExternalProviderResult> ResolveStrategyAsync(IExternalProviderStrategy strategy)
         {
-            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
-            var hasProvider = _organizationService.HasProvider(organization, requestDto.Provider);
-            _validator.CheckIfIsValidProvider(requestDto, hasProvider);
-            return organization;
+            var partialResult = await strategy.ExecuteAsync();
+
+            while (!partialResult.IsComplete)
+            {
+                var nextStrategy = _strategyFactory.GetStrategy(partialResult);
+                partialResult = await nextStrategy.ExecuteAsync();
+            }
+
+            return partialResult.Result;
         }
 
         private IList<ExternalLoginDto> CreateExternalLogins(

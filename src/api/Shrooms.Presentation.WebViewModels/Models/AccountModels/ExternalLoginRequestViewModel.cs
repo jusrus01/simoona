@@ -13,7 +13,7 @@ namespace Shrooms.Presentation.WebViewModels.Models.AccountModels
         [JsonProperty("user_id")]
         public string UserId { get; set; }
 
-        [JsonProperty("user_id")]
+        [JsonProperty("isRegistration")]
         public bool IsRegistration { get; set; }
 
         [JsonProperty("error")]

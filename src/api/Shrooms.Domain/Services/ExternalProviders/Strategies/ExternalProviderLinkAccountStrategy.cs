@@ -1,11 +1,16 @@
-﻿using Shrooms.DataLayer.EntityModels.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.DataLayer.EntityModels.Models;
+using Shrooms.Domain.Services.ExternalProviders.Arguments;
 using Shrooms.Domain.Services.Users;
 using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders.Strategies
 {
-    public class ExternalProviderLinkAccountStrategy : ExternalProviderStrategyBase
+    public class ExternalProviderLinkAccountStrategy : ExternalProviderStrategyBase, IExternalProviderStrategy<LinkingArgs>
     {
+        private LinkingArgs _arguments;
+
         private readonly IApplicationUserManager _userManager;
 
         public ExternalProviderLinkAccountStrategy(IApplicationUserManager userManager)
@@ -13,23 +18,32 @@ namespace Shrooms.Domain.Services.ExternalProviders.Strategies
             _userManager = userManager;
         }
 
-        public override void CheckIfRequiredParametersAreSet()
-        {
-            EnsureParametersAreSet(Parameters.LoginInfo, Parameters.RestoreUser, Parameters.Request);
-        }
+        public bool CanBeUsed(ExternalLoginInfo loginInfo, ExternalLoginRequestDto requestDto) =>
+            loginInfo != null &&
+            requestDto.UserId != null;
 
-        public override async Task<ExternalProviderResult> ExecuteAsync()
+        public async Task<ExternalProviderPartialResult> ExecuteAsync()
         {
             var userToLink = await GetLinkableUserAsync();
-            await _userManager.AddLoginAsync(userToLink, Parameters.LoginInfo);
-            return new ExternalProviderResult();
+            await _userManager.AddLoginAsync(userToLink, _arguments.LoginInfo);
+            return Complete(new ExternalProviderResult());
         }
+
+        public void SetArguments(LinkingArgs arguments) =>
+            _arguments = arguments;
+
+        public void SetArguments(params object[] arguments) =>
+            SetArguments(MapArgumentsToRequiredArgument<LinkingArgs>(
+                arguments,
+                typeof(ExternalLoginInfo),
+                typeof(ExternalLoginRequestDto),
+                typeof(bool?)));
 
         private async Task<ApplicationUser> GetLinkableUserAsync()
         {
-            return Parameters.RestoreUser.Value ? 
-                await _userManager.RestoreSoftDeletedUserByIdAsync(Parameters.Request.UserId) :
-                await _userManager.FindByIdAsync(Parameters.Request.UserId);
+            return _arguments.RestoreUser.Value ? 
+                await _userManager.RestoreSoftDeletedUserByIdAsync(_arguments.Request.UserId) :
+                await _userManager.FindByIdAsync(_arguments.Request.UserId);
         }
     }
 }

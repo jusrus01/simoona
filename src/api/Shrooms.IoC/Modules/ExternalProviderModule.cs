@@ -20,18 +20,31 @@ namespace Shrooms.IoC.Modules
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalProviderLinkAccountStrategy>()
+                .As<IExternalProviderStrategy>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalLoginRedirectToProviderStrategy>()
+                .As<IExternalProviderStrategy>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalRegisterRedirectToProviderStrategy>()
+                .As<IExternalProviderStrategy>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalLoginStrategy>()
+                .As<IExternalProviderStrategy>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ExternalPictureService>()
+                .As<IExternalPictureService>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalRegisterStrategy>()
+                .As<IExternalProviderStrategy>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ExternalRestoreStrategy>()
+                .As<IExternalProviderStrategy>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ExternalProviderStrategyFactory>()

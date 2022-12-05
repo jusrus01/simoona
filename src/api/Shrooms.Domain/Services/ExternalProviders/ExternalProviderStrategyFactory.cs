@@ -1,100 +1,61 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
+﻿using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
+using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.Domain.Services.ExternalProviders.Strategies;
+using Shrooms.Domain.Services.Organizations;
+using Shrooms.Domain.Services.Users;
+using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Shrooms.Domain.Services.ExternalProviders
 {
     public class ExternalProviderStrategyFactory : IExternalProviderStrategyFactory
     {
-        private readonly ExternalRegisterRedirectToProviderStrategy _registerRedirectStrategy;
-        private readonly ExternalProviderLinkAccountStrategy _linkAccountStrategy;
-        private readonly ExternalLoginRedirectToProviderStrategy _loginRedirectStrategy;
-        private readonly ExternalRegisterStrategy _registerStrategy;
-        private readonly ExternalLoginStrategy _loginStrategy;
+        private readonly IApplicationSignInManager _signInManager;
+        private readonly IOrganizationService _organizationService;
+        private readonly IEnumerable<IExternalProviderStrategy> _strategies;
+        private readonly ITenantNameContainer _tenantNameContainer;
+        private readonly IExternalProviderValidator _validator;
 
         public ExternalProviderStrategyFactory(
-            ExternalRegisterRedirectToProviderStrategy registerRedirectStrategy,
-            ExternalProviderLinkAccountStrategy linkAccountStrategy,
-            ExternalLoginRedirectToProviderStrategy loginRedirectStrategy,
-            ExternalRegisterStrategy registerStrategy,
-            ExternalLoginStrategy loginStrategy)
+            IEnumerable<IExternalProviderStrategy> strategies,
+            IApplicationSignInManager signInManager,
+            ITenantNameContainer tenantNameContainer, 
+            IExternalProviderValidator validator,
+            IOrganizationService organizationService)
         {
-            _registerRedirectStrategy = registerRedirectStrategy;
-            _linkAccountStrategy = linkAccountStrategy;
-            _loginRedirectStrategy = loginRedirectStrategy;
-            _registerStrategy = registerStrategy;
-            _loginStrategy = loginStrategy;
+            _signInManager = signInManager;
+            _strategies = strategies;
+            _tenantNameContainer = tenantNameContainer;
+            _validator = validator;
+            _organizationService = organizationService;
         }
 
-        public IExternalProviderStrategy GetStrategy(
-            ExternalLoginInfo externalLoginInfo,
-            ExternalLoginRequestDto requestDto,
-            ControllerRouteDto routeDto,
-            Organization organization)
+        public IExternalProviderStrategy GetStrategy(ExternalProviderPartialResult partialResult)
         {
-            if (CanLinkAccount(externalLoginInfo, requestDto))
-            {
-                return LinkStrategy(requestDto, externalLoginInfo);
-            }
-
-            if (HasCookieFromExternalProvider(externalLoginInfo))
-            {
-                if (requestDto.IsRegistration)
-                {
-                    return RegisterStrategy(requestDto, organization.Id, externalLoginInfo);
-                }
-
-                return LoginStrategy(externalLoginInfo);
-            }
-
-            if (requestDto.IsRegistration)
-            {
-                return RegisterRedirectStrategy(requestDto, routeDto);
-            }
-
-            return LoginRedirectStrategy(requestDto, routeDto);
+            var strategy = _strategies.Single(strategy => strategy.GetType() == partialResult.NextStrategy);
+            strategy.SetArguments(partialResult.Arguments);
+            return strategy;
         }
 
-        private IExternalProviderStrategy LinkStrategy(ExternalLoginRequestDto requestDto, ExternalLoginInfo loginInfo)
+        public async Task<IExternalProviderStrategy> GetStrategyAsync(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
         {
-            _linkAccountStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, loginInfo));
-            return _linkAccountStrategy;
+            var organization = await GetOrganizationThatContainsProviderAsync(requestDto);
+            var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+            var strategy = _strategies.Single(strategy => strategy.CanBeUsed(externalLoginInfo, requestDto));
+            strategy.SetArguments(organization, externalLoginInfo, routeDto, requestDto);
+            return strategy;
         }
 
-        private IExternalProviderStrategy RegisterStrategy(ExternalLoginRequestDto requestDto, int organizationId, ExternalLoginInfo loginInfo)
+        private async Task<Organization> GetOrganizationThatContainsProviderAsync(ExternalLoginRequestDto requestDto)
         {
-            _registerStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, organizationId, loginInfo));
-            return _registerStrategy;
-        }
-
-        private IExternalProviderStrategy LoginStrategy(ExternalLoginInfo loginInfo)
-        {
-            _loginStrategy.SetParameters(new ExternalProviderStrategyParameters(loginInfo));
-            return _loginStrategy;
-        }
-
-        private IExternalProviderStrategy RegisterRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
-        {
-            _registerRedirectStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, routeDto));
-            return _registerRedirectStrategy;
-        }
-
-        private IExternalProviderStrategy LoginRedirectStrategy(ExternalLoginRequestDto requestDto, ControllerRouteDto routeDto)
-        {
-            _loginRedirectStrategy.SetParameters(new ExternalProviderStrategyParameters(requestDto, routeDto));
-            return _loginRedirectStrategy;
-        }
-
-        private static bool HasCookieFromExternalProvider(ExternalLoginInfo externalLoginInfo)
-        {
-            return externalLoginInfo != null;
-        }
-
-        private static bool CanLinkAccount(ExternalLoginInfo externalLoginInfo, ExternalLoginRequestDto requestDto)
-        {
-            return externalLoginInfo != null && requestDto.UserId != null;
+            var organization = await _organizationService.GetOrganizationByNameAsync(_tenantNameContainer.TenantName);
+            var hasProvider = _organizationService.HasProvider(organization, requestDto.Provider);
+            _validator.CheckIfIsValidProvider(requestDto, hasProvider);
+            return organization;
         }
     }
 }
