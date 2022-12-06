@@ -17,19 +17,13 @@ namespace Shrooms.Authentication.External.Strategies
 
         protected static ExternalProviderPartialResult Next<T>(params object[] arguments) where T : class => new (typeof(T), arguments);
 
-        /// <summary>
-        /// Retrievie specified arguments by type
-        /// </summary>
-        /// <param name="arguments">All available arguments</param>
-        /// <param name="types">Required types</param>
-        /// <returns>Arguments returned in order that types are defined</returns>
         private static object[] GetArguments(object[] arguments, params Type[] types)
         {
             var requiredArguments = new object[types.Length];
 
             for (var i = 0; i < types.Length; i++)
             {
-                // Calling Single() for all arguments, so order would be kept
+                // Calling Single() for all arguments to keep the same order that type parameters were passed in
                 requiredArguments[i] = GetArgument(arguments, types[i]);
             }
 

@@ -35,8 +35,7 @@ namespace Shrooms.Authentication.External.Strategies
         public void SetArguments(params object[] arguments) =>
             SetArguments(MapArgumentsToRequiredArgument<LoginArgs>(
                 arguments,
-                typeof(ExternalLoginInfo),
-                typeof(ExternalLoginRequestDto)));
+                typeof(ExternalLoginInfo)));
 
         public void SetArguments(LoginArgs arguments) =>
             _arguments = arguments;

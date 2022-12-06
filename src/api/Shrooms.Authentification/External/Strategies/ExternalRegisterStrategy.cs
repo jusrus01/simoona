@@ -58,7 +58,7 @@ namespace Shrooms.Authentication.External.Strategies
 
             if (user != null)
             {
-                return MoveToRestoreStrategy();
+                return MoveToRestoreStrategy(user, claimsIdentity);
             }
             
             await RegisterUserAsync(claimsIdentity);
@@ -101,8 +101,8 @@ namespace Shrooms.Authentication.External.Strategies
         private static bool UserHasValidAccount(ApplicationUser user) =>
             user != null && user.EmailConfirmed;
 
-        private ExternalProviderPartialResult MoveToRestoreStrategy() =>
-            Next<ExternalLoginStrategy>(_arguments.LoginInfo, _arguments.Request);
+        private ExternalProviderPartialResult MoveToRestoreStrategy(ApplicationUser restorableUser, ClaimsIdentity claimsIdentity) =>
+            Next<ExternalRestoreStrategy>(_arguments.LoginInfo, _arguments.Request, restorableUser, claimsIdentity, _arguments.Organization.Id);
 
         private ExternalProviderPartialResult MoveToLoginStrategy() =>
             Next<ExternalLoginStrategy>(_arguments.LoginInfo, _arguments.Request);

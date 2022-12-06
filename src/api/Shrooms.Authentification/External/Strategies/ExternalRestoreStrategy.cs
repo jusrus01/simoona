@@ -29,7 +29,7 @@ namespace Shrooms.Authentication.External.Strategies
         {
             var newUser = await CreateNewUserAsync();
             await AddNewLoginAsync(newUser);
-            return Next<ExternalLoginStrategy>(new LoginArgs(_arguments.LoginInfo, _arguments.Request));
+            return Next<ExternalLoginStrategy>(_arguments.LoginInfo);
         }
 
         public void SetArguments(RestoreArgs arguments) =>
