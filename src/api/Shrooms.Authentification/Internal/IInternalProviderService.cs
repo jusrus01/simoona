@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.InternalProviders
+namespace Shrooms.Authentication.Internal
 {
     public interface IInternalProviderService
     {

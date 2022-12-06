@@ -1,6 +1,6 @@
 ﻿using Autofac;
+using Shrooms.Authentication.Internal;
 using Shrooms.Domain.Services.Email.InternalProviders;
-using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Domain.Services.Tokens;
 using Shrooms.Domain.ServiceValidators.Validators.InternalProviders;
 
