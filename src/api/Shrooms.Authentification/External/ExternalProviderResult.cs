@@ -4,7 +4,7 @@ using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.Enums;
 using System;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public class ExternalProviderResult
     {

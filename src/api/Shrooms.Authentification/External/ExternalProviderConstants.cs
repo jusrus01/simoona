@@ -1,4 +1,4 @@
-﻿namespace Shrooms.Domain.Services.ExternalProviders
+﻿namespace Shrooms.Authentication.External
 {
     public static class ExternalProviderConstants
     {

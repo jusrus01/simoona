@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Shrooms.Domain.Services.ExternalProviders.Strategies
+namespace Shrooms.Authentication.External.Strategies
 {
     public abstract class ExternalProviderStrategyBase
     {

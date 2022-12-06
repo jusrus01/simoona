@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Shrooms.Authentication.External.Arguments;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.DataLayer.EntityModels.Models;
-using Shrooms.Domain.Services.ExternalProviders.Arguments;
 using Shrooms.Domain.Services.Users;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders.Strategies
+namespace Shrooms.Authentication.External.Strategies
 {
     public class ExternalRestoreStrategy : ExternalProviderStrategyBase, IExternalProviderStrategy<RestoreArgs>
     {

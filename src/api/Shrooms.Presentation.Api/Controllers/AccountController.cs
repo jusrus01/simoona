@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Domain.Services.Administration;
-using Shrooms.Domain.Services.ExternalProviders;
 using Shrooms.Domain.Services.InternalProviders;
 using Shrooms.Presentation.Api.Controllers;
 using Shrooms.Presentation.Api.ApiExtensions;
@@ -11,6 +10,7 @@ using Shrooms.Presentation.WebViewModels.Models;
 using Shrooms.Presentation.WebViewModels.Models.AccountModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shrooms.Authentication.External;
 
 namespace Shrooms.Presentation.Api
 {

@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shrooms.Domain.Services.AuthenticationStates;
 using Shrooms.Contracts.Infrastructure;
-using Shrooms.Domain.Services.ExternalProviders.Strategies;
+using Shrooms.Authentication.External.Strategies;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public class ExternalProviderService : IExternalProviderService
     {

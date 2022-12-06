@@ -1,7 +1,6 @@
-﻿using Shrooms.Domain.Services.ExternalProviders.Strategies;
-using System;
+﻿using System;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public class ExternalProviderPartialResult
     {

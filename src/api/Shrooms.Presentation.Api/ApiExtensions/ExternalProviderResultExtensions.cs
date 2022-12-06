@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Shrooms.Authentication.External;
 using Shrooms.Contracts.Enums;
-using Shrooms.Domain.Services.ExternalProviders;
 using System;
 
 namespace Shrooms.Presentation.Api.ApiExtensions

@@ -2,7 +2,7 @@
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders.Strategies
+namespace Shrooms.Authentication.External.Strategies
 {
     public interface IExternalProviderStrategy<TArgument> : IExternalProviderStrategy where TArgument : class
     {

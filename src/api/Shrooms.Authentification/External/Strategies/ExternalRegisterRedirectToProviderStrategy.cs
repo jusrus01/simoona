@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Shrooms.Authentication.External.Arguments;
 using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.Contracts.Options;
 using Shrooms.Domain.Helpers;
-using Shrooms.Domain.Services.ExternalProviders.Arguments;
 using Shrooms.Domain.Services.Users;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders.Strategies
+namespace Shrooms.Authentication.External.Strategies
 {
     public class ExternalRegisterRedirectToProviderStrategy : ExternalProviderStrategyBase, IExternalProviderStrategy<RegisterRedirectArgs>
     {

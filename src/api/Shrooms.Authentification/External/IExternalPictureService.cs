@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public interface IExternalPictureService
     {

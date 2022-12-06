@@ -2,7 +2,7 @@
 using Shrooms.Domain.Extensions;
 using System.Security.Claims;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public static class ExternalProviderUserCreator
     {

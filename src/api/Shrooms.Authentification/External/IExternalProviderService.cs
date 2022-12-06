@@ -3,7 +3,7 @@ using Shrooms.Contracts.DataTransferObjects.Models.Users;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public interface IExternalProviderService
     {

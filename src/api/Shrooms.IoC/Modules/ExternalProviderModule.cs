@@ -1,8 +1,7 @@
 ﻿using Autofac;
-using Autofac.Diagnostics;
+using Shrooms.Authentication.External;
+using Shrooms.Authentication.External.Strategies;
 using Shrooms.Domain.Services.AuthenticationStates;
-using Shrooms.Domain.Services.ExternalProviders;
-using Shrooms.Domain.Services.ExternalProviders.Strategies;
 using Shrooms.Domain.ServiceValidators.Validators.ExternalProviders;
 
 namespace Shrooms.IoC.Modules

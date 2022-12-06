@@ -1,9 +1,9 @@
-﻿using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
+﻿using Shrooms.Authentication.External.Strategies;
+using Shrooms.Contracts.DataTransferObjects.Models.Controllers;
 using Shrooms.Contracts.DataTransferObjects.Models.Users;
-using Shrooms.Domain.Services.ExternalProviders.Strategies;
 using System.Threading.Tasks;
 
-namespace Shrooms.Domain.Services.ExternalProviders
+namespace Shrooms.Authentication.External
 {
     public interface IExternalProviderStrategyFactory
     {
