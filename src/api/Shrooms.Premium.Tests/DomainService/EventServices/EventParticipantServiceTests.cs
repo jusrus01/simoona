@@ -490,7 +490,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 Participants = new List<EventParticipantAttendDto>()
             };
 
-            Assert.DoesNotThrow(() => _eventValidationService.CheckIfCanJoinEvent(joinDto, validationDto));
+            Assert.DoesNotThrow(() => _eventValidationService.CheckIfEventIsFull(joinDto, validationDto));
         }
 
         [TestCase(AttendingStatus.Attending)]
@@ -510,7 +510,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 Participants = new List<EventParticipantAttendDto>()
             };
 
-            Assert.Throws<EventException>(() => _eventValidationService.CheckIfCanJoinEvent(joinDto, validationDto));
+            Assert.Throws<EventException>(() => _eventValidationService.CheckIfEventIsFull(joinDto, validationDto));
         }
 
         [Test]

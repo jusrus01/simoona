@@ -5,5 +5,7 @@
         public string Id { get; set; }
 
         public int AttendStatus { get; set; }
+
+        public bool IsInQueue { get; set; }
     }
 }

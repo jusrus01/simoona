@@ -203,12 +203,15 @@ namespace Shrooms.Premium.Domain.Services.Events.List
                 VisitedEvents = _eventsDbSet
                                     .Where(FilterByDateInterval(reportArgsDto))
                                     // Due to the EF 6 bug, this expression cannot be exported to a method
-                                    .Where(e => e.EventParticipants.Any(participant => participant.ApplicationUserId == p.ApplicationUser.Id &&
-                                                                        (participant.AttendStatus == (int)AttendingStatus.Attending ||
-                                                                         participant.AttendStatus == (int)AttendingStatus.AttendingVirtually)) &&
-                                                e.EndDate < DateTime.UtcNow &&
-                                                e.OrganizationId == userOrg.OrganizationId &&
-                                                (eventTypesLength == 0 || reportArgsDto.EventTypeIds.Contains(e.EventType.Id)))
+                                    .Where(e => 
+                                        e.EventParticipants.Any(participant =>
+                                            participant.ApplicationUserId == p.ApplicationUser.Id &&
+                                            (participant.AttendStatus == (int)AttendingStatus.Attending ||
+                                            participant.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
+                                            !participant.IsInQueue) &&
+                                        e.EndDate < DateTime.UtcNow &&
+                                        e.OrganizationId == userOrg.OrganizationId &&
+                                        (eventTypesLength == 0 || reportArgsDto.EventTypeIds.Contains(e.EventType.Id)))
                                     .OrderByDescending(e => e.EndDate)
                                     .Take(EventsConstants.EventReportVisitedEventPreviewCount)
                                     .Select(visited => new EventVisitedReportDto
@@ -223,12 +226,15 @@ namespace Shrooms.Premium.Domain.Services.Events.List
                 TotalVisitedEventCount = _eventsDbSet
                                     .Where(FilterByDateInterval(reportArgsDto))
                                     // Due to the EF 6 bug, this expression cannot be exported to a method
-                                    .Count(e => e.EventParticipants.Any(participant => participant.ApplicationUserId == p.ApplicationUser.Id &&
-                                                                        (participant.AttendStatus == (int)AttendingStatus.Attending ||
-                                                                         participant.AttendStatus == (int)AttendingStatus.AttendingVirtually)) &&
-                                                e.EndDate < DateTime.UtcNow &&
-                                                e.OrganizationId == userOrg.OrganizationId &&
-                                                (eventTypesLength == 0 || reportArgsDto.EventTypeIds.Contains(e.EventType.Id)))
+                                    .Count(e =>
+                                        e.EventParticipants.Any(participant =>
+                                            participant.ApplicationUserId == p.ApplicationUser.Id &&
+                                            (participant.AttendStatus == (int)AttendingStatus.Attending ||
+                                            participant.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
+                                            !participant.IsInQueue) &&
+                                        e.EndDate < DateTime.UtcNow &&
+                                        e.OrganizationId == userOrg.OrganizationId &&
+                                        (eventTypesLength == 0 || reportArgsDto.EventTypeIds.Contains(e.EventType.Id)))
             };
         }
 

@@ -309,7 +309,7 @@ namespace Shrooms.Premium.Domain.DomainServiceValidators.Events
             }
         }
         
-        public void CheckIfCanJoinEvent(EventJoinDto joinDto, EventJoinValidationDto joinValidationDto)
+        public void CheckIfEventIsFull(EventJoinDto joinDto, EventJoinValidationDto joinValidationDto)
         {
             var newParticipantCount = joinDto.ParticipantIds.Count();
             var maxParticipantCount = joinDto.AttendStatus == AttendingStatus.Attending ?
