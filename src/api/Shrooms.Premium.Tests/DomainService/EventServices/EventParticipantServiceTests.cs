@@ -95,7 +95,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             await _eventParticipationService.JoinAsync(eventJoinDto);
@@ -118,7 +119,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -140,7 +142,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             await _eventParticipationService.JoinAsync(eventJoinDto);
@@ -163,7 +166,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -221,7 +225,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 ChosenOptions = new List<int> { 1 },
                 EventId = eventGuid,
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             await _eventParticipationService.JoinAsync(eventJoinDto);
@@ -716,7 +721,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -742,7 +748,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -768,7 +775,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -794,7 +802,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -820,7 +829,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
@@ -846,7 +856,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 ParticipantIds = new List<string> { "testUserId", "1" },
                 EventId = eventGuid,
                 UserId = "testUserId",
-                OrganizationId = 2
+                OrganizationId = 2,
+                AttendStatus = AttendingStatus.Attending
             };
 
             // Act
