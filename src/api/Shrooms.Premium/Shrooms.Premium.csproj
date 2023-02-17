@@ -321,6 +321,7 @@
     <Compile Include="DataTransferObjects\Models\Committees\CommitteeSuggestionPostDto.cs" />
     <Compile Include="DataTransferObjects\Models\Committees\CommitteeSuggestionDto.cs" />
     <Compile Include="DataTransferObjects\Models\Committees\CommitteeViewDto.cs" />
+    <Compile Include="DataTransferObjects\Models\Events\ClassifiedParticipantIdsDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventEditDetailsDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventFilteredArgsDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventParticipantAttendDto.cs" />

@@ -94,91 +94,23 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
                 ValidateEventBeforeJoin(joinDto, eventToJoin);
 
                 var joiningUsers = await GetUsersFromParticipantIdsAsync(joinDto.ParticipantIds);
-
-                var maxParticipantCountBasedOnStatus = eventToJoin.GetMaxParticipantCount(joinDto.AttendStatus);
-                var joinedOrInQueueParticipantIds = eventToJoin.Participants
-                    .Where(participant => participant.AttendStatus == (int)joinDto.AttendStatus)
-                    .Select(participant => participant.Id)
-                    .ToList();
-                var joinedOrInQueueChangingStatusParticipantIds = joinedOrInQueueParticipantIds
-                    .Where(participantId => joinDto.ParticipantIds.Contains(participantId));
-                var newParticipantIdsJoiningEventOrQueue = joinDto.ParticipantIds
-                    .Except(joinedOrInQueueChangingStatusParticipantIds)
-                    .ToList();
-
-                var joinedChangingStatusParticipantIds = eventToJoin.Participants
-                    .Where(participant =>
-                        joinedOrInQueueChangingStatusParticipantIds.Contains(participant.Id) &&
-                        !participant.IsInQueue)
-                    .Select(participant => participant.Id)
-                    .ToList();
-                var inQueueChangingStatusParticipantIds = joinedOrInQueueChangingStatusParticipantIds
-                    .Except(joinedChangingStatusParticipantIds)
-                    .ToList();
-
-                var newJoinParticipantIds = newParticipantIdsJoiningEventOrQueue
-                    .Take(maxParticipantCountBasedOnStatus - joinedOrInQueueParticipantIds.Count)
-                    .ToList();
-                var newInQueueParticipantIds = newParticipantIdsJoiningEventOrQueue
-                    .Except(newJoinParticipantIds)
-                    .ToList();
-
-
-                await AddParticipantsAsync(
-                    newJoinParticipantIds,
-                    eventToJoin,
-                    joinDto,
-                    false);
-                await AddParticipantsAsync(
-                    newInQueueParticipantIds,
-                    eventToJoin,
-                    joinDto,
-                    true);
-                await AddChangedStatusParticipantsAsync(
-                    joinedChangingStatusParticipantIds,
-                    eventToJoin,
-                    joinDto,
-                    false);
-                await AddChangedStatusParticipantsAsync(
-                    inQueueChangingStatusParticipantIds,
-                    eventToJoin,
-                    joinDto,
-                    true);
+                var classifiedIds = ClassifyParticipantIds(eventToJoin, joinDto);
+                await UpdateOrAddParticipantsAsync(joinDto, eventToJoin, classifiedIds);
 
                 var firstTimeParticipants = joiningUsers
-                    .Where(user => newJoinParticipantIds.Contains(user.Id))
+                    .Where(user => classifiedIds.NewParticipantIds.Contains(user.Id))
                     .Select(ApplicationUserToEventParticipantFirstTimeJoinDto())
                     .ToList();
                 NotifyJoinedUsers(
                     joinDto,
                     eventToJoin,
                     firstTimeParticipants);
-
                 await _uow.SaveChangesAsync(false);
             }
             finally
             {
                 _semaphoreSlim.Release();
             }
-        }
-        
-        private void NotifyJoinedUsers(EventJoinDto joinDto, EventJoinValidationDto eventDto, List<EventParticipantFirstTimeJoinDto> firstTimeParticipants)
-        {
-            SendEventInvitations(joinDto, eventDto);
-
-            if (eventDto.SendEmailToManager)
-            {
-                NotifyManagersAfterJoin(eventDto, firstTimeParticipants);
-            }
-        }
-
-        private async Task<List<ApplicationUser>> GetUsersFromParticipantIdsAsync(ICollection<string> participantIds)
-        {
-            var users = await _usersDbSet.Include(user => user.Manager)
-                .Where(user => participantIds.Contains(user.Id))
-                .ToListAsync();
-            _eventValidationService.CheckIfAllParticipantsExist(users, participantIds);
-            return users;
         }
 
         public async Task UpdateAttendStatusAsync(UpdateAttendStatusDto updateAttendStatusDto)
@@ -388,6 +320,90 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             await _uow.SaveChangesAsync(changeOptionsDto.UserId);
         }
 
+        private async Task UpdateOrAddParticipantsAsync(
+            EventJoinDto joinDto,
+            EventJoinValidationDto eventToJoin,
+            ClassifiedParticipantIdsDto classifiedIds)
+        {
+            await AddParticipantsAsync(
+                classifiedIds.NewParticipantIds,
+                eventToJoin,
+                joinDto,
+                false);
+            await AddParticipantsAsync(
+                classifiedIds.NewQueueParticipantIds,
+                eventToJoin,
+                joinDto,
+                true);
+            await AddChangedStatusParticipantsAsync(
+                classifiedIds.StatusChangeParticipantIds,
+                eventToJoin,
+                joinDto,
+                false);
+            await AddChangedStatusParticipantsAsync(
+                classifiedIds.StatusChangeQueueParticipantIds,
+                eventToJoin,
+                joinDto,
+                true);
+        }
+
+        private static ClassifiedParticipantIdsDto ClassifyParticipantIds(EventJoinValidationDto eventToJoin, EventJoinDto joinDto)
+        {
+            var maxParticipantCountBasedOnStatus = eventToJoin.GetMaxParticipantCount(joinDto.AttendStatus);
+            var joinedOrInQueueParticipantIds = eventToJoin.Participants
+                .Where(participant => participant.AttendStatus == (int)joinDto.AttendStatus)
+                .Select(participant => participant.Id)
+                .ToList();
+            var joinedOrInQueueChangingStatusParticipantIds = joinedOrInQueueParticipantIds
+                .Where(participantId => joinDto.ParticipantIds.Contains(participantId));
+            var newParticipantIdsJoiningEventOrQueue = joinDto.ParticipantIds
+                .Except(joinedOrInQueueChangingStatusParticipantIds)
+                .ToList();
+
+            var newJoinParticipantIds = newParticipantIdsJoiningEventOrQueue
+                .Take(maxParticipantCountBasedOnStatus - joinedOrInQueueParticipantIds.Count)
+                .ToList();
+            var newInQueueParticipantIds = newParticipantIdsJoiningEventOrQueue
+               .Except(newJoinParticipantIds)
+               .ToList();
+            var joinedChangingStatusParticipantIds = eventToJoin.Participants
+                .Where(participant =>
+                    joinedOrInQueueChangingStatusParticipantIds.Contains(participant.Id) &&
+                    !participant.IsInQueue)
+                .Select(participant => participant.Id)
+                .ToList();
+            var inQueueChangingStatusParticipantIds = joinedOrInQueueChangingStatusParticipantIds
+                .Except(joinedChangingStatusParticipantIds)
+                .ToList();
+
+            return new ClassifiedParticipantIdsDto
+            {
+                NewParticipantIds = newJoinParticipantIds,
+                NewQueueParticipantIds = newInQueueParticipantIds,
+                StatusChangeParticipantIds = joinedChangingStatusParticipantIds,
+                StatusChangeQueueParticipantIds = inQueueChangingStatusParticipantIds
+            };
+        }
+
+        private void NotifyJoinedUsers(EventJoinDto joinDto, EventJoinValidationDto eventDto, List<EventParticipantFirstTimeJoinDto> firstTimeParticipants)
+        {
+            SendEventInvitations(joinDto, eventDto);
+
+            if (eventDto.SendEmailToManager)
+            {
+                NotifyManagersAfterJoin(eventDto, firstTimeParticipants);
+            }
+        }
+
+        private async Task<List<ApplicationUser>> GetUsersFromParticipantIdsAsync(ICollection<string> participantIds)
+        {
+            var users = await _usersDbSet.Include(user => user.Manager)
+                .Where(user => participantIds.Contains(user.Id))
+                .ToListAsync();
+            _eventValidationService.CheckIfAllParticipantsExist(users, participantIds);
+            return users;
+        }
+
         private void ValidateEventBeforeJoin(EventJoinDto joinDto, EventJoinValidationDto eventDto)
         {
             _eventValidationService.CheckIfRegistrationDeadlineIsExpired(eventDto.RegistrationDeadline);
@@ -396,6 +412,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _eventValidationService.CheckIfJoiningTooManyChoicesProvided(eventDto.MaxChoices, joinDto.ChosenOptions.Count());
             _eventValidationService.CheckIfSingleChoiceSelectedWithRule(eventDto.SelectedOptions, OptionRules.IgnoreSingleJoin);
             _eventValidationService.CheckIfJoinAttendStatusIsValid(joinDto.AttendStatus, eventDto);
+            //_eventValidationService.CheckIfEventIsFull(joinDto, eventDto);
         }
 
         private void NotifyManagers(IEnumerable<UserEventAttendStatusChangeEmailDto> userEventAttendStatusChangeEmailDtos)
