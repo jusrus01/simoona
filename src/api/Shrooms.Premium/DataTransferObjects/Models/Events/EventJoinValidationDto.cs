@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Shrooms.Contracts.DataTransferObjects;
 using Shrooms.DataLayer.EntityModels.Models.Events;
 
 namespace Shrooms.Premium.DataTransferObjects.Models.Events
 {
-    public class EventJoinValidationDto
+    public class EventJoinValidationDto : IEventCapacity
     {
         public Guid Id { get; set; }
         public bool AlreadyParticipates { get; set; }

@@ -20,11 +20,10 @@ using Shrooms.Domain.Services.Roles;
 using Shrooms.Domain.Services.Wall;
 using Shrooms.Premium.Constants;
 using Shrooms.Premium.DataTransferObjects.Models.Events;
-using Shrooms.Premium.Domain.DomainExceptions.Event;
 using Shrooms.Premium.Domain.DomainServiceValidators.Events;
+using Shrooms.Premium.Domain.Extensions;
 using Shrooms.Premium.Domain.Services.Email.Event;
 using Shrooms.Premium.Domain.Services.Events.Calendar;
-using Shrooms.Resources.Models.Events;
 using ISystemClock = Shrooms.Contracts.Infrastructure.ISystemClock;
 
 namespace Shrooms.Premium.Domain.Services.Events.Participation
@@ -96,7 +95,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
 
                 var joiningUsers = await GetUsersFromParticipantIdsAsync(joinDto.ParticipantIds);
 
-                var maxParticipantCountBasedOnStatus = GetMaxParticipantCountFromEvent(joinDto, eventToJoin);
+                var maxParticipantCountBasedOnStatus = eventToJoin.GetMaxParticipantCount(joinDto.AttendStatus);
                 var joinedOrInQueueParticipantIds = eventToJoin.Participants
                     .Where(participant => participant.AttendStatus == (int)joinDto.AttendStatus)
                     .Select(participant => participant.Id)
@@ -162,21 +161,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
                 _semaphoreSlim.Release();
             }
         }
-
-        private static int GetMaxParticipantCountFromEvent(EventJoinDto joinDto, EventJoinValidationDto eventDto)
-        {
-            if (joinDto.AttendStatus == AttendingStatus.Attending)
-            {
-                return eventDto.MaxParticipants;
-            }
-            else if (joinDto.AttendStatus == AttendingStatus.AttendingVirtually)
-            {
-                return eventDto.MaxVirtualParticipants;
-            }
-            
-            throw new NotSupportedException($"This function cannot be used with {joinDto.AttendStatus} status");
-        }
-
+        
         private void NotifyJoinedUsers(EventJoinDto joinDto, EventJoinValidationDto eventDto, List<EventParticipantFirstTimeJoinDto> firstTimeParticipants)
         {
             SendEventInvitations(joinDto, eventDto);

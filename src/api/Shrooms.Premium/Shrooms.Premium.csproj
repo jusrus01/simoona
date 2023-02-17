@@ -409,6 +409,7 @@
     <Compile Include="Domain\DomainServiceValidators\Lotteries\ILotteryValidator.cs" />
     <Compile Include="Domain\DomainServiceValidators\Lotteries\LotteryValidator.cs" />
     <Compile Include="Domain\EmployeeComparer.cs" />
+    <Compile Include="Domain\Extensions\EventCapacityExtensions.cs" />
     <Compile Include="Domain\Services\Badges\BadgesService.cs" />
     <Compile Include="Domain\Services\Badges\IBadgesService.cs" />
     <Compile Include="Domain\Services\Books\BookCoverService.cs" />

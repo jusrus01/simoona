@@ -10,7 +10,7 @@ using Shrooms.DataLayer.EntityModels.Models.Multiwall;
 
 namespace Shrooms.DataLayer.EntityModels.Models.Events
 {
-    public class Event : ISoftDelete
+    public class Event : ISoftDelete, IEventCapacity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
