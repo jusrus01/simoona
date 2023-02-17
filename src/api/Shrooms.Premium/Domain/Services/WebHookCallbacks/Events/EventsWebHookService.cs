@@ -9,7 +9,10 @@ using Shrooms.Contracts.DataTransferObjects.Wall;
 using Shrooms.Contracts.Enums;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models.Events;
+using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Wall;
+using Shrooms.Premium.Constants;
+using Shrooms.Premium.Domain.Extensions;
 
 namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
 {
@@ -29,8 +32,14 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
         private readonly ISystemClock _systemClock;
         private readonly IWallService _wallService;
         private readonly IApplicationSettings _appSettings;
+        private readonly IOrganizationService _organizationService;
 
-        public EventsWebHookService(IUnitOfWork2 uow, ISystemClock systemClock, IWallService wallService, IApplicationSettings appSettings)
+        public EventsWebHookService(
+            IUnitOfWork2 uow,
+            ISystemClock systemClock,
+            IWallService wallService,
+            IApplicationSettings appSettings,
+            IOrganizationService organizationService)
         {
             _uow = uow;
             _eventsDbSet = uow.GetDbSet<Event>();
@@ -39,6 +48,34 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
             _systemClock = systemClock;
             _wallService = wallService;
             _appSettings = appSettings;
+            _organizationService = organizationService;
+        }
+
+        public async Task UpdateEventQueues(string organizationName)
+        {
+            var organization = await _organizationService.GetOrganizationByNameAsync(organizationName);
+            var events = await _eventsDbSet
+                .Include(e => e.EventParticipants)
+                .Where(e =>
+                    e.OrganizationId == organization.Id &&
+                    e.EventParticipants.Any(participant => participant.IsInQueue))
+                .ToListAsync();
+
+            var startedEvents = events
+                .Where(e => e.StartDate < _systemClock.UtcNow)
+                .ToList();
+            ClearEventQueues(startedEvents);
+
+            var notStartedEvents = events
+                .Except(startedEvents)
+                .ToList();
+            foreach (var notStartedEvent in notStartedEvents)
+            {
+                UpdateEventQueue(notStartedEvent, AttendingStatus.Attending);
+                UpdateEventQueue(notStartedEvent, AttendingStatus.AttendingVirtually);
+            }
+
+            await _uow.SaveChangesAsync(false);
         }
 
         public async Task UpdateRecurringEventsAsync()
@@ -121,6 +158,38 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
                     Option = option.Option,
                     Event = newEvent
                 });
+            }
+        }
+
+        private static void UpdateEventQueue(Event notStartedEvent, AttendingStatus status)
+        {
+            var availableSpaceCount = notStartedEvent.GetMaxParticipantCount(status) -
+                notStartedEvent.EventParticipants
+                    .Count(p =>
+                        !p.IsInQueue &&
+                        p.AttendStatus == (int)status);
+            var addParticipants = notStartedEvent.EventParticipants
+                .Where(p =>
+                    p.IsInQueue &&
+                    p.AttendStatus == (int)status)
+                .Take(availableSpaceCount)
+                .ToList();
+
+            foreach (var participant in addParticipants)
+            {
+                participant.IsInQueue = false;
+            }
+        }
+
+        private static void ClearEventQueues(List<Event> startedEvents)
+        {
+            var participantsToClear = startedEvents
+                .SelectMany(e => e.EventParticipants.Where(participant => participant.IsInQueue))
+                .ToList();
+            foreach (var participant in participantsToClear)
+            {
+                participant.AttendStatus = (int)AttendingStatus.Idle;
+                participant.IsInQueue = false;
             }
         }
     }
