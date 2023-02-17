@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
@@ -22,8 +15,16 @@ using Shrooms.Premium.DataTransferObjects.Models.Events;
 using Shrooms.Premium.Domain.DomainExceptions.Event;
 using Shrooms.Premium.Domain.DomainServiceValidators.Events;
 using Shrooms.Premium.Domain.Services.Email.Event;
+using Shrooms.Premium.Domain.Services.Events.Calendar;
 using Shrooms.Premium.Domain.Services.Events.Participation;
 using Shrooms.Tests.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Shrooms.Premium.Tests.DomainService.EventServices
 {
@@ -38,7 +39,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
 
         private IUnitOfWork2 _uow2;
         private ISystemClock _systemClockMock;
-        private IEventParticipationService _eventParticipationService;
+        private IEventParticipationService _sut;
         private IEventValidationService _eventValidationServiceMock;
         private EventValidationService _eventValidationService;
 
@@ -72,7 +73,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             _wallService = Substitute.For<IWallService>();
             _asyncRunner = Substitute.For<IAsyncRunner>();
 
-            _eventParticipationService =
+            _sut =
                 new EventParticipationService(
                     _uow2,
                     _systemClockMock,
@@ -99,7 +100,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 AttendStatus = AttendingStatus.Attending
             };
 
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
             _eventParticipantsDbSet.Received(1).Add(Arg.Any<EventParticipant>());
         }
 
@@ -124,7 +125,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _eventParticipantsDbSet.Received(1).Add(Arg.Any<EventParticipant>());
@@ -146,7 +147,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 AttendStatus = AttendingStatus.Attending
             };
 
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
             _eventParticipantsDbSet.Received(1).Add(Arg.Is<EventParticipant>(x => x.EventOptions.Count == 1));
         }
 
@@ -171,7 +172,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _eventParticipantsDbSet.Received(1).Add(Arg.Is<EventParticipant>(x => x.EventOptions.Count == 1));
@@ -229,7 +230,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 AttendStatus = AttendingStatus.Attending
             };
 
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
             _eventParticipantsDbSet.Received(2).Add(Arg.Is<EventParticipant>(x => x.EventOptions.Count == 1));
             await _uow2.Received(1).SaveChangesAsync(false);
         }
@@ -244,7 +245,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 OrganizationId = 2
             };
 
-            var result = (await _eventParticipationService.GetEventParticipantsAsync(eventGuid, userAndOrg)).ToList();
+            var result = (await _sut.GetEventParticipantsAsync(eventGuid, userAndOrg)).ToList();
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("Name", result.First().FirstName);
         }
@@ -260,7 +261,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user"
             };
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.LeaveAsync(eventId, userOrg, "leave comment"));
+            Assert.ThrowsAsync<EventException>(async () => await _sut.LeaveAsync(eventId, userOrg, "leave comment"));
         }
 
         [Test]
@@ -273,7 +274,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user"
             };
 
-            await _eventParticipationService.LeaveAsync(eventId, userOrg, "leave comment");
+            await _sut.LeaveAsync(eventId, userOrg, "leave comment");
             _eventParticipantsDbSet.Received(1).Remove(Arg.Any<EventParticipant>());
         }
 
@@ -287,7 +288,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user"
             };
 
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
             _eventParticipantsDbSet.Received(1).Remove(Arg.Any<EventParticipant>());
         }
 
@@ -301,7 +302,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user"
             };
 
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
             _eventValidationServiceMock.Received(1).CheckIfUserHasPermission("user", "user", false);
         }
 
@@ -315,7 +316,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user"
             };
 
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
             _eventValidationServiceMock.Received(1).CheckIfEventEndDateIsExpired(Arg.Is<DateTime>(x => x < DateTime.UtcNow));
         }
 
@@ -344,7 +345,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user1"
             };
 
-            await _eventParticipationService.ResetAllAttendeesAsync(@event.Id, user);
+            await _sut.ResetAllAttendeesAsync(@event.Id, user);
 
             _eventParticipantsDbSet.Received(1).RemoveRange(Arg.Any<IEnumerable<EventParticipant>>());
         }
@@ -359,7 +360,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user1"
             };
 
-            await _eventParticipationService.ResetAttendeesAsync(@event, userOrg);
+            await _sut.ResetAttendeesAsync(@event, userOrg);
 
             _eventParticipantsDbSet.Received(1).RemoveRange(Arg.Any<IEnumerable<EventParticipant>>());
         }
@@ -374,7 +375,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 UserId = "user1"
             };
 
-            await _eventParticipationService.ResetVirtualAttendeesAsync(@event, userOrg);
+            await _sut.ResetVirtualAttendeesAsync(@event, userOrg);
 
             _eventParticipantsDbSet.Received(1).RemoveRange(Arg.Any<IEnumerable<EventParticipant>>());
         }
@@ -546,7 +547,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 OrganizationId = 2
             };
 
-            var result = (await _eventParticipationService.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
+            var result = (await _sut.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
             Assert.AreEqual(3, result.Count);
             Assert.IsFalse(result.Any(x => x.Id == "user1"));
             Assert.IsFalse(result.Any(x => x.Id == "user2"));
@@ -562,7 +563,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 OrganizationId = 2
             };
 
-            var result = (await _eventParticipationService.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
+            var result = (await _sut.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("user4", result.First().Id);
         }
@@ -576,7 +577,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             {
                 OrganizationId = 2
             };
-            var result = (await _eventParticipationService.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
+            var result = (await _sut.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("user1", result.First().Id);
         }
@@ -591,7 +592,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 OrganizationId = 2
             };
 
-            var result = (await _eventParticipationService.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
+            var result = (await _sut.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("user1", result.First().Id);
         }
@@ -606,7 +607,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 OrganizationId = 2
             };
 
-            var result = (await _eventParticipationService.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
+            var result = (await _sut.SearchForEventJoinAutocompleteAsync(eventId, searchString, userOrg)).ToList();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("user1", result.First().Id);
         }
@@ -620,7 +621,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfEventExists((object)null))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventDoesNotExistCode));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventDoesNotExistCode);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventDoesNotExistCode);
         }
 
         [Test]
@@ -632,7 +633,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfRegistrationDeadlineIsExpired(DateTime.Parse("2016-04-05")))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventRegistrationDeadlineIsExpired));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventRegistrationDeadlineIsExpired);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventRegistrationDeadlineIsExpired);
         }
 
         [Test]
@@ -646,7 +647,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfProvidedOptionsAreValid(chosenOptionIds, Arg.Is<ICollection<EventOption>>(a => a.Count == 0)))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventRegistrationDeadlineIsExpired));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventNoSuchOptionsCode);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventNoSuchOptionsCode);
         }
 
         [Test]
@@ -660,7 +661,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfJoiningNotEnoughChoicesProvided(1, 0))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventNotEnoughChoicesProvidedCode));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventNotEnoughChoicesProvidedCode);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventNotEnoughChoicesProvidedCode);
         }
 
         [Test]
@@ -674,7 +675,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfJoiningTooManyChoicesProvided(1, 3))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventTooManyChoicesProvidedCode));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventTooManyChoicesProvidedCode);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventTooManyChoicesProvidedCode);
         }
 
         [Test]
@@ -689,7 +690,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                     a.Any(e => e.Rule == OptionRules.IgnoreSingleJoin) && a.Count > 1), OptionRules.IgnoreSingleJoin))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventChoiceCanBeSingleOnly));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventChoiceCanBeSingleOnly);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventChoiceCanBeSingleOnly);
         }
 
         [Test]
@@ -703,7 +704,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                 .When(x => x.CheckIfUserParticipatesInEvent("1foo2bar", Arg.Any<IEnumerable<EventParticipantAttendDto>>()))
                 .Do(_ => throw new EventException(PremiumErrorCodes.EventUserNotParticipating));
 
-            Assert.ThrowsAsync<EventException>(async () => await _eventParticipationService.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventUserNotParticipating);
+            Assert.ThrowsAsync<EventException>(async () => await _sut.UpdateSelectedOptionsAsync(dto), PremiumErrorCodes.EventUserNotParticipating);
         }
 
         [Test]
@@ -726,7 +727,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(2).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -753,7 +754,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(2).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -780,7 +781,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(0).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -807,7 +808,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.JoinAsync(eventJoinDto);
+            await _sut.JoinAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(0).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -834,7 +835,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.AddColleagueAsync(eventJoinDto);
+            await _sut.AddColleagueAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(2).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -861,7 +862,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.AddColleagueAsync(eventJoinDto);
+            await _sut.AddColleagueAsync(eventJoinDto);
 
             // Assert
             _asyncRunner.Received(0).Run(Arg.Any<Func<IEventNotificationService, Task>>(), Arg.Any<string>());
@@ -880,7 +881,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.ResetAllAttendeesAsync(@event.Id, user);
+            await _sut.ResetAllAttendeesAsync(@event.Id, user);
 
 
             // Assert
@@ -904,7 +905,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.ResetAllAttendeesAsync(@event.Id, user);
+            await _sut.ResetAllAttendeesAsync(@event.Id, user);
 
 
             // Assert
@@ -928,7 +929,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
 
             // Assert
             _asyncRunner.Received(1 + extraCallForNotifyingUsersAboutBeingRemoved)
@@ -951,7 +952,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
 
             // Assert
             _asyncRunner.Received(extraCallForNotifyingUsersAboutBeingRemoved)
@@ -973,13 +974,298 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             };
 
             // Act
-            await _eventParticipationService.ExpelAsync(eventId, userOrg, "user2");
+            await _sut.ExpelAsync(eventId, userOrg, "user2");
 
             // Assert
             _eventParticipantsDbSet.Received(1).Remove(Arg.Any<EventParticipant>());
         }
 
+        [Test]
+        public async Task Should_Join_Event()
+        {
+            // Arrange
+            var participants = MockParticipants(3);
+            var @event = MockEventJoinForJoinTests(new List<EventParticipant>(), 0);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.Attending,
+                ParticipantIds = participants
+                    .Select(participant => participant.ApplicationUserId)
+                    .ToList(),
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            Assert.That(
+                @event.EventParticipants,
+                Is.All.Matches<EventParticipant>(participant =>
+                    participants.Any(p => p.ApplicationUserId == participant.ApplicationUserId)));
+        }
+
+        [Test]
+        public async Task Should_Join_Event_Queue()
+        {
+            // Arrange
+            var participants = MockParticipants(11);
+            var @event = MockEventJoinForJoinTests(participants.Take(10).ToList(), 0);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.Attending,
+                ParticipantIds = new List<string>
+                {
+                    participants.Last().ApplicationUserId
+                },
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            _eventParticipantsDbSet
+                .Received(1)
+                .Add(Arg.Is<EventParticipant>(participant => participant.IsInQueue));
+        }
+
+        [Test]
+        public async Task Should_Not_Lose_Join_Status_When_Joined_Participant_Changes_Status_And_Event_Is_Full_With_Queue()
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants, 10);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.AttendingVirtually,
+                ParticipantIds = new List<string>
+                {
+                    participants.First().ApplicationUserId
+                },
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            Assert.IsTrue(@event.EventParticipants.Any(participant =>
+                !participant.IsInQueue &&
+                participant.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                participant.ApplicationUserId == participants.First().ApplicationUserId));
+        }
+
+        [Test]
+        public async Task Should_Lose_Join_Status_When_Joined_Participant_Changes_Status_And_Event_Is_Full_With_Queue()
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants, 10, maxVirtualParticipants: 0);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.AttendingVirtually,
+                ParticipantIds = new List<string>
+                {
+                    participants.First().ApplicationUserId
+                },
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            Assert.IsTrue(@event.EventParticipants.Any(participant =>
+                participant.IsInQueue &&
+                participant.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                participant.ApplicationUserId == participants.First().ApplicationUserId));
+        }
+
+        [TestCase(AttendingStatus.Idle)]
+        [TestCase(AttendingStatus.NotAttending)]
+        [TestCase(AttendingStatus.MaybeAttending)]
+        public void Should_Throw_On_Not_Allowed_Join_Attend_Status(AttendingStatus status)
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants, 10, maxVirtualParticipants: 0);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = status,
+                ParticipantIds = new List<string>
+                {
+                    participants.First().ApplicationUserId
+                },
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Assert
+            Assert.ThrowsAsync<NotSupportedException>(async () => await _sut.JoinAsync(joinArgs));
+        }
+
+        [Test]
+        public async Task Should_Not_Lose_Queue_Status_When_Participant_In_Queue_Changes_Status_And_Event_Is_Full_With_Queue()
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants, 10, maxVirtualParticipants: 0);
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.AttendingVirtually,
+                ParticipantIds = new List<string>
+                {
+                    participants.Last().ApplicationUserId
+                },
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            Assert.IsTrue(@event.EventParticipants.Any(participant =>
+                participant.IsInQueue &&
+                participant.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                participant.ApplicationUserId == participants.Last().ApplicationUserId));
+        }
+
+        [Test]
+        public async Task Should_Add_Overflow_Participants_To_Queue()
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants
+                .Take(10)
+                .ToList(),
+                0,
+                maxVirtualParticipants: 0);
+            participants.Reverse();
+            var participantsThatWillBeAddedToQueue = participants
+                .Take(10)
+                .ToList();
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.AttendingVirtually,
+                ParticipantIds = participantsThatWillBeAddedToQueue
+                    .Select(p => p.ApplicationUserId)
+                    .ToList(),
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            _eventParticipantsDbSet
+                .Received(10)
+                .Add(Arg.Is<EventParticipant>(participant =>
+                    participant.IsInQueue &&
+                    participantsThatWillBeAddedToQueue.Any(p =>
+                        p.ApplicationUserId == participant.ApplicationUserId)));
+        }
+
+        [Test]
+        public async Task Should_Send_Emails_To_First_Time_Joiners_Only()
+        {
+            // Arrange
+            var participants = MockParticipants(20);
+            var @event = MockEventJoinForJoinTests(participants
+                .Take(9)
+                .ToList(),
+                0,
+                maxVirtualParticipants: 0);
+            participants.Reverse();
+            var participantsThatWillBeAddedToQueue = participants
+                .Take(10)
+                .ToList();
+            var joinArgs = new EventJoinDto
+            {
+                EventId = @event.Id,
+                AttendStatus = AttendingStatus.AttendingVirtually,
+                ParticipantIds = participantsThatWillBeAddedToQueue
+                    .Select(p => p.ApplicationUserId)
+                    .ToList(),
+                OrganizationId = 1,
+                ChosenOptions = new List<int>()
+            };
+
+            // Act
+            await _sut.JoinAsync(joinArgs);
+
+            // Assert
+            _asyncRunner
+                .Received(1)
+                .Run(Arg.Any<Func<IEventCalendarService, Task>>(), Arg.Any<string>());
+        }
+
         #region Mocks
+
+        private Event MockEventJoinForJoinTests(
+            List<EventParticipant> participants,
+            int addLastParticipantsToQueueCount,
+            int organizationId = 1,
+            int maxVirtualParticipants = 1)
+        {
+            var id = Guid.NewGuid();
+            var maxParticipants = 10;
+            var @event = new Event
+            {
+                Id = id,
+                EventOptions = new List<EventOption>(),
+                EventParticipants = participants.Select((participant, i) =>
+                {
+                    participant.EventId = id;
+                    participant.IsInQueue = i > maxParticipants + addLastParticipantsToQueueCount;
+                    return participant;
+                }).ToList(),
+                EventType = new EventType(),
+                OrganizationId = organizationId,
+                MaxParticipants = maxParticipants,
+                MaxVirtualParticipants = maxVirtualParticipants
+            };
+            _eventParticipantsDbSet.SetDbSetDataForAsync(participants);
+            _eventsDbSet.SetDbSetDataForAsync(new List<Event> { @event });
+            return @event;
+        }
+
+        private List<EventParticipant> MockParticipants(int participantCount, int organizationId = 1)
+        {
+            var users = new List<ApplicationUser>();
+            for (var i = 0; i < participantCount; i++)
+            {
+                users.Add(new ApplicationUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Email = Guid.NewGuid().ToString(),
+                    OrganizationId = organizationId,
+                });
+            }
+            _usersDbSet.SetDbSetDataForAsync(users);
+            return users
+                .Select(user => new EventParticipant
+                {
+                    ApplicationUser = user,
+                    ApplicationUserId = user.Id,
+                    EventOptions = new List<EventOption>(),
+                    AttendStatus = (int)AttendingStatus.Attending
+                })
+                .ToList();
+        }
 
         private static void MockRoleService(IRoleService roleService)
         {
