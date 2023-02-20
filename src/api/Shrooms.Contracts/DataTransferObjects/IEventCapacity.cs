@@ -2,8 +2,8 @@
 {
     public interface IEventCapacity
     {
-        public int MaxParticipants { get; set; }
+        int MaxParticipants { get; set; }
 
-        public int MaxVirtualParticipants { get; set; }
+        int MaxVirtualParticipants { get; set; }
     }
 }

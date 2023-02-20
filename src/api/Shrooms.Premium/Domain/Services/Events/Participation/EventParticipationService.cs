@@ -46,6 +46,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         private readonly IEventValidationService _eventValidationService;
         private readonly IWallService _wallService;
         private readonly IAsyncRunner _asyncRunner;
+        private readonly IEventParticipantQueueService _queueService;
 
         public EventParticipationService(IUnitOfWork2 uow,
             ISystemClock systemClock,
@@ -53,7 +54,8 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             IPermissionService permissionService,
             IEventValidationService eventValidationService,
             IWallService wallService,
-            IAsyncRunner asyncRunner)
+            IAsyncRunner asyncRunner,
+            IEventParticipantQueueService queueService)
         {
             _uow = uow;
             _eventsDbSet = _uow.GetDbSet<Event>();
@@ -66,16 +68,17 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _roleService = roleService;
             _wallService = wallService;
             _asyncRunner = asyncRunner;
+            _queueService = queueService;
         }
 
         public async Task ResetVirtualAttendeesAsync(Event @event, UserAndOrganizationDto userOrg) =>
-            await ResetAttendeesAsync(@event, userOrg, AttendingStatus.AttendingVirtually);
+            await ResetAttendeesInternalAsync(@event, userOrg, AttendingStatus.AttendingVirtually);
 
         public async Task ResetAttendeesAsync(Event @event, UserAndOrganizationDto userOrg) =>
-            await ResetAttendeesAsync(@event, userOrg, AttendingStatus.Attending);
+            await ResetAttendeesInternalAsync(@event, userOrg, AttendingStatus.Attending);
 
         public async Task ResetAllAttendeesAsync(Guid eventId, UserAndOrganizationDto userOrg) =>
-            await ResetAttendeesAsync(eventId, userOrg, null);
+            await ResetAllAttendeesAsync(eventId, userOrg, null);
 
         public async Task AddColleagueAsync(EventJoinDto joinDto)
         {
@@ -223,20 +226,16 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             if (!@event.EventType.SendEmailToManager)
             {
                 await RemoveParticipantAsync(participant, @event, userOrg);
-
                 _asyncRunner.Run<IEventNotificationService>(async notifier => await notifier.NotifyRemovedEventParticipantsAsync(@event.Name, @event.Id, userOrg.OrganizationId, new[] { userId }),
                     _uow.ConnectionName);
-
                 return;
             }
 
             var userEventAttendStatusDto = MapToUserEventAttendStatusChangeEmailDto(participant, @event);
-
             await RemoveParticipantAsync(participant, @event, userOrg);
 
             _asyncRunner.Run<IEventNotificationService>(async notifier => await notifier.NotifyRemovedEventParticipantsAsync(@event.Name, @event.Id, userOrg.OrganizationId, new[] { userId }),
                 _uow.ConnectionName);
-
             await NotifyManagerAsync(userEventAttendStatusDto);
         }
 
@@ -412,6 +411,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _eventValidationService.CheckIfJoiningTooManyChoicesProvided(eventDto.MaxChoices, joinDto.ChosenOptions.Count());
             _eventValidationService.CheckIfSingleChoiceSelectedWithRule(eventDto.SelectedOptions, OptionRules.IgnoreSingleJoin);
             _eventValidationService.CheckIfJoinAttendStatusIsValid(joinDto.AttendStatus, eventDto);
+            // Q: Should all people be able to join the queue?
             //_eventValidationService.CheckIfEventIsFull(joinDto, eventDto);
         }
 
@@ -430,7 +430,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             }
         }
 
-        private async Task ResetAttendeesAsync(Guid eventId, UserAndOrganizationDto userOrg, AttendingStatus? status)
+        private async Task ResetAllAttendeesAsync(Guid eventId, UserAndOrganizationDto userOrg, AttendingStatus? status)
         {
             var @event = await _eventsDbSet
               .Include(e => e.EventParticipants)
@@ -440,10 +440,10 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
               .Include(e => e.EventParticipants.Select(participant => participant.ApplicationUser.Manager))
               .SingleOrDefaultAsync(e => e.Id == eventId && e.OrganizationId == userOrg.OrganizationId);
 
-            await ResetAttendeesAsync(@event, userOrg, status);
+            await ResetAttendeesInternalAsync(@event, userOrg, status);
         }
 
-        private async Task ResetAttendeesAsync(Event @event, UserAndOrganizationDto userOrg, AttendingStatus? status)
+        private async Task ResetAttendeesInternalAsync(Event @event, UserAndOrganizationDto userOrg, AttendingStatus? status)
         {
             if (!@event.EventParticipants.Any())
             {
@@ -531,13 +531,11 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             var timestamp = DateTime.UtcNow;
 
             participant.UpdateMetadata(userOrg.UserId, timestamp);
-
             await _uow.SaveChangesAsync(false);
 
             await JoinOrLeaveEventWallAsync(@event.ResponsibleUserId, participant.ApplicationUserId, @event.WallId, userOrg);
-
             _eventParticipantsDbSet.Remove(participant);
-
+            _queueService.UpdateQueue(@event);
             await _uow.SaveChangesAsync(false);
         }
 
@@ -793,6 +791,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
                 participant.AttendComment = attendComment;
                 participant.Modified = timeStamp;
                 participant.ModifiedBy = userId;
+                participant.IsInQueue = false;
             }
             else
             {

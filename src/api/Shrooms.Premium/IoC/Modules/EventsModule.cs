@@ -15,6 +15,7 @@ namespace Shrooms.Premium.IoC.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<EventParticipantQueueService>().As<IEventParticipantQueueService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<EventService>().As<IEventService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<EventNotificationService>().As<IEventNotificationService>().EnableInterfaceTelemetryInterceptor();
             builder.RegisterType<EventExportService>().As<IEventExportService>().InstancePerRequest().EnableInterfaceTelemetryInterceptor();

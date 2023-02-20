@@ -443,7 +443,9 @@
     <Compile Include="Domain\Services\Events\IEventService.cs" />
     <Compile Include="Domain\Services\Events\List\EventListingService.cs" />
     <Compile Include="Domain\Services\Events\List\IEventListingService.cs" />
+    <Compile Include="Domain\Services\Events\Participation\EventParticipantQueueService.cs" />
     <Compile Include="Domain\Services\Events\Participation\EventParticipationService.cs" />
+    <Compile Include="Domain\Services\Events\Participation\IEventParticipantQueueService.cs" />
     <Compile Include="Domain\Services\Events\Participation\IEventParticipationService.cs" />
     <Compile Include="Domain\Services\Events\Utilities\EventUtilitiesService.cs" />
     <Compile Include="Domain\Services\Events\Utilities\IEventUtilitiesService.cs" />

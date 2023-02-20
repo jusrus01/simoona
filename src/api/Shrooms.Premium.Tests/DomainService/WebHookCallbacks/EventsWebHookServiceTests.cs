@@ -7,6 +7,7 @@ using Shrooms.DataLayer.EntityModels.Models.Events;
 using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Wall;
 using Shrooms.Premium.Constants;
+using Shrooms.Premium.Domain.Services.Events.Participation;
 using Shrooms.Premium.Domain.Services.WebHookCallbacks.Events;
 using Shrooms.Tests.Extensions;
 using System;
@@ -26,6 +27,7 @@ namespace Shrooms.Premium.Tests.DomainService.WebHookCallbacks
         private ISystemClock _systemClock;
         private IUnitOfWork2 _uow;
         private IOrganizationService _organizationService;
+        private IEventParticipantQueueService _queueService;
 
         private DbSet<Event> _eventsDbSet;
 
@@ -41,13 +43,15 @@ namespace Shrooms.Premium.Tests.DomainService.WebHookCallbacks
             _systemClock = Substitute.For<ISystemClock>();
             _systemClock.UtcNow.Returns(DateTime.UtcNow);
             _organizationService = Substitute.For<IOrganizationService>();
+            _queueService = Substitute.For<IEventParticipantQueueService>();
 
             _sut = new EventsWebHookService(
                 _uow,
                 _systemClock,
                 Substitute.For<IWallService>(),
                 Substitute.For<IApplicationSettings>(),
-                _organizationService);
+                _organizationService,
+                _queueService);
         }
 
         [Test]

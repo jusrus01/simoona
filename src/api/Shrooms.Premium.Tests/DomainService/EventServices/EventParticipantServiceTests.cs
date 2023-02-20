@@ -41,6 +41,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
         private ISystemClock _systemClockMock;
         private IEventParticipationService _sut;
         private IEventValidationService _eventValidationServiceMock;
+        private IEventParticipantQueueService _queueService;
         private EventValidationService _eventValidationService;
 
         private IWallService _wallService;
@@ -72,6 +73,7 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
             MockRoleService(roleService);
             _wallService = Substitute.For<IWallService>();
             _asyncRunner = Substitute.For<IAsyncRunner>();
+            _queueService = Substitute.For<IEventParticipantQueueService>();
 
             _sut =
                 new EventParticipationService(
@@ -81,7 +83,8 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
                     permissionService,
                     _eventValidationServiceMock,
                     _wallService,
-                    _asyncRunner);
+                    _asyncRunner,
+                    _queueService);
         }
 
         [Test]

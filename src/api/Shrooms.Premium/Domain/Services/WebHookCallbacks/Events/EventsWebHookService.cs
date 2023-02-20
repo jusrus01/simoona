@@ -13,6 +13,7 @@ using Shrooms.Domain.Services.Organizations;
 using Shrooms.Domain.Services.Wall;
 using Shrooms.Premium.Constants;
 using Shrooms.Premium.Domain.Extensions;
+using Shrooms.Premium.Domain.Services.Events.Participation;
 
 namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
 {
@@ -33,13 +34,15 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
         private readonly IWallService _wallService;
         private readonly IApplicationSettings _appSettings;
         private readonly IOrganizationService _organizationService;
+        private readonly IEventParticipantQueueService _queueService;
 
         public EventsWebHookService(
             IUnitOfWork2 uow,
             ISystemClock systemClock,
             IWallService wallService,
             IApplicationSettings appSettings,
-            IOrganizationService organizationService)
+            IOrganizationService organizationService,
+            IEventParticipantQueueService queueService)
         {
             _uow = uow;
             _eventsDbSet = uow.GetDbSet<Event>();
@@ -49,33 +52,13 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
             _wallService = wallService;
             _appSettings = appSettings;
             _organizationService = organizationService;
+            _queueService = queueService;
         }
 
         public async Task UpdateEventQueues(string organizationName)
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(organizationName);
-            var events = await _eventsDbSet
-                .Include(e => e.EventParticipants)
-                .Where(e =>
-                    e.OrganizationId == organization.Id &&
-                    e.EventParticipants.Any(participant => participant.IsInQueue))
-                .ToListAsync();
-
-            var startedEvents = events
-                .Where(e => e.StartDate < _systemClock.UtcNow)
-                .ToList();
-            ClearEventQueues(startedEvents);
-
-            var notStartedEvents = events
-                .Except(startedEvents)
-                .ToList();
-            foreach (var notStartedEvent in notStartedEvents)
-            {
-                UpdateEventQueue(notStartedEvent, AttendingStatus.Attending);
-                UpdateEventQueue(notStartedEvent, AttendingStatus.AttendingVirtually);
-            }
-
-            await _uow.SaveChangesAsync(false);
+            await _queueService.ClearAllQueuesFromOrganizationAsync(organization);
         }
 
         public async Task UpdateRecurringEventsAsync()
@@ -158,38 +141,6 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
                     Option = option.Option,
                     Event = newEvent
                 });
-            }
-        }
-
-        private static void UpdateEventQueue(Event notStartedEvent, AttendingStatus status)
-        {
-            var availableSpaceCount = notStartedEvent.GetMaxParticipantCount(status) -
-                notStartedEvent.EventParticipants
-                    .Count(p =>
-                        !p.IsInQueue &&
-                        p.AttendStatus == (int)status);
-            var addParticipants = notStartedEvent.EventParticipants
-                .Where(p =>
-                    p.IsInQueue &&
-                    p.AttendStatus == (int)status)
-                .Take(availableSpaceCount)
-                .ToList();
-
-            foreach (var participant in addParticipants)
-            {
-                participant.IsInQueue = false;
-            }
-        }
-
-        private static void ClearEventQueues(List<Event> startedEvents)
-        {
-            var participantsToClear = startedEvents
-                .SelectMany(e => e.EventParticipants.Where(participant => participant.IsInQueue))
-                .ToList();
-            foreach (var participant in participantsToClear)
-            {
-                participant.AttendStatus = (int)AttendingStatus.Idle;
-                participant.IsInQueue = false;
             }
         }
     }
