@@ -1,6 +1,5 @@
 ﻿using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
-using System;
 using System.Threading.Tasks;
 
 namespace Shrooms.Premium.Domain.Services.Events.Participation
@@ -9,6 +8,8 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
     {
         void UpdateQueue(Event @event);
 
-        Task ClearAllQueuesFromOrganizationAsync(Organization organization);
+        Task ClearAllQueuesFromOrganizationAsync(int organizationId);
+
+        Task ClearQueueFromEventAsync(Event @event);
     }
 }

@@ -352,6 +352,20 @@ namespace Shrooms.Premium.Domain.DomainServiceValidators.Events
             }
         }
 
+        public void CheckIfParticipantsCanBeAdded(ClassifiedParticipantIdsDto classifiedParticipantIdsDto, EventJoinValidationDto validationDto)
+        {
+            if (validationDto.IsQueueAllowed)
+            {
+                return;
+            }
+
+            if (classifiedParticipantIdsDto.StatusChangeQueueParticipantIds.Any() ||
+                classifiedParticipantIdsDto.NewQueueParticipantIds.Any())
+            {
+                throw new EventException(PremiumErrorCodes.EventParticipantCannotBeAdded);
+            }
+        }
+
         private bool IsEventDateForReminderExpired(IEventArgsDto eventArgsDto, EventReminderType type)
         {
             var date = GetDateFromEvent(eventArgsDto, type);

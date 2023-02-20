@@ -4,7 +4,6 @@ using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Shrooms.Contracts.Constants;
@@ -41,6 +40,7 @@ namespace Shrooms.Premium.Domain.Services.Events
         private readonly IMarkdownConverter _markdownConverter;
         private readonly IOfficeMapService _officeMapService;
         private readonly ISystemClock _systemClock;
+        private readonly IEventParticipantQueueService _queueService;
 
         private readonly DbSet<Event> _eventsDbSet;
         private readonly DbSet<EventType> _eventTypesDbSet;
@@ -57,7 +57,8 @@ namespace Shrooms.Premium.Domain.Services.Events
             IWallService wallService,
             IMarkdownConverter markdownConverter,
             IOfficeMapService officeMapService,
-            ISystemClock systemClock)
+            ISystemClock systemClock,
+            IEventParticipantQueueService queueService)
         {
             _uow = uow;
             _eventsDbSet = uow.GetDbSet<Event>();
@@ -75,6 +76,7 @@ namespace Shrooms.Premium.Domain.Services.Events
             _markdownConverter = markdownConverter;
             _officeMapService = officeMapService;
             _systemClock = systemClock;
+            _queueService = queueService;
         }
 
         public async Task DeleteAsync(Guid id, UserAndOrganizationDto userOrg)
@@ -214,12 +216,17 @@ namespace Shrooms.Premium.Domain.Services.Events
                 .Include(e => e.Reminders)
                 .SingleOrDefaultAsync(e => e.Id.ToString() == eventDto.Id && e.OrganizationId == eventDto.OrganizationId);
 
+            if (IsDisablingQueue(eventDto, eventToUpdate))
+            {
+                await _queueService.ClearQueueFromEventAsync(eventToUpdate);
+            }
+
             var totalOptionsProvided = eventDto.NewOptions.Count() + eventDto.EditedOptions.Count();
             eventDto.MaxOptions = FindOutMaxChoices(totalOptionsProvided, eventDto.MaxOptions);
             eventDto.RegistrationDeadlineDate = eventDto.RegistrationDeadlineDate;
 
             var hasPermission = await _permissionService.UserHasPermissionAsync(eventDto, AdministrationPermissions.Event);
-            
+
             _eventValidationService.CheckIfEventExists(eventToUpdate);
             _eventValidationService.CheckIfUserHasPermission(eventDto.UserId, eventToUpdate.ResponsibleUserId, hasPermission);
             _eventValidationService.CheckIfUserHasPermissionToPin(eventDto.IsPinned, eventToUpdate.IsPinned, hasPermission);
@@ -232,23 +239,9 @@ namespace Shrooms.Premium.Domain.Services.Events
             await UpdateWallAsync(eventToUpdate, eventDto);
             await UpdateEventInfoAsync(eventDto, eventToUpdate);
             UpdateEventOptions(eventDto, eventToUpdate);
-
             await _uow.SaveChangesAsync(false);
 
             eventToUpdate.Description = _markdownConverter.ConvertToHtml(eventToUpdate.Description);
-        }
-
-        private async Task ResetEventAttendessAsync(Event @event, EditEventDto eventDto)
-        {
-            if (eventDto.ResetParticipantList)
-            {
-                await _eventParticipationService.ResetAttendeesAsync(@event, eventDto);
-            }
-
-            if (eventDto.ResetVirtualParticipantList)
-            {
-                await _eventParticipationService.ResetVirtualAttendeesAsync(@event, eventDto);
-            }
         }
 
         public async Task ToggleEventPinAsync(Guid id)
@@ -385,6 +378,24 @@ namespace Shrooms.Premium.Domain.Services.Events
             }
         }
 
+        private static bool IsDisablingQueue(EditEventDto eventDto, Event eventToUpdate)
+        {
+            return !eventDto.IsQueueAllowed && eventToUpdate.IsQueueAllowed;
+        }
+
+        private async Task ResetEventAttendessAsync(Event @event, EditEventDto eventDto)
+        {
+            if (eventDto.ResetParticipantList)
+            {
+                await _eventParticipationService.ResetAttendeesAsync(@event, eventDto);
+            }
+
+            if (eventDto.ResetVirtualParticipantList)
+            {
+                await _eventParticipationService.ResetVirtualAttendeesAsync(@event, eventDto);
+            }
+        }
+
         private async Task ValidateEvent(IEventArgsDto eventDto)
         {
             var userExists = await _usersDbSet.AnyAsync(u => u.Id == eventDto.ResponsibleUserId);
@@ -468,7 +479,8 @@ namespace Shrooms.Premium.Domain.Services.Events
                 OrganizationId = newEventDto.OrganizationId,
                 OfficeIds = JsonConvert.DeserializeObject<string[]>(newEventDto.Offices.Value),
                 IsPinned = newEventDto.IsPinned,
-                Reminders = new List<EventReminder>()
+                Reminders = new List<EventReminder>(),
+                IsQueueAllowed = newEventDto.IsQueueAllowed
             };
 
             var newWall = new CreateWallDto
@@ -514,6 +526,7 @@ namespace Shrooms.Premium.Domain.Services.Events
             newEvent.StartDate = eventArgsDto.StartDate;
             newEvent.Name = eventArgsDto.Name;
             newEvent.IsShownInUpcomingEventsWidget = eventArgsDto.IsShownInUpcomingEventsWidget;
+            newEvent.IsQueueAllowed = eventArgsDto.IsQueueAllowed;
 
             // ReSharper disable once PossibleInvalidOperationException
             newEvent.RegistrationDeadline = eventArgsDto.RegistrationDeadlineDate;

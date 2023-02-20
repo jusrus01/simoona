@@ -47,5 +47,6 @@ namespace Shrooms.Premium.Domain.DomainServiceValidators.Events
         void CheckIfEventReminderCanBeRemoved(IEventArgsDto eventArgsDto, EventReminder reminder, EventRecurrenceOptions newOption);
         void CheckIfEventReminderCanBeUpdated(IEventArgsDto eventArgsDto, EventReminder reminder);
         void CheckIfEventReminderCanBeAdded(IEventArgsDto eventArgsDto, EventReminderDto reminder);
+        void CheckIfParticipantsCanBeAdded(ClassifiedParticipantIdsDto classifiedParticipantIdsDto, EventJoinValidationDto validationDto);
     }
 }

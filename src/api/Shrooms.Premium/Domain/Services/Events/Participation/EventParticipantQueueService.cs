@@ -1,10 +1,9 @@
 ﻿using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Infrastructure;
-using Shrooms.DataLayer.EntityModels.Models;
 using Shrooms.DataLayer.EntityModels.Models.Events;
+using Shrooms.Domain.Services.Wall;
 using Shrooms.Premium.Constants;
 using Shrooms.Premium.Domain.Extensions;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,41 +14,72 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
     {
         private readonly IUnitOfWork2 _uow;
         private readonly ISystemClock _systemClock;
+        private readonly IWallService _wallService;
 
         private readonly DbSet<Event> _eventsDbSet;
 
-        public EventParticipantQueueService(IUnitOfWork2 uow, ISystemClock systemClock)
+        public EventParticipantQueueService(
+            IUnitOfWork2 uow,
+            ISystemClock systemClock,
+            IWallService wallService)
         {
             _uow = uow;
+            _wallService = wallService;
             _systemClock = systemClock;
 
             _eventsDbSet = uow.GetDbSet<Event>();
         }
 
-        public async Task ClearAllQueuesFromOrganizationAsync(Organization organization)
+        public async Task ClearAllQueuesFromOrganizationAsync(int organizationId)
         {
             var events = await _eventsDbSet
                 .Include(e => e.EventParticipants)
                 .Where(e =>
-                    e.OrganizationId == organization.Id &&
+                    e.OrganizationId == organizationId &&
                     e.EventParticipants.Any(participant => participant.IsInQueue))
                 .ToListAsync();
 
             var startedEvents = events
                 .Where(e => e.StartDate < _systemClock.UtcNow)
                 .ToList();
-            ClearEventQueues(startedEvents);
+            foreach (var @event in startedEvents)
+            {
+                await ClearQueueFromEventInternalAsync(@event);
+            }
 
             await _uow.SaveChangesAsync(false);
         }
 
-        public void UpdateQueue(Event @event)
+        public async Task ClearQueueFromEventAsync(Event @event)
         {
-            RemoveParticipantsFromQueue(@event, AttendingStatus.Attending);
-            RemoveParticipantsFromQueue(@event, AttendingStatus.AttendingVirtually);
+            await ClearQueueFromEventInternalAsync(@event);
         }
 
-        private static void RemoveParticipantsFromQueue(Event @event, AttendingStatus status)
+        public void UpdateQueue(Event @event)
+        {
+            MoveFromQueueToAvailableSpace(@event, AttendingStatus.Attending);
+            MoveFromQueueToAvailableSpace(@event, AttendingStatus.AttendingVirtually);
+        }
+
+        private async Task ClearQueueFromEventInternalAsync(Event @event)
+        {
+            var participantToRemoveIds = @event.EventParticipants
+                .Where(p => p.IsInQueue)
+                .Select(p => p.ApplicationUserId)
+                .ToList();
+
+            foreach (var participantId in participantToRemoveIds)
+            {
+                await _wallService.JoinOrLeaveWallAsync(
+                    @event.WallId,
+                    participantId,
+                    participantId,
+                    @event.OrganizationId.Value,
+                    isEventWall: true);
+            }
+        }
+
+        private static void MoveFromQueueToAvailableSpace(Event @event, AttendingStatus status)
         {
             var availableSpaceCount = @event.GetMaxParticipantCount(status) -
                 @event.EventParticipants
@@ -65,18 +95,6 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
 
             foreach (var participant in addParticipants)
             {
-                participant.IsInQueue = false;
-            }
-        }
-
-        private static void ClearEventQueues(List<Event> startedEvents)
-        {
-            var participantsToClear = startedEvents
-                .SelectMany(e => e.EventParticipants.Where(participant => participant.IsInQueue))
-                .ToList();
-            foreach (var participant in participantsToClear)
-            {
-                participant.AttendStatus = (int)AttendingStatus.Idle;
                 participant.IsInQueue = false;
             }
         }

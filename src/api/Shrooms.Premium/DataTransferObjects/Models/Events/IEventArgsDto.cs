@@ -52,5 +52,7 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         int OrganizationId { get; set; }
 
         string UserId { get; set; }
+
+        bool IsQueueAllowed { get; set; }
     }
 }

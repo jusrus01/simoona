@@ -48,7 +48,8 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         private readonly IAsyncRunner _asyncRunner;
         private readonly IEventParticipantQueueService _queueService;
 
-        public EventParticipationService(IUnitOfWork2 uow,
+        public EventParticipationService(
+            IUnitOfWork2 uow,
             ISystemClock systemClock,
             IRoleService roleService,
             IPermissionService permissionService,
@@ -98,6 +99,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
 
                 var joiningUsers = await GetUsersFromParticipantIdsAsync(joinDto.ParticipantIds);
                 var classifiedIds = ClassifyParticipantIds(eventToJoin, joinDto);
+                _eventValidationService.CheckIfParticipantsCanBeAdded(classifiedIds, eventToJoin);
                 await UpdateOrAddParticipantsAsync(joinDto, eventToJoin, classifiedIds);
 
                 var firstTimeParticipants = joiningUsers
@@ -131,7 +133,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _eventValidationService.CheckIfRegistrationDeadlineIsExpired(@event.RegistrationDeadline);
             _eventValidationService.CheckIfAttendStatusIsValid(updateAttendStatusDto.AttendStatus);
             _eventValidationService.CheckIfAttendOptionIsAllowed(updateAttendStatusDto.AttendStatus, @event);
-
+            
             await AddParticipantWithNonJoinStatusAsync(updateAttendStatusDto.UserId, updateAttendStatusDto.AttendStatus, updateAttendStatusDto.AttendComment, @event);
 
             await _uow.SaveChangesAsync(false);
@@ -678,7 +680,8 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
                 RegistrationDeadline = e.RegistrationDeadline,
                 ResponsibleUserId = e.ResponsibleUserId,
                 WallId = e.WallId,
-                SendEmailToManager = e.EventType.SendEmailToManager
+                SendEmailToManager = e.EventType.SendEmailToManager,
+                IsQueueAllowed = e.IsQueueAllowed
             };
 
         private async Task ValidateSingleJoinForSameTypeEventsAsync(EventJoinValidationDto validationDto, int orgId, string userId)

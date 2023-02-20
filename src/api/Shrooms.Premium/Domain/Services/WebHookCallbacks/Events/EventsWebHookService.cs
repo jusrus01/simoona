@@ -58,7 +58,7 @@ namespace Shrooms.Premium.Domain.Services.WebHookCallbacks.Events
         public async Task UpdateEventQueues(string organizationName)
         {
             var organization = await _organizationService.GetOrganizationByNameAsync(organizationName);
-            await _queueService.ClearAllQueuesFromOrganizationAsync(organization);
+            await _queueService.ClearAllQueuesFromOrganizationAsync(organization.Id);
         }
 
         public async Task UpdateRecurringEventsAsync()

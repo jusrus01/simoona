@@ -63,6 +63,8 @@ namespace Shrooms.DataLayer.EntityModels.Models.Events
         public bool IsPinned { get; set; }
         public bool IsShownInUpcomingEventsWidget { get; set; }
 
+        public bool IsQueueAllowed { get; set; }
+
         [Required]
         public string Offices { get; set; }
 
