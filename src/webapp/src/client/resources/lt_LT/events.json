@@ -248,5 +248,7 @@
   "upcomingEvents": "Artimiausi renginiai",
   "displayInUpcomingEvents": "Rodyti artimiausių renginių valdiklyje",
   "notifyUsers": "Informuoti vartotojus apie naują renginį",
-  "isQueueAllowed": "Leisti laukti eilėje"
+  "isQueueAllowed": "Leisti laukti eilėje",
+  "inQueue": "Laukia laisvos vietos",
+  "inVirtualQueue": "Laukia laisvos virtualios vietos"
 }

@@ -111,6 +111,24 @@
                     </li>
                 </div>
             </div>
+
+            <!-- Queue -->
+            <div class="panel panel-info" ng-repeat="queue in vm.queues" ng-if="queue.participants().length > 0">
+                <div class="panel-heading queue-heading">{{queue.title | translate}} ({{queue.participants().length}})</div>
+                <div class="panel-body">
+                    <li ng-repeat="participant in queue.participants()">
+                        <ace-event-participant participant="participant">
+                            <span ng-if="!!participant.userId && !participant.isLoading && vm.isDeleteVisible"
+                                class="event-participant-delete-button vismaicon vismaicon-cancel-circle"
+                                ace-confirmation-modal="vm.onLeaveEvent({participant: participant})"
+                                confirmation-modal-message="events.deleteUserConfirmationMessage"
+                                data-test-id="event-participant-delete-user" title="{{'common.delete' | translate}}"
+                                translate-cloak>
+                            </span>
+                        </ace-event-participant>
+                    </li>
+                </div>
+            </div>
         </ul>
     </div>
 

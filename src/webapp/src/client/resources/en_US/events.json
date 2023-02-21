@@ -248,5 +248,7 @@
   "upcomingEvents": "Upcoming events",
   "displayInUpcomingEvents": "Display in the upcoming events widget",
   "notifyUsers": "Notify users about the new event",
-  "isQueueAllowed": "Allow for queue waiting"
+  "isQueueAllowed": "Allow for queue waiting",
+  "inQueue": "Waiting for available space",
+  "inVirtualQueue": "Waiting for virtual available space"
 }
