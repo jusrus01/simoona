@@ -53,7 +53,8 @@
                             <input id="isShownInUpcomingEventsWidget" type="checkbox" class="event-form-checkbox"
                                 ng-model="vm.event.isShownInUpcomingEventsWidget"
                                 ng-disabled="!vm.selectedType.canBeDisplayedInUpcomingEventsWidget">
-                            <label for="isShownInUpcomingEventsWidget" class="control-label" translate="events.displayInUpcomingEvents"></label>
+                            <label for="isShownInUpcomingEventsWidget" class="control-label"
+                                translate="events.displayInUpcomingEvents"></label>
                         </div>
                     </div>
                     <!-- event start date -->
@@ -531,16 +532,24 @@
                             </div>
                         </div>
                     </div>
-                                        <!-- notify users checkbox -->
-                                        <div class="form-group pt-0" ng-if="!vm.states.isEdit">
-                                            <label class="control-label col-xs-12 col-sm-4"></label>
-                                            <div class="col-xs-12 col-sm-6 col-md-4">
-                                                <input id="notifyUsers" type="checkbox" class="event-form-checkbox"
-                                                    ng-model="vm.notifyUsers">
-                                                <label for="notifyUsers" class="control-label"
-                                                    translate="events.notifyUsers"></label>
-                                            </div>
-                                        </div>
+                    <!-- is queue allowed checkbox -->
+                    <div class="form-group pt-0">
+                        <label class="control-label col-xs-12 col-sm-4"></label>
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                            <input id="queueAllowed" type="checkbox" class="event-form-checkbox"
+                                ng-model="vm.event.isQueueAllowed">
+                            <label for="queueAllowed" class="control-label" translate="events.isQueueAllowed"></label>
+                        </div>
+                    </div>
+                    <!-- notify users checkbox -->
+                    <div class="form-group pt-0" ng-if="!vm.states.isEdit">
+                        <label class="control-label col-xs-12 col-sm-4"></label>
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                            <input id="notifyUsers" type="checkbox" class="event-form-checkbox"
+                                ng-model="vm.notifyUsers">
+                            <label for="notifyUsers" class="control-label" translate="events.notifyUsers"></label>
+                        </div>
+                    </div>
                     <!-- event buttons left -->
                     <div class="pull-left">
                         <button ng-if="vm.states.isEdit" class="btn btn-danger"

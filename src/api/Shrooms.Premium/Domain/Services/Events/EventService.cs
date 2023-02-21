@@ -337,7 +337,8 @@ namespace Shrooms.Premium.Domain.Services.Events
                     Id = o.Id,
                     Option = o.Option,
                     Rule = o.Rule
-                })
+                }),
+                IsQueueAllowed = e.IsQueueAllowed
             };
         }
 

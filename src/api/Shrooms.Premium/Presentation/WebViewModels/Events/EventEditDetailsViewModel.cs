@@ -51,5 +51,7 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
         public IEnumerable<EventOptionViewModel> Options { get; set; }
 
         public IEnumerable<EventReminderDetailsViewModel> Reminders { get; set; }
+        
+        public bool IsQueueAllowed { get; set; }
     }
 }

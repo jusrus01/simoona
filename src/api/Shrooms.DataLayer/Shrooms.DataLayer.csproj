@@ -935,6 +935,10 @@
     <Compile Include="Migrations\202302140746070_AddIsInQueuePropertyToEventParticipant.Designer.cs">
       <DependentUpon>202302140746070_AddIsInQueuePropertyToEventParticipant.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202302210632539_AddIsQueueAllowedPropertyToEvent.cs" />
+    <Compile Include="Migrations\202302210632539_AddIsQueueAllowedPropertyToEvent.Designer.cs">
+      <DependentUpon>202302210632539_AddIsQueueAllowedPropertyToEvent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\DataInitializer\ModulesInitializer.cs" />
     <Compile Include="Migrations\DataInitializer\PermissionBuilder.cs" />
@@ -1561,6 +1565,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202302140746070_AddIsInQueuePropertyToEventParticipant.resx">
       <DependentUpon>202302140746070_AddIsInQueuePropertyToEventParticipant.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202302210632539_AddIsQueueAllowedPropertyToEvent.resx">
+      <DependentUpon>202302210632539_AddIsQueueAllowedPropertyToEvent.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="sql_scripts\likes_migration.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

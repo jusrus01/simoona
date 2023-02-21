@@ -52,5 +52,7 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public IEnumerable<EventOptionDto> Options { get; set; }
 
         public IEnumerable<EventReminderDetailsDto> Reminders { get; set; }
+
+        public bool IsQueueAllowed { get; set; }
     }
 }

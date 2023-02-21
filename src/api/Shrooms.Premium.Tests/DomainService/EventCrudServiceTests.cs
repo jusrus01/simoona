@@ -67,6 +67,7 @@ namespace Shrooms.Premium.Tests.DomainService
             var eventValidationService = new EventValidationService(_systemClockMock);
             var officeMapService = Substitute.For<IOfficeMapService>();
             var markdownConverter = Substitute.For<IMarkdownConverter>();
+            var queueService = Substitute.For<IEventParticipantQueueService>();
 
             _eventService = new EventService(
                 _uow,
@@ -77,7 +78,8 @@ namespace Shrooms.Premium.Tests.DomainService
                 _wallService,
                 markdownConverter,
                 officeMapService,
-                _systemClock);
+                _systemClock,
+                queueService);
         }
 
         [Test]
