@@ -17,6 +17,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         private readonly IWallService _wallService;
 
         private readonly DbSet<Event> _eventsDbSet;
+        private readonly DbSet<EventParticipant> _eventParticipantsDbSet;
 
         public EventParticipantQueueService(
             IUnitOfWork2 uow,
@@ -28,6 +29,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _systemClock = systemClock;
 
             _eventsDbSet = uow.GetDbSet<Event>();
+            _eventParticipantsDbSet = uow.GetDbSet<EventParticipant>();
         }
 
         public async Task ClearAllQueuesFromOrganizationAsync(int organizationId)
@@ -63,19 +65,20 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
 
         private async Task ClearQueueFromEventInternalAsync(Event @event)
         {
-            var participantToRemoveIds = @event.EventParticipants
+            var participantsToRemove = @event.EventParticipants
                 .Where(p => p.IsInQueue)
-                .Select(p => p.ApplicationUserId)
                 .ToList();
 
-            foreach (var participantId in participantToRemoveIds)
+            foreach (var participant in participantsToRemove)
             {
                 await _wallService.JoinOrLeaveWallAsync(
                     @event.WallId,
-                    participantId,
-                    participantId,
+                    participant.ApplicationUserId,
+                    participant.ApplicationUserId,
                     @event.OrganizationId.Value,
                     isEventWall: true);
+
+                _eventParticipantsDbSet.Remove(participant);
             }
         }
 

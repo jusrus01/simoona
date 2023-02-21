@@ -57,7 +57,15 @@
         vm.isAttendingEvent = isAttendingEvent;
         vm.isVirtualParticipantsCapacityReached = isVirtualParticipantsCapacityReached;
         vm.isParticipantsCapacityReached = isParticipantsCapacityReached;
-        vm.isEventFull = isEventFull;
+
+        vm.getVirtualJoinLabel = getVirtualJoinLabel;
+        vm.getJoinLabel = getJoinLabel;
+        vm.getJoinedStatusLabel = getJoinedStatusLabel;
+        vm.getJoinedVirtualStatusLabel = getJoinedVirtualStatusLabel;
+
+        vm.isEventFull = isEventFull();
+        vm.isJoiningQueue = isJoiningQueue();
+        vm.isJoiningVirtualQueue = isJoiningVirtualQueue();
 
         ////////
         function joinEvent(eventId, attendingStatus) {
@@ -111,6 +119,30 @@
             }
         }
 
+        function getJoinedStatusLabel() {
+            return vm.event.isInQueue ? 'events.eventParticipantStatus_WaitingInQueue' : 'events.eventAction_Attending';
+        }
+
+        function getJoinedVirtualStatusLabel() {
+            return vm.event.isInQueue ? 'events.eventParticipantStatus_WaitingInVirtualQueue' : 'events.eventAction_AttendingVirtually';
+        }
+
+        function getJoinLabel() {
+            return vm.isJoiningQueue ? 'events.eventAction_WaitInQueue' : 'events.eventAction_Attending';
+        }
+
+        function getVirtualJoinLabel() {
+            return vm.isJoiningVirtualQueue ? 'events.eventAction_WaitInQueue' : 'events.eventAction_AttendingVirtually';
+        }
+
+        function isJoiningVirtualQueue() {
+            return vm.event.isQueueAllowed && isVirtualParticipantsCapacityReached() && vm.event.maxVirtualParticipants != 0;
+        }
+
+        function isJoiningQueue() {
+            return vm.event.isQueueAllowed && isParticipantsCapacityReached() && vm.event.maxParticipants != 0;
+        }
+
         function isEventFull() {
             return isVirtualParticipantsCapacityReached() && isParticipantsCapacityReached();
         }
@@ -145,7 +177,7 @@
 
         function isAttendingEvent() {
             return vm.event.participatingStatus == vm.attendStatus.Attending ||
-                   vm.event.participatingStatus == vm.attendStatus.AttendingVirtually;
+                vm.event.participatingStatus == vm.attendStatus.AttendingVirtually;
         }
 
         function updateEventStatus(eventId, changeToAttendStatus, comment) {
@@ -251,7 +283,7 @@
                     isChangeOptions: function () {
                         return false;
                     },
-                    selectedAttendStatus: function() {
+                    selectedAttendStatus: function () {
                         return attendStatus;
                     }
                 }
@@ -293,7 +325,7 @@
 
         function isAttendingEvent() {
             return vm.event.participatingStatus === vm.attendStatus.AttendingVirtually ||
-                   vm.event.participatingStatus === vm.attendStatus.Attending;
+                vm.event.participatingStatus === vm.attendStatus.Attending;
         }
     }
 })();

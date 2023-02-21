@@ -144,8 +144,9 @@ namespace Shrooms.Premium.Domain.Services.Events
             @event.MaybeGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.MaybeAttending);
             @event.NotGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.NotAttending);
 
-            var participating = @event.Participants.FirstOrDefault(p => p.UserId == userOrg.UserId);
-            @event.ParticipatingStatus = (AttendingStatus?)participating?.AttendStatus ?? AttendingStatus.Idle;
+            var participant = @event.Participants.FirstOrDefault(p => p.UserId == userOrg.UserId);
+            @event.ParticipatingStatus = (AttendingStatus?)participant?.AttendStatus ?? AttendingStatus.Idle;
+            @event.IsInQueue = participant?.IsInQueue ?? false;
 
             // If user has permissions - show all participants, otherwise show only current user and his own event options
             if (await _permissionService.UserHasPermissionAsync(userOrg, BasicPermissions.EventUsers))
@@ -697,7 +698,8 @@ namespace Shrooms.Premium.Domain.Services.Events
                             FullName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
                             ImageName = p.ApplicationUser.PictureId,
                             AttendStatus = p.AttendStatus,
-                            AttendComment = p.AttendComment
+                            AttendComment = p.AttendComment,
+                            IsInQueue = p.IsInQueue
                         })
                 }),
                 Participants = e.EventParticipants.Select(p => new EventDetailsParticipantDto
@@ -707,7 +709,8 @@ namespace Shrooms.Premium.Domain.Services.Events
                     FullName = p.ApplicationUser.FirstName + " " + p.ApplicationUser.LastName,
                     ImageName = p.ApplicationUser.PictureId,
                     AttendStatus = p.AttendStatus,
-                    AttendComment = p.AttendComment
+                    AttendComment = p.AttendComment,
+                    IsInQueue = p.IsInQueue
                 }),
                 IsQueueAllowed = e.IsQueueAllowed
             };

@@ -36,6 +36,8 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
 
         public AttendingStatus ParticipatingStatus { get; set; }
 
+        public bool IsInQueue { get; set; }
+
         public int MaxChoices { get; set; }
 
         public bool IsQueueAllowed { get; set; }

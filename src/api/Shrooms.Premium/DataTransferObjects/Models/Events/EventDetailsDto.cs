@@ -26,7 +26,6 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public string HostUserFullName { get; set; }
         public string HostUserId { get; set; }
         public bool IsFull { get; set; }
-        public AttendingStatus ParticipatingStatus { get; set; }
         public int WallId { get; set; }
         public IEnumerable<EventDetailsOptionDto> Options { get; set; }
         public IEnumerable<EventDetailsParticipantDto> Participants { get; set; }
@@ -37,5 +36,8 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public int NotGoingCount { get; set; }
 
         public bool IsQueueAllowed { get; set; }
+
+        public AttendingStatus ParticipatingStatus { get; set; }
+        public bool IsInQueue { get; set; }
     }
 }

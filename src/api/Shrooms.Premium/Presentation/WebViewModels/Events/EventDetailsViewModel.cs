@@ -43,8 +43,6 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
 
         public bool IsFull { get; set; }
 
-        public AttendingStatus ParticipatingStatus { get; set; }
-
         public int WallId { get; set; }
 
         public IEnumerable<EventDetailsCommentViewModel> Comments { get; set; }
@@ -59,5 +57,8 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
         public int NotGoingCount { get; set; }
 
         public bool IsQueueAllowed { get; set; }
+
+        public AttendingStatus ParticipatingStatus { get; set; }
+        public bool IsInQueue { get; set; }
     }
 }

@@ -13,5 +13,7 @@
         public int AttendStatus { get; set; }
 
         public string AttendComment { get; set; }
+
+        public bool IsInQueue { get; set; }
     }
 }
