@@ -301,8 +301,12 @@ namespace Shrooms.Premium.Domain.Services.Events.List
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
                 RegistrationDeadlineDate = e.RegistrationDeadline,
-                VirtualParticipantsCount = e.EventParticipants.Count(p => p.AttendStatus == (int)AttendingStatus.AttendingVirtually),
-                ParticipantsCount = e.EventParticipants.Count(p => p.AttendStatus == (int)AttendingStatus.Attending),
+                VirtualParticipantsCount = e.EventParticipants.Count(p => 
+                    p.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                    !p.IsInQueue),
+                ParticipantsCount = e.EventParticipants.Count(p =>
+                    p.AttendStatus == (int)AttendingStatus.Attending &&
+                    !p.IsInQueue),
                 IsCreator = e.ResponsibleUserId == userId,
                 ParticipatingStatus = e.EventParticipants.FirstOrDefault(p => p.ApplicationUserId == userId) != null
                     ? (AttendingStatus)e.EventParticipants.FirstOrDefault(p => p.ApplicationUserId == userId).AttendStatus

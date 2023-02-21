@@ -137,10 +137,17 @@ namespace Shrooms.Premium.Domain.Services.Events
                 .ToListAsync();
 
             _eventValidationService.CheckIfEventExists(@event);
-            @event.IsFull = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.Attending) >= @event.MaxParticipants;
+            @event.IsFull = @event.Participants.Count(p => 
+                (p.AttendStatus == (int)AttendingStatus.Attending ||
+                p.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
+                !p.IsInQueue) >= @event.MaxParticipants;
 
-            @event.GoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.Attending);
-            @event.VirtuallyGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.AttendingVirtually);
+            @event.GoingCount = @event.Participants.Count(p =>
+                p.AttendStatus == (int)AttendingStatus.Attending &&
+                !p.IsInQueue);
+            @event.VirtuallyGoingCount = @event.Participants.Count(p =>
+                p.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                !p.IsInQueue);
             @event.MaybeGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.MaybeAttending);
             @event.NotGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.NotAttending);
 
