@@ -137,19 +137,7 @@ namespace Shrooms.Premium.Domain.Services.Events
                 .ToListAsync();
 
             _eventValidationService.CheckIfEventExists(@event);
-            @event.IsFull = @event.Participants.Count(p => 
-                (p.AttendStatus == (int)AttendingStatus.Attending ||
-                p.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
-                !p.IsInQueue) >= @event.MaxParticipants;
-
-            @event.GoingCount = @event.Participants.Count(p =>
-                p.AttendStatus == (int)AttendingStatus.Attending &&
-                !p.IsInQueue);
-            @event.VirtuallyGoingCount = @event.Participants.Count(p =>
-                p.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
-                !p.IsInQueue);
-            @event.MaybeGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.MaybeAttending);
-            @event.NotGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.NotAttending);
+            SetParticipantCounts(@event);
 
             var participant = @event.Participants.FirstOrDefault(p => p.UserId == userOrg.UserId);
             @event.ParticipatingStatus = (AttendingStatus?)participant?.AttendStatus ?? AttendingStatus.Idle;
@@ -448,6 +436,22 @@ namespace Shrooms.Premium.Domain.Services.Events
 
                 _eventOptionsDbSet.Add(option);
             }
+        }
+
+        private static void SetParticipantCounts(EventDetailsDto @event)
+        {
+            @event.IsFull = @event.Participants.Count(p =>
+                (p.AttendStatus == (int)AttendingStatus.Attending ||
+                p.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
+                !p.IsInQueue) >= @event.MaxParticipants + @event.MaxVirtualParticipants;
+            @event.GoingCount = @event.Participants.Count(p =>
+                p.AttendStatus == (int)AttendingStatus.Attending &&
+                !p.IsInQueue);
+            @event.VirtuallyGoingCount = @event.Participants.Count(p =>
+                p.AttendStatus == (int)AttendingStatus.AttendingVirtually &&
+                !p.IsInQueue);
+            @event.MaybeGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.MaybeAttending);
+            @event.NotGoingCount = @event.Participants.Count(p => p.AttendStatus == (int)AttendingStatus.NotAttending);
         }
 
         private void MapNewOptions(CreateEventDto newEventDto, Event newEvent)

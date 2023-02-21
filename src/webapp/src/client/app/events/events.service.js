@@ -1,11 +1,9 @@
 (function () {
     'use strict';
 
-    angular
-        .module('simoonaApp.Events')
-        .factory('eventService', eventService);
+    angular.module('simoonaApp.Events').factory('eventService', eventService);
 
-    eventService.$inject = [ 'attendStatus' ];
+    eventService.$inject = ['attendStatus'];
 
     function eventService(attendStatus) {
         var service = {
@@ -14,9 +12,10 @@
             hasSpaceForParticipant: hasSpaceForParticipant,
             getTotalGoingParticipantCount: getTotalGoingParticipantCount,
             getTotalMaxParticipantCount: getTotalMaxParticipantCount,
-            countVirtuallyAttendingParticipants: countVirtuallyAttendingParticipants,
+            countVirtuallyAttendingParticipants:
+                countVirtuallyAttendingParticipants,
             countAttendingParticipants: countAttendingParticipants,
-            countAllAttendingParticipants: countAllAttendingParticipants
+            countAllAttendingParticipants: countAllAttendingParticipants,
         };
         return service;
 
@@ -29,11 +28,18 @@
         }
 
         function countAllAttendingParticipants(event) {
-            return countParticipants(event, [attendStatus.Attending, attendStatus.AttendingVirtually]);
+            return countParticipants(event, [
+                attendStatus.Attending,
+                attendStatus.AttendingVirtually,
+            ]);
         }
 
         function countParticipants(event, statuses) {
-            return event.participants.reduce((sum, participant) => statuses.includes(participant.attendStatus) ? sum + 1 : sum, 0);
+            return event.participants.reduce(
+                (sum, participant) =>
+                    statuses.includes(participant.attendStatus) && !participant.isInQueue ? sum + 1 : sum,
+                0
+            );
         }
 
         function hasSpaceForVirtualParticipant(event) {
