@@ -35,5 +35,7 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public int VirtuallyGoingCount { get; set; }
         public int MaybeGoingCount { get; set; }
         public int NotGoingCount { get; set; }
+
+        public bool IsQueueAllowed { get; set; }
     }
 }

@@ -36,5 +36,7 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public AttendingStatus ParticipatingStatus { get; set; }
 
         public int MaxChoices { get; set; }
+
+        public bool IsQueueAllowed { get; set; }
     }
 }

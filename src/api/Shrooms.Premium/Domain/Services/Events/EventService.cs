@@ -708,7 +708,8 @@ namespace Shrooms.Premium.Domain.Services.Events
                     ImageName = p.ApplicationUser.PictureId,
                     AttendStatus = p.AttendStatus,
                     AttendComment = p.AttendComment
-                })
+                }),
+                IsQueueAllowed = e.IsQueueAllowed
             };
         }
     }
