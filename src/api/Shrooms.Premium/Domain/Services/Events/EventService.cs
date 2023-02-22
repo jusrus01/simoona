@@ -702,7 +702,7 @@ namespace Shrooms.Premium.Domain.Services.Events
                         .Where(x => x.EventId == eventId &&
                               (x.AttendStatus == (int)AttendingStatus.Attending || 
                                x.AttendStatus == (int)AttendingStatus.AttendingVirtually))
-                        .Select(p => new EventDetailsParticipantDto
+                        .Select(p => new EventParticipantDto
                         {
                             Id = p.Id,
                             UserId = p.ApplicationUser == null ? string.Empty : p.ApplicationUserId,
@@ -713,7 +713,7 @@ namespace Shrooms.Premium.Domain.Services.Events
                             IsInQueue = p.IsInQueue
                         })
                 }),
-                Participants = e.EventParticipants.Select(p => new EventDetailsParticipantDto
+                Participants = e.EventParticipants.Select(p => new EventParticipantDto
                 {
                     Id = p.Id,
                     UserId = p.ApplicationUser == null ? string.Empty : p.ApplicationUserId,

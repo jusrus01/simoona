@@ -8,6 +8,6 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
 
         public string Name { get; set; }
 
-        public IEnumerable<EventDetailsParticipantViewModel> Participants { get; set; }
+        public IEnumerable<EventParticipantViewModel> Participants { get; set; }
     }
 }

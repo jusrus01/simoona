@@ -38,7 +38,7 @@ namespace Shrooms.Premium.Presentation.ModelMappings.Profiles
                 .Ignore(opt => opt.OfficeIdParsed);
 
             CreateMap<EventDetailsOptionDto, EventDetailsOptionViewModel>();
-            CreateMap<EventDetailsParticipantDto, EventDetailsParticipantViewModel>();
+            CreateMap<EventParticipantDto, EventParticipantViewModel>();
             CreateMap<EventVisitedReportDto, EventVisitedReportViewModel>();
             CreateMap<EventProjectReportDto, EventProjectReportViewModel>();
             CreateMap<EventParticipantReportDto, EventParticipantReportViewModel>();
@@ -57,6 +57,8 @@ namespace Shrooms.Premium.Presentation.ModelMappings.Profiles
             CreateMap<EventReminderDto, EventReminderViewModel>();
             CreateMap<EventReminderDetailsDto, EventReminderDetailsViewModel>()
                 .ForMember(dest => dest.IsDisabled, opt => opt.MapFrom(u => u.RemindedCount > 0));
+
+            CreateMap<EventExpelParticipantDto, EventExpelParticipantViewModel>();
         }
 
         private void CreateViewModelToDtoMappings()
@@ -81,7 +83,7 @@ namespace Shrooms.Premium.Presentation.ModelMappings.Profiles
                 .IgnoreUserOrgDto();
 
             CreateMap<EventDetailsOptionViewModel, EventDetailsOptionDto>();
-            CreateMap<EventDetailsParticipantViewModel, EventDetailsParticipantDto>();
+            CreateMap<EventParticipantViewModel, EventParticipantDto>();
             CreateMap<EventVisitedReportViewModel, EventVisitedReportDto>();
             CreateMap<EventProjectReportViewModel, EventProjectReportDto>();
             CreateMap<EventParticipantReportViewModel, EventParticipantReportDto>();

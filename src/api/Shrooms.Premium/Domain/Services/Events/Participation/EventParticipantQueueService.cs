@@ -1,9 +1,11 @@
-﻿using Shrooms.Contracts.DAL;
+﻿using Newtonsoft.Json.Linq;
+using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.Infrastructure;
 using Shrooms.DataLayer.EntityModels.Models.Events;
 using Shrooms.Domain.Services.Wall;
 using Shrooms.Premium.Constants;
 using Shrooms.Premium.Domain.Extensions;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,10 +59,15 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             await ClearQueueFromEventInternalAsync(@event);
         }
 
-        public void UpdateQueue(Event @event)
+        /// <summary>
+        /// Handles queue state for <paramref name="@event"/>
+        /// </summary>
+        /// <param name="event">Event</param>
+        /// <returns>Participants that were moved from the queue to participant list</returns>
+        public IEnumerable<EventParticipant> UpdateQueue(Event @event)
         {
-            MoveFromQueueToAvailableSpace(@event, AttendingStatus.Attending);
-            MoveFromQueueToAvailableSpace(@event, AttendingStatus.AttendingVirtually);
+            return MoveFromQueueToAvailableSpace(@event, AttendingStatus.Attending)
+                .Union(MoveFromQueueToAvailableSpace(@event, AttendingStatus.AttendingVirtually));
         }
 
         private async Task ClearQueueFromEventInternalAsync(Event @event)
@@ -82,7 +89,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             }
         }
 
-        private static void MoveFromQueueToAvailableSpace(Event @event, AttendingStatus status)
+        private static List<EventParticipant> MoveFromQueueToAvailableSpace(Event @event, AttendingStatus status)
         {
             var availableSpaceCount = @event.GetMaxParticipantCount(status) -
                 @event.EventParticipants
@@ -100,6 +107,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             {
                 participant.IsInQueue = false;
             }
+            return addParticipants;
         }
     }
 }

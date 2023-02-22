@@ -28,7 +28,7 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
         public bool IsFull { get; set; }
         public int WallId { get; set; }
         public IEnumerable<EventDetailsOptionDto> Options { get; set; }
-        public IEnumerable<EventDetailsParticipantDto> Participants { get; set; }
+        public IEnumerable<EventParticipantDto> Participants { get; set; }
 
         public int GoingCount { get; set; }
         public int VirtuallyGoingCount { get; set; }

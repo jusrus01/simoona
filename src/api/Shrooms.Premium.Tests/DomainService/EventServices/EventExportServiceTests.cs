@@ -114,9 +114,9 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
         {
             var eventId = Guid.NewGuid();
 
-            var users = new List<EventParticipantDto>
+            var users = new List<EventParticipantMinimalDto>
             {
-                new EventParticipantDto
+                new EventParticipantMinimalDto
                 {
                     FirstName = "Name",
                     LastName = "Surname"
@@ -146,9 +146,9 @@ namespace Shrooms.Premium.Tests.DomainService.EventServices
         {
             var eventId = Guid.NewGuid();
 
-            var users = new List<EventParticipantDto>
+            var users = new List<EventParticipantMinimalDto>
             {
-                new EventParticipantDto
+                new EventParticipantMinimalDto
                 {
                     FirstName = "Name",
                     LastName = "Surname"

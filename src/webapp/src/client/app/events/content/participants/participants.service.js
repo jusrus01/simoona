@@ -12,11 +12,21 @@
     function eventParticipantsService(lodash) {
         var service = {
             removeParticipant: removeParticipant,
-            removeParticipantFromOptions: removeParticipantFromOptions
+            removeParticipantFromOptions: removeParticipantFromOptions,
+            toggleQueueStatus: toggleQueueStatus
         };
         return service;
 
         /////////
+
+        function toggleQueueStatus(participantList, userId) {
+            for (var participant of participantList) {
+                if (participant.userId == userId) {
+                    participant.isInQueue = !participant.isInQueue;
+                    return;
+                }
+            }
+        }
 
         function removeParticipant(participantList, userId) {
             lodash.remove(participantList, function(participant) {

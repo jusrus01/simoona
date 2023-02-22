@@ -1,18 +1,16 @@
-(function() {
+(function () {
     'use strict';
 
-    angular
-        .module('simoonaApp.Events')
-        .component('aceEventParticipants', {
-            bindings: {
-                event: '=',
-                isAdmin: '=',
-                isLoading: '='
-            },
-            templateUrl: 'app/events/content/participants/participants.html',
-            controller: eventParticipantsController,
-            controllerAs: 'vm'
-        });
+    angular.module('simoonaApp.Events').component('aceEventParticipants', {
+        bindings: {
+            event: '=',
+            isAdmin: '=',
+            isLoading: '=',
+        },
+        templateUrl: 'app/events/content/participants/participants.html',
+        controller: eventParticipantsController,
+        controllerAs: 'vm',
+    });
 
     eventParticipantsController.$inject = [
         'eventRepository',
@@ -37,7 +35,8 @@
         errorHandler,
         lodash,
         Analytics,
-        attendStatus) {
+        attendStatus
+    ) {
         /* jshint validthis: true */
         var vm = this;
 
@@ -46,13 +45,16 @@
 
         vm.eventStatus = eventStatus;
         vm.eventStatusService = eventStatusService;
-        vm.participantsTabs = [{
-            name: 'ParticipantsList',
-            isOpen: true
-        }, {
-            name: 'OptionsList',
-            isOpen: false
-        }];
+        vm.participantsTabs = [
+            {
+                name: 'ParticipantsList',
+                isOpen: true,
+            },
+            {
+                name: 'OptionsList',
+                isOpen: false,
+            },
+        ];
 
         vm.goToTab = goToTab;
         vm.expelUserFromEvent = expelUserFromEvent;
@@ -65,7 +67,7 @@
         /////////
 
         function goToTab(tab) {
-            vm.participantsTabs.forEach(function(item) {
+            vm.participantsTabs.forEach(function (item) {
                 if (tab === item.name) {
                     item.isOpen = true;
                 } else {
@@ -75,13 +77,17 @@
         }
 
         function isActiveTab(tab) {
-            return !!lodash.find(vm.participantsTabs, function(obj) {
+            return !!lodash.find(vm.participantsTabs, function (obj) {
                 return !!obj.isOpen && obj.name === tab;
             });
         }
 
         function isDeleteVisible() {
-            return vm.isAdmin && eventStatusService.getEventStatus(vm.event) !== eventStatus.Finished;
+            return (
+                vm.isAdmin &&
+                eventStatusService.getEventStatus(vm.event) !==
+                    eventStatus.Finished
+            );
         }
 
         function isExportVisible() {
@@ -97,42 +103,90 @@
         }
 
         function expelUserFromEvent(participant) {
-            Analytics.trackEvent('Events', 'expelUserFromEvent: ' + participant.userId, 'Event: ' + vm.event.id);
+            Analytics.trackEvent(
+                'Events',
+                'expelUserFromEvent: ' + participant.userId,
+                'Event: ' + vm.event.id
+            );
             if (!participant.isLoading) {
                 participant.isLoading = true;
 
-                eventRepository.expelUserFromEvent(vm.event.id, participant.userId).then(function() {
-                    participant.isLoading = false;
-
-                    eventParticipantsService.removeParticipant(vm.event.participants, participant.userId);
-                    eventParticipantsService.removeParticipantFromOptions(vm.event.options, participant.userId);
-
-                    if (authService.identity.userId === participant.userId) {
-                        vm.event.participatingStatus = attendStatus.Idle;
-                    }
-
-                    if (vm.event.maxParticipants > vm.event.participants.length) {
-                        vm.event.isFull = false;
-                    }
-
-                    vm.event.participantsCount = eventService.countAttendingParticipants(vm.event);
-                    vm.event.virtualParticipantsCount = eventService.countVirtuallyAttendingParticipants(vm.event);
-                    decreaseParticipantGoingCount(participant);
-                }, function(response) {
-                    participant.isLoading = false;
-                    errorHandler.handleErrorMessage(response, 'expelParticipant');
-                });
+                return eventRepository
+                    .expelUserFromEvent(vm.event.id, participant.userId)
+                    .then(
+                        function (response) {
+                            moveParticipantFromQueueToParticipant(response);
+                            removeParticipant(response);
+                            recalculateParticipants();
+                            decreaseParticipantGoingCount(participant);
+                            participant.isLoading = false;
+                            return response;
+                        },
+                        function (response) {
+                            participant.isLoading = false;
+                            errorHandler.handleErrorMessage(
+                                response,
+                                'expelParticipant'
+                            );
+                        }
+                    );
             }
         }
 
+        function recalculateParticipants() {
+            vm.event.participantsCount =
+                eventService.countAttendingParticipants(
+                    vm.event
+                );
+            vm.event.virtualParticipantsCount =
+                eventService.countVirtuallyAttendingParticipants(
+                    vm.event
+                );
+        }
+
+        function moveParticipantFromQueueToParticipant(response) {
+            var nextParticipant = response.nextParticipant;
+            if (!nextParticipant) {
+                return;
+            }
+
+            eventParticipantsService.toggleQueueStatus(
+                vm.event.participants,
+                nextParticipant.userId
+            );
+
+            if (isCurrentUser(nextParticipant)) {
+                vm.event.isInQueue = false;
+            }
+        }
+
+        function removeParticipant(response) {
+            var removedParticipant = response.removedParticipant;
+            eventParticipantsService.removeParticipant(
+                vm.event.participants,
+                removedParticipant.userId
+            );
+            eventParticipantsService.removeParticipantFromOptions(
+                vm.event.options,
+                removedParticipant.userId
+            );
+
+            if (isCurrentUser(removedParticipant)) {
+                vm.event.participatingStatus = attendStatus.Idle;
+            }
+        }
+
+        function isCurrentUser(participant) {
+            return authService.identity.userId ===
+                participant.userId;
+        }
+
         function decreaseParticipantGoingCount(participant) {
-            if(participant.attendStatus === attendStatus.Attending)
-            {
+            if (participant.attendStatus === attendStatus.Attending) {
                 vm.event.goingCount--;
             }
 
-            if(participant.attendStatus === attendStatus.AttendingVirtually)
-            {
+            if (participant.attendStatus === attendStatus.AttendingVirtually) {
                 vm.event.virtuallyGoingCount--;
             }
         }

@@ -1,4 +1,4 @@
-<div class="text-center" ng-if="vm.isAddColleague && !vm.isEventFull">
+<div class="text-center" ng-if="vm.isAddColleague && !vm.isEventFull()">
     <a class="nc-btn nc-btn-default" ng-click="vm.joinEvent(vm.event.id)"
         title="{{'events.eventAddColleaguesButton' | translate}}" data-test-id="event-add-colleagues-button" ng-cloak
         translate-cloak>
@@ -56,7 +56,7 @@
         <ul class="dropdown-menu dropdown-menu-right dropdown-menu-wide participate-dropdown-menu">
             <!-- Attend -->
             <li>
-                <a ng-if="vm.event.participatingStatus != vm.attendStatus.Attending && (!vm.isParticipantsCapacityReached() || vm.isJoiningQueue)"
+                <a ng-if="vm.event.participatingStatus != vm.attendStatus.Attending && (!vm.isParticipantsCapacityReached() || vm.isJoiningQueue())"
                     class="nc-btn nc-btn-default" ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.Attending)"
                     translate-attr-title="events.eventJoin" data-test-id="join-event-attending-button" translate>
                     <span class="vismaicon vismaicon-add2-circle"></span>
@@ -65,7 +65,7 @@
             </li>
             <!-- Attend virtually -->
             <li>
-                <a ng-if="vm.event.participatingStatus != vm.attendStatus.AttendingVirtually && (!vm.isVirtualParticipantsCapacityReached() || vm.isJoiningVirtualQueue)"
+                <a ng-if="vm.event.participatingStatus != vm.attendStatus.AttendingVirtually && (!vm.isVirtualParticipantsCapacityReached() || vm.isJoiningVirtualQueue())"
                     class="nc-btn nc-btn-default"
                     ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.AttendingVirtually)"
                     translate-attr-title="events.eventJoin" data-test-id="join-event-attending-button" translate>
@@ -74,7 +74,7 @@
                 </a>
             </li>
             <!-- Maybe going -->
-            <li ng-if="!vm.isEventFull">
+            <li ng-if="!vm.isEventFull()">
                 <a ng-if="vm.event.allowMaybeGoing && vm.event.participatingStatus != vm.attendStatus.MaybeAttending"
                     class="nc-btn nc-btn-default" ng-click="vm.openJoinCommentModal(vm.attendStatus.MaybeAttending)"
                     translate-attr-title="events.eventJoin" data-test-id="join-event-maybeattending-button" translate>
@@ -83,7 +83,7 @@
                 </a>
             </li>
             <!-- Not attending -->
-            <li ng-if="!vm.isEventFull">
+            <li ng-if="!vm.isEventFull()">
                 <a ng-if="vm.event.allowNotGoing && vm.event.participatingStatus != vm.attendStatus.NotAttending"
                     class="nc-btn nc-btn-danger" ng-click="vm.openJoinCommentModal(vm.attendStatus.NotAttending)"
                     translate-attr-title="events.eventAction_NotAttending" data-test-id="join-event-notattending-button"

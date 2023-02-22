@@ -79,7 +79,7 @@ namespace Shrooms.Premium.Domain.Services.Events.Export
             };
         }
 
-        private static Expression<Func<EventParticipantDto, IExcelRow>> MapEventParticipantToExcelRow()
+        private static Expression<Func<EventParticipantMinimalDto, IExcelRow>> MapEventParticipantToExcelRow()
         {
             return participant => new ExcelRow
             {

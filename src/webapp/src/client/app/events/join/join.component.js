@@ -63,9 +63,9 @@
         vm.getJoinedStatusLabel = getJoinedStatusLabel;
         vm.getJoinedVirtualStatusLabel = getJoinedVirtualStatusLabel;
 
-        vm.isEventFull = isEventFull();
-        vm.isJoiningQueue = isJoiningQueue();
-        vm.isJoiningVirtualQueue = isJoiningVirtualQueue();
+        vm.isEventFull = isEventFull;
+        vm.isJoiningQueue = isJoiningQueue;
+        vm.isJoiningVirtualQueue = isJoiningVirtualQueue;
 
         ////////
         function joinEvent(eventId, attendingStatus) {
@@ -128,11 +128,11 @@
         }
 
         function getJoinLabel() {
-            return vm.isJoiningQueue ? 'events.eventAction_WaitInQueue' : 'events.eventAction_Attending';
+            return vm.isJoiningQueue() ? 'events.eventAction_WaitInQueue' : 'events.eventAction_Attending';
         }
 
         function getVirtualJoinLabel() {
-            return vm.isJoiningVirtualQueue ? 'events.eventAction_WaitInQueue' : 'events.eventAction_AttendingVirtually';
+            return vm.isJoiningVirtualQueue() ? 'events.eventAction_WaitInQueue' : 'events.eventAction_AttendingVirtually';
         }
 
         function isJoiningVirtualQueue() {

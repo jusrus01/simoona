@@ -6,6 +6,6 @@ namespace Shrooms.Premium.DataTransferObjects.Models.Events
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public IEnumerable<EventDetailsParticipantDto> Participants { get; set; }
+        public IEnumerable<EventParticipantDto> Participants { get; set; }
     }
 }

@@ -49,7 +49,7 @@ namespace Shrooms.Premium.Presentation.WebViewModels.Events
 
         public IEnumerable<EventDetailsOptionViewModel> Options { get; set; }
 
-        public IEnumerable<EventDetailsParticipantViewModel> Participants { get; set; }
+        public IEnumerable<EventParticipantViewModel> Participants { get; set; }
 
         public int GoingCount { get; set; }
         public int VirtuallyGoingCount { get; set; }

@@ -479,8 +479,8 @@ namespace Shrooms.Premium.Presentation.Api.Controllers
         {
             try
             {
-                await _eventParticipationService.ExpelAsync(eventId, GetUserAndOrganization(), userId);
-                return Ok();
+                var expelDto = await _eventParticipationService.ExpelAsync(eventId, GetUserAndOrganization(), userId);
+                return Ok(_mapper.Map<EventExpelParticipantViewModel>(expelDto));
             }
             catch (EventException e)
             {

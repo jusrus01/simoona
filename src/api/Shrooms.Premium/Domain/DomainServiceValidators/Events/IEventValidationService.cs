@@ -40,7 +40,7 @@ namespace Shrooms.Premium.Domain.DomainServiceValidators.Events
         void CheckIfUserHasPermissionToPin(bool newPinStatus, bool currentPinStatus, bool isAdmin);
         void CheckIfRegistrationDeadlineExceedsStartDate(DateTime registrationDeadline, DateTime startDate);
         void CheckIfProvidedOptionsAreValid(IEnumerable<int> providedOptionsCount, IEnumerable<EventOption> foundOptionsCount);
-        void CheckIfEventHasParticipants(IEnumerable<EventParticipantDto> eventParticipants);
+        void CheckIfEventHasParticipants(IEnumerable<EventParticipantMinimalDto> eventParticipants);
         void CheckIfUserParticipatesInEvent(string userId, IEnumerable<EventParticipantAttendDto> participants);
         void CheckIfDateRangeExceededLimitOrNull(DateTime? start, DateTime? end);
         void CheckIfAllParticipantsExist(ICollection<ApplicationUser> users, ICollection<string> participantIds);
