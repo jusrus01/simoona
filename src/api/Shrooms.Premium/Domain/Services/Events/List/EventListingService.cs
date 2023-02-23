@@ -300,6 +300,7 @@ namespace Shrooms.Premium.Domain.Services.Events.List
                 Place = e.Place,
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
+                IsQueueAllowed = e.IsQueueAllowed,
                 RegistrationDeadlineDate = e.RegistrationDeadline,
                 VirtualParticipantsCount = e.EventParticipants.Count(p => 
                     p.AttendStatus == (int)AttendingStatus.AttendingVirtually &&

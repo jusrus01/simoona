@@ -116,24 +116,24 @@
 <div class="text-nowrap row" ng-if="!vm.isAddColleague && !vm.isDetails">
     <div ng-if="!vm.isAttendingEvent()">
         <!-- Join -->
-        <div class="col-xs-12" ng-if="!vm.isParticipantsCapacityReached() && vm.isVirtualParticipantsCapacityReached()">
+        <div class="col-xs-12" ng-if="vm.isVirtualParticipantsCapacityReached() && !vm.isJoiningVirtualQueue()">
             <a class="nc-btn nc-btn-default" ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.Attending)"
                 translate-attr-title="events.eventJoin" data-test-id="join-event-button" translate>
                 <span class="vismaicon vismaicon-add2-circle"></span>
-                <span translate="events.attend"></span>
+                <span translate="{{vm.getJoinLabel()}}"></span>
             </a>
         </div>
         <!-- Virtual join -->
-        <div class="col-xs-12" ng-if="!vm.isVirtualParticipantsCapacityReached() && vm.isParticipantsCapacityReached()">
+        <div class="col-xs-12" ng-if="vm.isParticipantsCapacityReached() && !vm.isJoiningQueue()">
             <a class="nc-btn nc-btn-default" ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.AttendingVirtually)"
                 translate-attr-title="events.eventJoin" data-test-id="join-event-button" translate>
                 <span class="vismaicon vismaicon-home"></span>
-                <span translate="events.attendVirtually"></span>
+                <span translate="{{vm.getVirtualJoinLabel()}}"></span>
             </a>
         </div>
 
         <!-- Join and virtual join available -->
-        <div ng-if="!vm.isVirtualParticipantsCapacityReached() && !vm.isParticipantsCapacityReached()">
+        <div ng-if="!(vm.isParticipantsCapacityReached() && !vm.isJoiningQueue()) && !(vm.isVirtualParticipantsCapacityReached() && !vm.isJoiningVirtualQueue())">
             <a class="nc-btn nc-btn-default" type="button" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
                 <span class="vismaicon vismaicon-other-circle my-auto event-list-item-dropdown-going-container">
@@ -148,7 +148,7 @@
                         ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.Attending)"
                         translate-attr-title="events.eventJoin" data-test-id="join-event-attending-button" translate>
                         <span class="vismaicon vismaicon-add2-circle"></span>
-                        <span translate="events.eventAction_Attending"></span>
+                        <span translate="{{vm.getJoinLabel()}}"></span>
                     </a>
                 </li>
                 <!-- Attend virtually -->
@@ -158,7 +158,7 @@
                         ng-click="vm.joinEvent(vm.event.id, vm.attendStatus.AttendingVirtually)"
                         translate-attr-title="events.eventJoin" translate>
                         <span class="vismaicon vismaicon-home"></span>
-                        <span translate="events.eventAction_AttendingVirtually"></span>
+                        <span translate="{{vm.getVirtualJoinLabel()}}"></span>
                     </a>
                 </li>
             </ul>
