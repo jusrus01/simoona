@@ -12,9 +12,9 @@
         })
         .service('eventStatusService', eventStatusService);
 
-    eventStatusService.$inject = ['eventStatus', 'attendStatus'];
+    eventStatusService.$inject = ['eventStatus', 'attendStatus', 'eventService'];
 
-    function eventStatusService(eventStatus, attendStatus) {
+    function eventStatusService(eventStatus, attendStatus, eventService) {
         var service = {
             getEventStatus: getEventStatus,
         };
@@ -47,12 +47,16 @@
             ) {
                 return eventStatus.RegistrationIsClosed;
             } else if (
-                isEventFull(event) && (event.participatingStatus == attendStatus.NotAttending || event.participatingStatus == attendStatus.Idle || !!isParticipantsList)
+                isEventFull(event) && !canJoinQueue(event) && (event.participatingStatus == attendStatus.NotAttending || event.participatingStatus == attendStatus.Idle || !!isParticipantsList)
             ) {
                 return eventStatus.Full;
             } else {
                 return eventStatus.Join;
             }
+        }
+
+        function canJoinQueue(event) {
+            return eventService.canParticipantsJoinQueue(event) || eventService.canVirtualParticipantsJoinQueue(event);
         }
 
         function isEventFull(event) {

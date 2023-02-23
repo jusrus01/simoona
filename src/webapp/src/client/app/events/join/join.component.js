@@ -66,6 +66,7 @@
         vm.isEventFull = isEventFull;
         vm.isJoiningQueue = isJoiningQueue;
         vm.isJoiningVirtualQueue = isJoiningVirtualQueue;
+        vm.isQueueAvailable = isQueueAvailable;
 
         ////////
         function joinEvent(eventId, attendingStatus) {
@@ -136,15 +137,19 @@
         }
 
         function isJoiningVirtualQueue() {
-            return vm.event.isQueueAllowed && isVirtualParticipantsCapacityReached() && vm.event.maxVirtualParticipants != 0;
+            return eventService.canVirtualParticipantsJoinQueue(vm.event) && isVirtualParticipantsCapacityReached();
         }
 
         function isJoiningQueue() {
-            return vm.event.isQueueAllowed && isParticipantsCapacityReached() && vm.event.maxParticipants != 0;
+            return eventService.canParticipantsJoinQueue(vm.event) && isParticipantsCapacityReached();
         }
 
         function isEventFull() {
             return isVirtualParticipantsCapacityReached() && isParticipantsCapacityReached();
+        }
+
+        function isQueueAvailable() {
+            return eventService.canParticipantsJoinQueue(vm.event) || eventService.canVirtualParticipantsJoinQueue(vm.event);
         }
 
         function isVirtualParticipantsCapacityReached() {
