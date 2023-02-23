@@ -77,8 +77,8 @@
   "eventParticipantStatus_MaybeAttending": "Maybe going",
   "eventParticipantStatus_NotAttending": "Not going",
   "eventParticipantStatus_JoiningVirtually": "Joining virtually",
-  "eventParticipantStatus_WaitingInVirtualQueue": "Waiting in virtual queue",
-  "eventParticipantStatus_WaitingInQueue": "Waiting in queue",
+  "eventParticipantStatus_WaitingInVirtualQueue": "Waiting for a virtual spot",
+  "eventParticipantStatus_WaitingInQueue": "Waiting for a spot",
   "eventAttendOptions": "Allow attend options",
   "eventAttendOptions_MaybeGoing": "Maybe going",
   "eventAttendOptions_NotGoing": "Not going",
@@ -195,7 +195,7 @@
   "eventAddColleaguesButton": "Add colleagues",
   "eventAddColleaguesTitle": "Add colleagues",
   "eventAddColleagueSelectLabel": "Add colleagues as",
-  "eventAddColleagueQueueInfo": "If there are no places left, some of the colleagues might be added to the queue.",
+  "eventAddColleagueQueueInfo": "Some of the coworkers might be added to the waiting queue if there are no open spots.",
   "eventAddColleagueAttendingStatusOption": "normal participants",
   "eventAddColleagueAttendingVirtuallyStatusOption": "virtual participants",
   "eventAdd": "Add",
@@ -249,7 +249,7 @@
   "upcomingEvents": "Upcoming events",
   "displayInUpcomingEvents": "Display in the upcoming events widget",
   "notifyUsers": "Notify users about the new event",
-  "isQueueAllowed": "Allow for queue waiting",
-  "inQueue": "Waiting for available space",
-  "inVirtualQueue": "Waiting for virtual available space"
+  "isQueueAllowed": "Allow to wait in queue",
+  "inQueue": "Waiting for a spot",
+  "inVirtualQueue": "Waiting for a virtual spot"
 }
