@@ -195,6 +195,7 @@
   "eventAddColleaguesButton": "Pridėti kolegas",
   "eventAddColleaguesTitle": "Pridėti kolegas",
   "eventAddColleagueSelectLabel": "Pridėti kaip",
+  "eventAddColleagueQueueInfo": "Jeigu nebus laisvų vietų, kai kurie kolegos bus pridėti į eilę.",
   "eventAddColleagueAttendingStatusOption": "paprastus dalyvius",
   "eventAddColleagueAttendingVirtuallyStatusOption": "virtualius dalyvius",
   "eventAdd": "Pridėti",

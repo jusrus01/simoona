@@ -16,6 +16,8 @@
                 countVirtuallyAttendingParticipants,
             countAttendingParticipants: countAttendingParticipants,
             countAllAttendingParticipants: countAllAttendingParticipants,
+            canVirtualParticipantsJoinQueue: canVirtualParticipantsJoinQueue,
+            canParticipantsJoinQueue: canParticipantsJoinQueue
         };
         return service;
 
@@ -48,6 +50,14 @@
 
         function hasSpaceForParticipant(event) {
             return event.goingCount < event.maxParticipants;
+        }
+
+        function canVirtualParticipantsJoinQueue(event) {
+            return event.isQueueAllowed && event.maxVirtualParticipants > 0;
+        }
+
+        function canParticipantsJoinQueue(event) {
+            return event.isQueueAllowed && event.maxParticipants > 0;
         }
 
         function getTotalGoingParticipantCount(event) {

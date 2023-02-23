@@ -5,7 +5,7 @@
         .module('simoonaApp.Events')
         .constant('inputTypes', {
             checkbox: 'checkbox',
-            radio: 'radio'
+            radio: 'radio',
         })
         .controller('eventJoinOptionsController', eventJoinOptionsController);
 
@@ -27,7 +27,7 @@
         'attendStatus',
         'optionRules',
         'selectedAttendStatus',
-        'eventService'
+        'eventService',
     ];
 
     function eventJoinOptionsController(
@@ -48,7 +48,8 @@
         attendStatus,
         optionRules,
         selectedAttendStatus,
-        eventService) {
+        eventService
+    ) {
         /* jshint validthis: true */
         var vm = this;
 
@@ -59,10 +60,14 @@
         vm.isChangeOptions = isChangeOptions;
         vm.participants = [];
         vm.selectedOptions = [];
-        vm.messageMaximumOptions = localeSrv.formatTranslation('events.eventMaximumOptions', {
-            one: event.maxChoices
-        });
+        vm.messageMaximumOptions = localeSrv.formatTranslation(
+            'events.eventMaximumOptions',
+            {
+                one: event.maxChoices,
+            }
+        );
         vm.isActionDisabled = false;
+        vm.isQueueAllowed = event.isQueueAllowed;
 
         vm.joinEvent = joinEvent;
         vm.updateOptions = updateOptions;
@@ -85,16 +90,19 @@
             }
 
             if (vm.isAddColleague) {
-                vm.availableAddColleagueStatuses = getAvailableAddColleagueAttendStatuses();
+                vm.availableAddColleagueStatuses =
+                    getAvailableAddColleagueAttendStatuses();
             }
 
-            eventRepository.getUserForAutoComplete(authService.identity.userName, event.id).then(function (response) {
-                for (var i = 0; response.length > i; i++) {
-                    if (response[i].id === authService.identity.userId) {
-                        vm.participants.push(response[i]);
+            eventRepository
+                .getUserForAutoComplete(authService.identity.userName, event.id)
+                .then(function (response) {
+                    for (var i = 0; response.length > i; i++) {
+                        if (response[i].id === authService.identity.userId) {
+                            vm.participants.push(response[i]);
+                        }
                     }
-                }
-            });
+                });
         }
 
         function getUserForAutoComplete(search) {
@@ -104,12 +112,22 @@
         function getAvailableAddColleagueAttendStatuses() {
             var statuses = [];
 
-            if (eventService.hasSpaceForParticipant(event)) {
-                statuses.push(toAttendStatusSelectOption(attendStatus.Attending));
+            if (
+                eventService.hasSpaceForParticipant(event) ||
+                eventService.canParticipantsJoinQueue(event)
+            ) {
+                statuses.push(
+                    toAttendStatusSelectOption(attendStatus.Attending)
+                );
             }
 
-            if (eventService.hasSpaceForVirtualParticipant(event)) {
-                statuses.push(toAttendStatusSelectOption(attendStatus.AttendingVirtually));
+            if (
+                eventService.hasSpaceForVirtualParticipant(event) ||
+                eventService.canVirtualParticipantsJoinQueue(event)
+            ) {
+                statuses.push(
+                    toAttendStatusSelectOption(attendStatus.AttendingVirtually)
+                );
             }
 
             return statuses;
@@ -118,28 +136,33 @@
         function toAttendStatusSelectOption(attendStatus) {
             return {
                 attendStatus: attendStatus,
-                translation: getAddColleagueAttendStatusTranslation(attendStatus)
-            }
+                translation:
+                    getAddColleagueAttendStatusTranslation(attendStatus),
+            };
         }
 
         function getAddColleagueAttendStatusTranslation(status) {
             switch (status) {
                 case attendStatus.Attending:
-                    return "events.eventAddColleagueAttendingStatusOption";
+                    return 'events.eventAddColleagueAttendingStatusOption';
                 case attendStatus.AttendingVirtually:
-                    return "events.eventAddColleagueAttendingVirtuallyStatusOption";
+                    return 'events.eventAddColleagueAttendingVirtuallyStatusOption';
                 default:
                     console.error('Attend status', status, 'is not supported');
             }
         }
 
         function isOptionSelected(optionId) {
-            return vm.selectedOptions.findIndex(op => op.id === optionId) > -1;
+            return (
+                vm.selectedOptions.findIndex((op) => op.id === optionId) > -1
+            );
         }
 
         function selectOption(option) {
             if (vm.inputType === inputTypes.checkbox) {
-                var index = vm.selectedOptions.findIndex(op => op.id === option.id);
+                var index = vm.selectedOptions.findIndex(
+                    (op) => op.id === option.id
+                );
                 if (index > -1) {
                     vm.selectedOptions.splice(index, 1);
                 } else {
@@ -154,7 +177,9 @@
             if (option.rule === optionRules.ignoreSingleJoin) {
                 vm.selectedOptions.length = 0;
             } else {
-                vm.selectedOptions = vm.selectedOptions.filter(op => op.rule != optionRules.ignoreSingleJoin);
+                vm.selectedOptions = vm.selectedOptions.filter(
+                    (op) => op.rule != optionRules.ignoreSingleJoin
+                );
             }
             vm.selectedOptions.push(option);
         }
@@ -163,38 +188,74 @@
             vm.isActionDisabled = true;
 
             if (vm.selectedOptions.length > event.maxChoices) {
-                handleErrorMessage($translate.instant('events.maxOptionsError') + ' ' + event.maxChoices);
+                handleErrorMessage(
+                    $translate.instant('events.maxOptionsError') +
+                        ' ' +
+                        event.maxChoices
+                );
             } else if (!vm.selectedOptions.length && event.options.length) {
                 handleErrorMessage('errorCodeMessages.messageNotEnoughOptions');
             } else if (vm.isAddColleague && !vm.participants.length) {
                 handleErrorMessage('events.noParticipantsError');
             } else if (vm.isAddColleague && isAddingTooManyParticipants()) {
-                handleErrorMessage(`${$translate.instant('events.maxParticipantsError')} ${getLeftParticipantCountForAdd()}`);
+                handleErrorMessage(
+                    `${$translate.instant(
+                        'events.maxParticipantsError'
+                    )} ${getLeftParticipantCountForAdd()}`
+                );
             } else if (!hasDatePassed(event.startDate)) {
-                handleErrorMessage('', 'errorCodeMessages.messageEventJoinStartedOrFinished');
+                handleErrorMessage(
+                    '',
+                    'errorCodeMessages.messageEventJoinStartedOrFinished'
+                );
                 $uibModalInstance.close();
             } else if (!hasDatePassed(event.registrationDeadlineDate)) {
-                handleErrorMessage('', 'events.eventJoinRegistrationDeadlinePassed');
+                handleErrorMessage(
+                    '',
+                    'events.eventJoinRegistrationDeadlinePassed'
+                );
                 $uibModalInstance.close();
             } else {
                 var selectedOptionsId = lodash.map(vm.selectedOptions, 'id');
                 if (vm.isAddColleague) {
                     var participantIds = lodash.map(vm.participants, 'id');
-                    eventRepository.addColleagues(event.id, selectedOptionsId, participantIds, vm.colleagueStatusOption.attendStatus)
+                    eventRepository
+                        .addColleagues(
+                            event.id,
+                            selectedOptionsId,
+                            participantIds,
+                            vm.colleagueStatusOption.attendStatus
+                        )
                         .then(handleSuccessPromise, handleErrorPromise);
                 } else {
-                    eventRepository.joinEvent(event.id, selectedOptionsId, selectedAttendStatus)
+                    eventRepository
+                        .joinEvent(
+                            event.id,
+                            selectedOptionsId,
+                            selectedAttendStatus
+                        )
                         .then(handleSuccessPromise, handleErrorPromise);
                 }
             }
         }
 
         function getLeftParticipantCountForAdd() {
-            return eventService.getTotalMaxParticipantCount(event) - eventService.countAllAttendingParticipants(event);
+            return (
+                eventService.getTotalMaxParticipantCount(event) -
+                eventService.countAllAttendingParticipants(event)
+            );
         }
 
         function isAddingTooManyParticipants() {
-            return vm.participants.length + eventService.countAllAttendingParticipants(event) > eventService.getTotalMaxParticipantCount(event);
+            if (eventService.canParticipantsJoinQueue(event) || eventService.canVirtualParticipantsJoinQueue(event)) {
+                return false;
+            }
+
+            return (
+                vm.participants.length +
+                    eventService.countAllAttendingParticipants(event) >
+                eventService.getTotalMaxParticipantCount(event)
+            );
         }
 
         function updateOptions() {
@@ -202,18 +263,21 @@
 
             var selectedOptionsId = lodash.map(vm.selectedOptions, 'id');
 
-            eventRepository.updateEventOptions(event.id, selectedOptionsId)
+            eventRepository
+                .updateEventOptions(event.id, selectedOptionsId)
                 .then(handleSuccessPromise, handleErrorPromise);
         }
 
         function handleSuccessPromise() {
             if (isDetails || vm.isAddColleague || isChangeOptions) {
-                eventRepository.getEventDetails(event.id).then(function (response) {
-                    angular.copy(response, event);
+                eventRepository
+                    .getEventDetails(event.id)
+                    .then(function (response) {
+                        angular.copy(response, event);
 
-                    event.options = response.options;
-                    event.participants = response.participants;
-                });
+                        event.options = response.options;
+                        event.participants = response.participants;
+                    });
             } else {
                 event.participantsCount++;
             }
@@ -226,7 +290,9 @@
         }
 
         function notifySuccess() {
-            var message = isChangeOptions ? 'events.changedEventOptions' : 'events.joinedEvent';
+            var message = isChangeOptions
+                ? 'events.changedEventOptions'
+                : 'events.joinedEvent';
             notifySrv.success(message);
         }
 
@@ -246,7 +312,9 @@
 
         function canJoinEvent() {
             if (!hasDatePassed(event.startDate)) {
-                notifySrv.error('errorCodeMessages.messageEventJoinStartedOrFinished');
+                notifySrv.error(
+                    'errorCodeMessages.messageEventJoinStartedOrFinished'
+                );
                 return false;
             } else if (!hasDatePassed(event.registrationDeadlineDate)) {
                 notifySrv.error('events.eventJoinRegistrationDeadlinePassed');
@@ -259,7 +327,11 @@
         function isOptionsJoinAvailable() {
             var selectedOptionsCount = vm.selectedOptions.length;
 
-            return !!event.maxChoices && (!selectedOptionsCount || selectedOptionsCount > event.maxChoices);
+            return (
+                !!event.maxChoices &&
+                (!selectedOptionsCount ||
+                    selectedOptionsCount > event.maxChoices)
+            );
         }
 
         function isTooManyOptionsSelected() {

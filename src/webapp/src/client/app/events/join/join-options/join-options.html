@@ -50,7 +50,10 @@
                 translate="{{vm.colleagueStatusOption.translation}}">
             </span>
         </div>
-
+        <div ng-if="vm.isQueueAllowed">
+            <span class="glyphicon glyphicon-exclamation-sign"></span>
+            <span translate="events.eventAddColleagueQueueInfo"></span>
+        </div>
         <div class="clearfix"></div>
     </div>
     <div class="modal-footer">
