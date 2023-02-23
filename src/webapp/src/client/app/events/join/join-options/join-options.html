@@ -50,7 +50,7 @@
                 translate="{{vm.colleagueStatusOption.translation}}">
             </span>
         </div>
-        <div ng-if="vm.isQueueAllowed">
+        <div ng-if="vm.isQueueAllowed && vm.isAddColleague">
             <span class="glyphicon glyphicon-exclamation-sign"></span>
             <span translate="events.eventAddColleagueQueueInfo"></span>
         </div>
