@@ -14,12 +14,13 @@
         });
 
     eventParticipantOptionsController.$inject = [
+        '$scope',
         'authService',
         'lodash',
         'attendStatus'
     ];
 
-    function eventParticipantOptionsController(authService, lodash, attendStatus) {
+    function eventParticipantOptionsController($scope, authService, lodash, attendStatus) {
         /* jshint validthis: true */
         var vm = this;
 
@@ -27,7 +28,17 @@
         vm.hasCurrentUserSelectedOption = hasCurrentUserSelectedOption;
         vm.attendingParticipants = getAttendingParticipants;
 
+        $scope.$watchCollection('options', function() {
+            vm.joinedParticipantsOptions = removeInQueueParticipants();
+        });
+
         ////////
+
+        function removeInQueueParticipants() {
+            return vm.options.map(option => Object.assign(option, {
+                participants: option.participants.filter(participant => !participant.isInQueue)
+            }));
+        }
 
         function getAttendingParticipants() {
             return getParticipantsByStatuses([attendStatus.Attending, attendStatus.AttendingVirtually]);
@@ -42,7 +53,9 @@
         }
 
         function getParticipantsByStatuses(statuses) {
-            return vm.participants.filter(participant => statuses.includes(participant.attendStatus));
+            return vm.participants.filter(participant =>
+                statuses.includes(participant.attendStatus) &&
+                !participant.isInQueue);
         }
     }
 })();

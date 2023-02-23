@@ -4,7 +4,7 @@
         data-test-id="event-no-participants-options" translate="events.eventNoParticipantsOptions"></div>
 
     <uib-accordion ng-if="!!vm.participants.length" class="event-participant-options-accordion" close-others="false">
-        <div uib-accordion-group ng-repeat="option in vm.options track by option.id"
+        <div uib-accordion-group ng-repeat="option in vm.joinedParticipantsOptions track by option.id"
             ng-init="vm.accordionOptionArray[option.id].isOpen = vm.hasCurrentUserSelectedOption(option.participants)"
             ng-if="!!option.participants.length" is-open="vm.accordionOptionArray[option.id].isOpen"
             data-test-id="event-participants-option">

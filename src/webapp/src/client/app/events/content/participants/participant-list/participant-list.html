@@ -113,7 +113,7 @@
             </div>
 
             <!-- Queue -->
-            <div class="panel panel-info" ng-repeat="queue in vm.queues" ng-if="queue.participants().length > 0">
+            <div class="panel panel-info" ng-repeat="queue in vm.queues" ng-if="queue.participants().length > 0 && vm.isMainParticipantList">
                 <div class="panel-heading queue-heading">{{queue.title | translate}} ({{queue.participants().length}})</div>
                 <div class="panel-body">
                     <li ng-repeat="participant in queue.participants()">
