@@ -23,7 +23,6 @@ namespace Shrooms.IoC.Modules
                 .IsAssignableFrom(t))
                 .InstancePerDependency()
                 .AsSelf();
-
         }
     }
 }

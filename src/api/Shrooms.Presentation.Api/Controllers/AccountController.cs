@@ -19,7 +19,6 @@ namespace Shrooms.Presentation.Api
     public class AccountController : ApplicationControllerBase
     {
         private readonly IMapper _mapper;
-
         private readonly IAdministrationUsersService _administrationUsersService;
         private readonly IExternalProviderService _externalProviderService;
         private readonly IInternalProviderService _internalProviderService;
