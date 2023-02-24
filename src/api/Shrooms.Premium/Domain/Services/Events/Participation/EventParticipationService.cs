@@ -264,20 +264,39 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             };
         }
 
-        public async Task<IEnumerable<EventParticipantMinimalDto>> GetEventParticipantsAsync(Guid eventId, UserAndOrganizationDto userAndOrg)
+        public async Task<IEnumerable<EventParticipantMinimalDto>> GetEventParticipantsAsync(
+            Guid eventId,
+            UserAndOrganizationDto userAndOrg,
+            bool includeParticipantsInQueue = false)
         {
-            var eventParticipants = (await _eventsDbSet
-                .Include(e => e.EventParticipants.Select(x => x.ApplicationUser))
-                .Where(e => e.Id == eventId &&
-                            e.OrganizationId == userAndOrg.OrganizationId &&
-                            e.EventParticipants.Any(p => p.AttendStatus == (int)AttendingStatus.Attending || p.AttendStatus == (int)AttendingStatus.AttendingVirtually))
-                .Select(MapEventToParticipantDto())
-                .SingleOrDefaultAsync())?.ToList();
+            var @event = await _eventsDbSet
+                .Include(e => e.EventParticipants)
+                .Include(e => e.EventParticipants.Select(p => p.ApplicationUser))
+                .FirstOrDefaultAsync(e =>
+                    e.Id == eventId &&
+                    e.OrganizationId == userAndOrg.OrganizationId);
+            _eventValidationService.CheckIfEventExists(@event);
 
-            _eventValidationService.CheckIfEventHasParticipants(eventParticipants);
-            _eventValidationService.CheckIfEventExists(eventParticipants);
+            var participants = @event.EventParticipants
+                .Where(p =>
+                    (p.AttendStatus == (int)AttendingStatus.Attending ||
+                    p.AttendStatus == (int)AttendingStatus.AttendingVirtually) &&
+                    p.IsInQueue == includeParticipantsInQueue)
+                .Select(p => 
+                    new EventParticipantMinimalDto
+                    {
+                        FirstName = string.IsNullOrEmpty(p.ApplicationUser.FirstName)
+                            ? BusinessLayerConstants.DeletedUserFirstName
+                            : p.ApplicationUser.FirstName,
 
-            return eventParticipants;
+                        LastName = string.IsNullOrEmpty(p.ApplicationUser.LastName)
+                            ? BusinessLayerConstants.DeletedUserLastName
+                            : p.ApplicationUser.LastName
+                    })
+                .ToList();
+            _eventValidationService.CheckIfEventHasParticipants(participants);
+
+            return participants;
         }
 
         public async Task<int> GetMaxParticipantsCountAsync(UserAndOrganizationDto userAndOrganizationDto)

@@ -29,7 +29,10 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
 
         Task<EventExpelParticipantDto> ExpelAsync(Guid eventId, UserAndOrganizationDto userOrg, string userId);
 
-        Task<IEnumerable<EventParticipantMinimalDto>> GetEventParticipantsAsync(Guid eventId, UserAndOrganizationDto userAndOrg);
+        Task<IEnumerable<EventParticipantMinimalDto>> GetEventParticipantsAsync(
+            Guid eventId,
+            UserAndOrganizationDto userAndOrg,
+            bool includeParticipantsInQueue = false);
 
         Task<IEnumerable<EventUserSearchResultDto>> SearchForEventJoinAutocompleteAsync(Guid eventId, string searchString, UserAndOrganizationDto userOrg);
 
