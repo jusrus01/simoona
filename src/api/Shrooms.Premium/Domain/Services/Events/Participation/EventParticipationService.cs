@@ -4,9 +4,9 @@ using System.Data.Entity;
 using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Owin.Security.Provider;
 using Shrooms.Contracts.Constants;
 using Shrooms.Contracts.DAL;
 using Shrooms.Contracts.DataTransferObjects;
@@ -220,51 +220,48 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         {
             var participant = await GetParticipantAsync(eventId, userOrg.OrganizationId, userId);
             var @event = participant.Event;
+            var participantUser = participant.ApplicationUser;
             var isAdmin = await _permissionService.UserHasPermissionAsync(userOrg, AdministrationPermissions.Event);
 
             _eventValidationService.CheckIfUserHasPermission(userOrg.UserId, @event.ResponsibleUserId, isAdmin);
             _eventValidationService.CheckIfEventEndDateIsExpired(@event.EndDate);
 
-            UserEventAttendStatusChangeEmailDto userEventAttendStatusDto = null;
-            if (@event.EventType.SendEmailToManager)
-            {
-                userEventAttendStatusDto = MapToUserEventAttendStatusChangeEmailDto(participant, @event);
-            }
-
             var (removedParticipant, nextParticipant) = await RemoveParticipantAsync(participant, @event, userOrg);
             _asyncRunner.Run<IEventNotificationService>(async notifier =>
                 await notifier.NotifyRemovedEventParticipantsAsync(@event.Name, @event.Id, userOrg.OrganizationId, new[] { userId }),
                 _uow.ConnectionName);
-            var expelDto = new EventExpelParticipantDto
+            if (@event.EventType.SendEmailToManager)
+            {
+                var userEventAttendStatusDto = MapToUserEventAttendStatusChangeEmailDto(participantUser, @event);
+                await NotifyManagerAsync(userEventAttendStatusDto);
+            }
+
+            return new EventExpelParticipantDto
             {
                 RemovedParticipant = removedParticipant,
                 NextParticipant = nextParticipant
             };
-
-            if (userEventAttendStatusDto != null)
-            {
-                await NotifyManagerAsync(userEventAttendStatusDto);
-            }
-
-            return expelDto;
         }
 
-        public async Task LeaveAsync(Guid eventId, UserAndOrganizationDto userOrg, string leaveComment)
+        public async Task<EventLeaveParticipantDto> LeaveAsync(Guid eventId, UserAndOrganizationDto userOrg, string leaveComment)
         {
             var participant = await GetParticipantAsync(eventId, userOrg.OrganizationId, userOrg.UserId);
             var @event = participant.Event;
-
+            var participantUser = participant.ApplicationUser;
             _eventValidationService.CheckIfRegistrationDeadlineIsExpired(participant.Event.RegistrationDeadline);
 
-            if (!participant.Event.EventType.SendEmailToManager)
+            var (removedParticipant, nextParticipant) = await RemoveParticipantAsync(participant, @event, userOrg);
+            if (@event.EventType.SendEmailToManager)
             {
-                await RemoveParticipantAsync(participant, @event, userOrg);
-                return;
+                var userEventAttendStatusDto = MapToUserEventAttendStatusChangeEmailDto(participantUser, @event);
+                await NotifyManagerAsync(userEventAttendStatusDto);
             }
 
-            var userEventAttendStatusDto = MapToUserEventAttendStatusChangeEmailDto(participant, @event);
-            await RemoveParticipantAsync(participant, @event, userOrg);
-            await NotifyManagerAsync(userEventAttendStatusDto);
+            return new EventLeaveParticipantDto
+            {
+                RemovedParticipant = removedParticipant,
+                NextParticipant = nextParticipant
+            };
         }
 
         public async Task<IEnumerable<EventParticipantMinimalDto>> GetEventParticipantsAsync(Guid eventId, UserAndOrganizationDto userAndOrg)
@@ -646,19 +643,19 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         }
 
         private static UserEventAttendStatusChangeEmailDto MapToUserEventAttendStatusChangeEmailDto(
-            EventParticipant participant,
+            ApplicationUser participant,
             Event @event)
         {
             return new UserEventAttendStatusChangeEmailDto
             {
-                FirstName = participant.ApplicationUser.FirstName,
-                LastName = participant.ApplicationUser.LastName,
-                OrganizationId = participant.ApplicationUser.OrganizationId,
+                FirstName = participant.FirstName,
+                LastName = participant.LastName,
+                OrganizationId = participant.OrganizationId,
                 EventName = @event.Name,
                 EventId = @event.Id,
                 EventStartDate = @event.StartDate,
                 EventEndDate = @event.EndDate,
-                ManagerId = participant.ApplicationUser.ManagerId
+                ManagerId = participant.ManagerId
             };
         }
 

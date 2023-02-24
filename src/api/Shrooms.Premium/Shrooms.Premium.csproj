@@ -325,6 +325,7 @@
     <Compile Include="DataTransferObjects\Models\Events\EventEditDetailsDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventExpelParticipantDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventFilteredArgsDto.cs" />
+    <Compile Include="DataTransferObjects\Models\Events\EventLeaveParticipantDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventParticipantAttendDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventParticipantFirstTimeJoinDto.cs" />
     <Compile Include="DataTransferObjects\Models\Events\EventParticipantsReportListingArgsDto.cs" />
@@ -571,6 +572,7 @@
     <Compile Include="Presentation\WebViewModels\Events\EventDetailsCommentViewModel.cs" />
     <Compile Include="Presentation\WebViewModels\Events\EventDetailsListItemViewModel.cs" />
     <Compile Include="Presentation\WebViewModels\Events\EventDetailsOptionViewModel.cs" />
+    <Compile Include="Presentation\WebViewModels\Events\EventLeaveParticipantViewModel.cs" />
     <Compile Include="Presentation\WebViewModels\Events\EventParticipantViewModel.cs" />
     <Compile Include="Presentation\WebViewModels\Events\EventDetailsViewModel.cs" />
     <Compile Include="Presentation\WebViewModels\Events\EventEditDetailsViewModel.cs" />

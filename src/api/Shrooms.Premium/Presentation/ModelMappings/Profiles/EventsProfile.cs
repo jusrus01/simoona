@@ -59,6 +59,7 @@ namespace Shrooms.Premium.Presentation.ModelMappings.Profiles
                 .ForMember(dest => dest.IsDisabled, opt => opt.MapFrom(u => u.RemindedCount > 0));
 
             CreateMap<EventExpelParticipantDto, EventExpelParticipantViewModel>();
+            CreateMap<EventLeaveParticipantDto, EventLeaveParticipantViewModel>();
         }
 
         private void CreateViewModelToDtoMappings()

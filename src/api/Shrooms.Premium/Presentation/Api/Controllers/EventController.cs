@@ -459,8 +459,8 @@ namespace Shrooms.Premium.Presentation.Api.Controllers
         {
             try
             {
-                await _eventParticipationService.LeaveAsync(eventId, GetUserAndOrganization(), leaveComment);
-                return Ok();
+                var leaveDto = await _eventParticipationService.LeaveAsync(eventId, GetUserAndOrganization(), leaveComment);
+                return Ok(_mapper.Map<EventLeaveParticipantViewModel>(leaveDto));
             }
             catch (EventException e)
             {

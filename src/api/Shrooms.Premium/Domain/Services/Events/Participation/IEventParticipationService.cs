@@ -16,8 +16,8 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
         Task UpdateAttendStatusAsync(UpdateAttendStatusDto updateAttendStatusDto);
 
         Task DeleteByEventAsync(Guid eventId, string userId);
-
-        Task LeaveAsync(Guid eventId, UserAndOrganizationDto userOrg, string leaveComment);
+        
+        Task<EventLeaveParticipantDto> LeaveAsync(Guid eventId, UserAndOrganizationDto userOrg, string leaveComment);
 
         Task ResetAllAttendeesAsync(Guid eventId, UserAndOrganizationDto userOrg);
 
