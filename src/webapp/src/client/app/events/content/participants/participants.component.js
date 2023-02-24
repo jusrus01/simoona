@@ -118,7 +118,6 @@
                             moveParticipantFromQueueToParticipant(response);
                             removeParticipant(response);
                             recalculateParticipants();
-                            decreaseParticipantGoingCount(participant);
                             participant.isLoading = false;
                             return response;
                         },
@@ -142,6 +141,8 @@
                 eventService.countVirtuallyAttendingParticipants(
                     vm.event
                 );
+            vm.event.goingCount = vm.event.participantsCount;
+            vm.event.virtuallyGoingCount = vm.event.virtualParticipantsCount;
         }
 
         function moveParticipantFromQueueToParticipant(response) {
@@ -179,16 +180,6 @@
         function isCurrentUser(participant) {
             return authService.identity.userId ===
                 participant.userId;
-        }
-
-        function decreaseParticipantGoingCount(participant) {
-            if (participant.attendStatus === attendStatus.Attending) {
-                vm.event.goingCount--;
-            }
-
-            if (participant.attendStatus === attendStatus.AttendingVirtually) {
-                vm.event.virtuallyGoingCount--;
-            }
         }
     }
 })();
