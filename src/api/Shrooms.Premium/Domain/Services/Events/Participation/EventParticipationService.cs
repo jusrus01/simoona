@@ -437,8 +437,10 @@ namespace Shrooms.Premium.Domain.Services.Events.Participation
             _eventValidationService.CheckIfJoiningTooManyChoicesProvided(eventDto.MaxChoices, joinDto.ChosenOptions.Count());
             _eventValidationService.CheckIfSingleChoiceSelectedWithRule(eventDto.SelectedOptions, OptionRules.IgnoreSingleJoin);
             _eventValidationService.CheckIfJoinAttendStatusIsValid(joinDto.AttendStatus, eventDto);
-            // Q: Should all people be able to join the queue?
-            //_eventValidationService.CheckIfEventIsFull(joinDto, eventDto);
+            if (!eventDto.IsQueueAllowed)
+            {
+                _eventValidationService.CheckIfEventIsFull(joinDto, eventDto);
+            }
         }
 
         private void NotifyManagers(IEnumerable<UserEventAttendStatusChangeEmailDto> userEventAttendStatusChangeEmailDtos)
